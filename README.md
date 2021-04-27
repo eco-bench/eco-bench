@@ -1,5 +1,5 @@
 # eco-bench
-Setup for our container orchestrators (ECOs) comparison benchmarking
+Setup for our edge container orchestrators (ECOs) comparison benchmarking
 
 
 ## Planing
