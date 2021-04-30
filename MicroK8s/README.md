@@ -13,9 +13,9 @@
 Using Ubuntu **20.04 Server, 1 VCPU 2 GB Ram**  
 Update Package Sources and install snap
 ```bash
-$ apt update
-$ apt upgrade
-$ apt install snapd
+$ sudo apt update
+$ sudo apt upgrade
+$ sudo apt install snapd
 ```
 Check install channels
 ```bash
@@ -31,7 +31,13 @@ channels:
 ```
 One liner for installation
 ```bash
-$ snap install microk8s --channel=1.21/stable --classic
+$ sudo snap install microk8s --channel=1.21/stable --classic
+```
+If you are not root, add your user to microK8s group or run again with sudo to use kubectl. Example for User lucas
+```bash
+sudo usermod -a -G microk8s lucas
+sudo chown -f -R lucas ~/.kube
+newgrp microk8s
 ```
 Check Nodes (MicroK8s bundles its own version of kubectl for accessing Kubernetes)
 ```bash
