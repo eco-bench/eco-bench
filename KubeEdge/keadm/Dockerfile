@@ -2,15 +2,20 @@ FROM ubuntu:18.04
 SHELL ["/bin/bash", "-c"]
 
 RUN apt-get update \
-    && apt-get install -y apt-transport-https curl wget gnupg2 \
+    && apt-get install -y apt-transport-https curl wget gnupg2 sudo \
     && apt-get clean
 
 # install kubectl
+
+WORKDIR /eco
+
 RUN curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
     && echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | tee -a /etc/apt/sources.list.d/kubernetes.list \
     && apt-get update \
     && apt-get install -y kubectl
 
+# RUN mkdir config
+# ENV KUBECONFIG=/eco/config/admin.conf
 
 # install keadm https://github.com/kubeedge/kubeedge/releases
 ARG VERSION=1.6.1
