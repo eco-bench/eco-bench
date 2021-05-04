@@ -51,5 +51,5 @@ This create a folder results_kbench-microk8s-test-run_02-May-2021-08-49-57-am fo
 $ cd results_kbench-microk8s-test-run_02-May-2021-08-49-57-am/cp_heavy_12client
 $ ls
 cp_heavy_12client  dp_fio
-Inside the folder we can inspect the results in the logs file and see the configuration of the task in the json config
 ```
+Inside the folder we can inspect the results in the logs file and see the configuration of the task in the json config
