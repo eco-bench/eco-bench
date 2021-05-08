@@ -43,6 +43,13 @@ $ sudo chown $(id -u):$(id -g) $HOME/.kube/config
 $ kubectl version
 $ kubectl edit nodes openyurt01 (remove taints)
 ```
+if you want to join an existing cluster run this insted, documentation https://computingforgeeks.com/join-new-kubernetes-worker-node-to-existing-cluster/
+```bash
+kubeadm join \
+  <control-plane-host>:<control-plane-port> \
+  --token <token> \
+  --discovery-token-ca-cert-hash sha256:<hash>
+```
 Install CNI, documentation is here https://docs.projectcalico.org/getting-started/kubernetes/quickstart
 ```bash
 $ kubectl describe pod coredns-5644d7b6d9-ffhmt -n kube-system
