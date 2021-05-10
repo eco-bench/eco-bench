@@ -1,3 +1,4 @@
+Installation VM Ubuntu 20.04, 4GB RAM, 2 vCPU
 Install necessary packets
 ```bash
 $ apt update
@@ -20,8 +21,7 @@ Install kubernetes packages
 ```bash
 $ sudo apt-get install -y apt-transport-https ca-certificates curl
 $ sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
-$ echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/
-kubernetes.list
+$ echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
 $ sudo apt-get update
 ```
 Search for a specific Kubernetes Version
@@ -33,6 +33,10 @@ Install docker
 ```bash
 $ curl https://releases.rancher.com/install-docker/19.03.sh | sh
 $ docker ps
+```
+Optional if updating a cluster, to build latest images run
+```bash
+make release
 ```
 Start Kubernetes Node
 ```bash
@@ -52,7 +56,6 @@ kubeadm join \
 ```
 Install CNI, documentation is here https://docs.projectcalico.org/getting-started/kubernetes/quickstart
 ```bash
-$ kubectl describe pod coredns-5644d7b6d9-ffhmt -n kube-system
 $ kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
 $ kubectl create -f https://docs.projectcalico.org/manifests/custom-resources.yaml
 $ watch kubectl get pods -n calico-system
