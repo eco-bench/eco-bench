@@ -54,6 +54,10 @@ kubeadm join \
   --token <token> \
   --discovery-token-ca-cert-hash sha256:<hash>
 ```
+To verify Cluster run on master
+```bash
+$ kubectl get nodes
+```
 Install CNI, documentation is here https://docs.projectcalico.org/getting-started/kubernetes/quickstart
 ```bash
 $ kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
@@ -66,7 +70,7 @@ $ yurtctl convert --cloud-nodes openyurt01 --provider kubeadm --deploy-yurttunne
 ```
 Mark desired edge nodes as autonomous to prevent pods from beeing evicted during disconnection
 ```bash
-$ yurtctl convert --cloud-nodes <cloud-node-name> --provider kubeadm --deploy-yurttunnel
+$ yurtctl markautonomous
 ```
 to confirm
 ```bash
