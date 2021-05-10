@@ -1,4 +1,4 @@
-Installation VM Ubuntu 20.04, 4GB RAM, 2 vCPU
+Installation 2 Ubuntu 20.04 VMs, 4GB RAM, 2 vCPU
 Install necessary packets
 ```bash
 $ apt update
@@ -62,5 +62,20 @@ $ watch kubectl get pods -n calico-system
 ```
 Convert Cluster into Open Yurt Cluster
 ```bash
-$ yurtctl convert --provider kubeadm
+$ yurtctl convert --cloud-nodes openyurt01 --provider kubeadm --deploy-yurttunnel
+```
+Mark desired edge nodes as autonomous to prevent pods from beeing evicted during disconnection
+```bash
+$ yurtctl convert --cloud-nodes <cloud-node-name> --provider kubeadm --deploy-yurttunnel
+```
+to confirm
+```bash
+$ kubectl describe node | grep Labels -A 5
+Labels:      openyurt.io/is-edge-worker=true
+$ kubectl describe node | grep Annotations -A 5
+Annotations: node.beta.alibabacloud.com/autonomy: true
+```
+Run cluster-info to verify your configuration
+```bash
+$ yurtctl cluster-info
 ```
