@@ -34,7 +34,7 @@ default backend - 404
 ```
 This should also work in your browser if you exchange localhost with the public ip of the node
 
-###Resources
+### Resources
 https://www.youtube.com/watch?v=GhZi4DxaxxE
 https://kubernetes.io/docs/tutorials/services/source-ip/ (Nodeport)
 https://medium.com/google-cloud/kubernetes-nodeport-vs-loadbalancer-vs-ingress-when-should-i-use-what-922f010849e0 (Ingress vs LoadBalancer vs NodePort)
