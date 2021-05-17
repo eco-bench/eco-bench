@@ -15,7 +15,7 @@ switch (process.env.DEVICE_TYPE) {
         sensor();
         break;
     default:
-        console.log('You must define a device type (\'camera\', \'sensor\') through \'process.env.DEVICE_TYPE\'')
+        console.log('You must define a device type (\'camera\', \'sensor\') through \'process.env.DEVICE_TYPE\'.')
 }
 
 
