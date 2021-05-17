@@ -1,8 +1,5 @@
 #!/bin/bash
-
-PAT="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"
 DEVICE_TYPE="camera"
-USERNAME="SeveHo"
 
 
 echo $PAT | docker login ghcr.io --username phanatic --password-stdin
