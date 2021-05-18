@@ -79,16 +79,14 @@ func processImage(d Request) {
 
 	if blacks/totalpixels > 0.5 {
 		// there is a disease, send instruction to prod_cntrl
-		fmt.Println("Disease alert!")
-
-		type Request struct {
-			UUID string `json:"uuid"`
-		}
+		// fmt.Println("Disease alert!")
 
 		// send data
-		data, err := json.Marshal(Request{
-			UUID: d.UUID,
-		})
+		data, err := json.Marshal(d)
+
+		if err != nil {
+			return
+		}
 
 		req, err := http.NewRequest("POST", prodcntrlEndpoint, bytes.NewReader(data))
 
