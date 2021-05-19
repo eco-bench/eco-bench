@@ -1,0 +1,28 @@
+# Deploy Components for CNI
+
+- name: Install the Tigera Calico operator and custom resource definitions
+  command: |
+    kubectl apply -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
+  register: create_result
+  until: create_result.rc == 0
+  retries: 5
+  delay: 2
+  ignore_errors: true
+- name: Install Calico by creating the necessary custom resource
+  command: |
+    kubectl apply -f https://docs.projectcalico.org/manifests/custom-resources.yaml
+  register: create_result
+  until: create_result.rc == 0
+  retries: 5
+  delay: 2
+  ignore_errors: true
+- name: Wait for calico pods become ready
+  shell: "kubectl wait --namespace=calico-system --for=condition=Ready pods --timeout=600s --all"
+  register: control_plane_pods_ready
+  until: control_plane_pods_ready.rc == 0
+  retries: 6
+  delay: 10
+  ignore_errors: true
+- name: Print result
+  debug: 
+    msg: var=control_plane_pods_ready.stdout_lines

@@ -1,0 +1,37 @@
+- hosts: master01
+  roles:
+    - geerlingguy.docker
+    - master
+  tasks:
+    - name: Check Docker Version
+      command: docker -v
+      register: dockerVersion
+    - name: Print Version
+      debug:
+        msg: "Docker Version: {{ dockerVersion.stdout }}"
+    - name: Check Kubernetes Version
+      command: kubectl version --short
+      register: kubernetesVersion
+    - name: Print Version
+      debug:
+        msg: "Kubernetes Version: {{ kubernetesVersion.stdout }}"
+
+- hosts: worker01
+  roles:
+    - geerlingguy.docker
+    - worker
+  tasks:
+    - name: Check Docker Version
+      command: docker -v
+      register: dockerVersion
+    - name: Print Version
+      debug:
+        msg: "Docker Version: {{ dockerVersion.stdout }}"
+
+- hosts: master01
+  roles:
+    - cni
+
+- hosts: master01
+  roles:
+    - openyurt
