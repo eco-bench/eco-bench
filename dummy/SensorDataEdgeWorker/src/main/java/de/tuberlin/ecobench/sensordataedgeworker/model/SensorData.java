@@ -8,8 +8,14 @@ import lombok.Data;
 public class SensorData {
 
 	
-  	private String sensorID;
+	/**
+	 *  sensorID automatisch generieren
+	 */
+  	private static String sensorID = "temperature-"+(int)(Math.random()*100);
 	private Double measurement;
 	
 	
+	public static String getSensorID() {
+		return sensorID;
+	}
 }

@@ -21,13 +21,9 @@ public class SensordataedgeworkerApplication implements ApplicationRunner {
 		SpringApplication.run(SensordataedgeworkerApplication.class, args);
 	}
 	
-	//Quelle: https://memorynotfound.com/spring-boot-passing-command-line-arguments-example/
-	 @Override
+ 	 @Override
 	    public void run(ApplicationArguments args) throws Exception {
-	        logger.info("Application started with command-line arguments: {}", Arrays.toString(args.getSourceArgs()));
-	        logger.info("NonOptionArgs: {}", args.getNonOptionArgs());
-	        logger.info("OptionNames: {}", args.getOptionNames());
-
+	        logger.info("Edge Node started with command-line arguments: {}", Arrays.toString(args.getSourceArgs()));
 	        for (String name : args.getOptionNames()){
 	            logger.info("arg-" + name + "=" + args.getOptionValues(name));
 	        }
