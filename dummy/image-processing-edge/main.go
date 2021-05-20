@@ -164,8 +164,7 @@ func saveModel(model Model) {
 	o, err := os.Create("data/oweights.model")
 	defer o.Close()
 	if err != nil {
-		log.Pr
-		intln(err)
+		log.Println(err)
 	}
 	_, err = o.Write(model.Oweights)
 	if err != nil {

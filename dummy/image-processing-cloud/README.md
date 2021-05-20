@@ -10,3 +10,13 @@ docker build -t image-processing-cloud .
 ```bash
  docker run -it --rm -p 5052:5052 --env-file ./.env image-processing-cloud
 ```
+
+## MongoDB
+
+```bash
+docker run --name some-mongo -d mongo:tag
+```
+
+```bash
+docker run -p 27017:27017 -v ~/Developer/eco-bench/dummy/mongodb-data:/data/db --name some-mongo -d mongo:tag
+```

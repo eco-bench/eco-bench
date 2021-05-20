@@ -4,6 +4,7 @@ import (
 	// "compress/gzip"
 	"bufio"
 	"bytes"
+	"context"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -14,11 +15,16 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var counter = 0
 var N = 10
 var trainingStatus = false
+var db *mongo.Database
 
 var imageEdgeTrainEndpoint string = fmt.Sprintf("http://%s:%s/model", os.Getenv("IMAGE_EDGE_IP"), os.Getenv("IMAGE_EDGE_PORT"))
 
@@ -116,7 +122,25 @@ func trainData(d Request) {
 	}
 }
 
-func saveInfectedPlant(d Request) {}
+func saveInfectedPlant(d Request) {
+	collection := db.Collection("sick")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var doc interface{}
+	err := bson.UnmarshalExtJSON([]byte(`{"foo":"bar"}`), true, &doc)
+	if err != nil {
+		panic(err)
+	}
+
+	res, err := collection.InsertOne(ctx, doc)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(res)
+
+	fmt.Println("Successfully connected and pinged.")
+}
 
 func SickHandler(w http.ResponseWriter, r *http.Request) {
 	timestamp := strconv.FormatInt(time.Now().UnixNano(), 10)
@@ -150,6 +174,21 @@ func TrainHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	uri := "mongodb://" + os.Getenv("MONGODB_IP") + ":" + os.Getenv("MONGODB_PORT")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
+	if err != nil {
+		panic(err)
+	}
+	defer func() {
+		if err = client.Disconnect(ctx); err != nil {
+			panic(err)
+		}
+	}()
+
+	db = client.Database("plants")
+
 	http.HandleFunc("/sick", SickHandler)
 	http.HandleFunc("/train", TrainHandler)
 
