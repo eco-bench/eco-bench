@@ -12,6 +12,6 @@ RUN mkdir /app/data
  
 RUN go build -o image-processing-cloud . 
 
-EXPOSE 5050
+EXPOSE 5052
  
 CMD [ "/app/image-processing-cloud" ]
