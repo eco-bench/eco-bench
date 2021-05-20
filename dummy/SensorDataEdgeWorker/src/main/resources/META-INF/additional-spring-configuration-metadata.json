@@ -18,5 +18,12 @@
     "name": "targetNode.url",
     "type": "java.lang.String",
     "description": "A description for 'targetNode.url'"
+  },
+ 
+  {
+    "name": "edge.endpoints",
+    "type": "java.lang.String",
+    "description": "A description for 'edge.endpoints'"
   }
+ 
 ]}
