@@ -1,5 +1,3 @@
-// source: https://github.com/OpenFogStack/smart-factory-fog-example
-
 package main
 
 import (
@@ -16,8 +14,13 @@ import (
 	"time"
 )
 
-// TODO: change ports
-var prodcntrlEndpoint string = fmt.Sprintf("http://%s:%s/discard", os.Getenv("CNTRL_IP"), os.Getenv("CNTRL_PORT"))
+var imageCloudSickEndpoint string = fmt.Sprintf("http://%s:%s/sick", os.Getenv("IMAGE_CLOUD_IP"), os.Getenv("IMAGE_CLOUD_PORT"))
+var imageCloudTrainEndpoint string = fmt.Sprintf("http://%s:%s/train", os.Getenv("IMAGE_CLOUD_IP"), os.Getenv("IMAGE_CLOUD_PORT"))
+
+type Model struct {
+	Hweights []byte `json:hweights`
+	Oweights []byte `json:oweights`
+}
 
 type Request struct {
 	Img  string `json:"img"`
@@ -43,6 +46,7 @@ func isBlack(p color.RGBA) bool {
 
 }
 
+// source: https://github.com/OpenFogStack/smart-factory-fog-example
 func processImage(d Request) {
 
 	decoded, err := base64.StdEncoding.DecodeString(d.Img)
@@ -88,13 +92,13 @@ func processImage(d Request) {
 			return
 		}
 
-		req, err := http.NewRequest("POST", prodcntrlEndpoint, bytes.NewReader(data))
+		req, err := http.NewRequest("POST", imageCloudSickEndpoint, bytes.NewReader(data))
 
 		if err != nil {
 			return
 		}
 
-		log.Printf("send,cfd,%s,%s", d.UUID, strconv.FormatInt(time.Now().UnixNano(), 10))
+		log.Printf("send,%s,%s", d.UUID, strconv.FormatInt(time.Now().UnixNano(), 10))
 
 		_, err = (&http.Client{}).Do(req)
 
@@ -105,23 +109,93 @@ func processImage(d Request) {
 	}
 }
 
+func sendCloud(d Request) {
+	data, err := json.Marshal(d)
+
+	if err != nil {
+		return
+	}
+
+	req, err := http.NewRequest("POST", imageCloudTrainEndpoint, bytes.NewReader(data))
+
+	if err != nil {
+		return
+	}
+
+	log.Printf("send,%s,%s", d.UUID, strconv.FormatInt(time.Now().UnixNano(), 10))
+
+	_, err = (&http.Client{}).Do(req)
+
+	if err != nil {
+		log.Print(err)
+	}
+}
+
+func ImageHandler(w http.ResponseWriter, r *http.Request) {
+	timestamp := strconv.FormatInt(time.Now().UnixNano(), 10)
+
+	var data Request
+	err := json.NewDecoder(r.Body).Decode(&data)
+
+	if err != nil {
+		log.Print(err)
+		return
+	}
+
+	log.Printf("recv,image,%s,%s", data.UUID, timestamp)
+
+	go processImage(data)
+	go sendCloud(data)
+}
+
+func saveModel(model Model) {
+	log.Println("Start saving models")
+	h, err := os.Create("data/hweights.model")
+	defer h.Close()
+	if err != nil {
+		log.Println(err)
+	}
+
+	_, err = h.Write(model.Hweights)
+	if err != nil {
+		log.Println(err)
+	}
+
+	o, err := os.Create("data/oweights.model")
+	defer o.Close()
+	if err != nil {
+		log.Pr
+		intln(err)
+	}
+	_, err = o.Write(model.Oweights)
+	if err != nil {
+		log.Println(err)
+	}
+
+	log.Println("Models saved")
+}
+
+func ModelHandler(w http.ResponseWriter, r *http.Request) {
+	timestamp := strconv.FormatInt(time.Now().UnixNano(), 10)
+
+	var data Model
+	err := json.NewDecoder(r.Body).Decode(&data)
+
+	if err != nil {
+		log.Print(err)
+		return
+	}
+
+	log.Printf("recv,image,%s", timestamp)
+	log.Println("GETTING MODEL")
+
+	go saveModel(data)
+}
+
 func main() {
 
-	http.HandleFunc("/image", func(w http.ResponseWriter, r *http.Request) {
-		timestamp := strconv.FormatInt(time.Now().UnixNano(), 10)
+	http.HandleFunc("/image", ImageHandler)
+	http.HandleFunc("/model", ModelHandler)
 
-		var data Request
-		err := json.NewDecoder(r.Body).Decode(&data)
-
-		if err != nil {
-			log.Print(err)
-			return
-		}
-
-		log.Printf("recv,image,%s,%s", data.UUID, timestamp)
-
-		go processImage(data)
-	})
-
-	log.Fatal(http.ListenAndServe(":5050", nil))
+	log.Fatal(http.ListenAndServe(":"+os.Getenv("IMAGE_EDGE_PORT"), nil))
 }
