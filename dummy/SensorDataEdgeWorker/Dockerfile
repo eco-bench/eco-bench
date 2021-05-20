@@ -1,8 +1,9 @@
-FROM openjdk:8-jdk-alpine
-RUN addgroup -S spring && adduser -S spring -G spring
-USER spring:spring
-ARG DEPENDENCY=target/dependency
-COPY ${DEPENDENCY}/BOOT-INF/lib /app/lib
-COPY ${DEPENDENCY}/META-INF /app/META-INF
-COPY ${DEPENDENCY}/BOOT-INF/classes /app
-ENTRYPOINT ["java","-cp","app:app/lib/*","hello.Application"]
+FROM openjdk:15-jdk-alpine
+RUN apk --no-cache add curl
+COPY target/application.jar /opt/
+# Create a group and user
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+RUN chown appuser:appgroup /opt/application.jar
+# Tell docker that all future commands should run as the appuser user
+USER appuser
+CMD ["java","-jar","-Duser.timezone=Europe/Berlin","/opt/sensordataedgeworker.jar"]
