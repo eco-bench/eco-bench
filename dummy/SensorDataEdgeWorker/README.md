@@ -13,6 +13,6 @@ Die Komponente SensorDataEdgeWorker simuliert einen Edge-Node, der Daten von ein
   
   <h3>REST-API</h3>
   
-  GET /alert Returns: Integer -1
+  GET /alert Returns: Integer -1 <br>
   POST /sensorData Parameter: json - "measurement":<double_value>
   
