@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.mashape.unirest.http.HttpResponse;
@@ -16,17 +18,20 @@ import com.mashape.unirest.http.exceptions.UnirestException;
 import de.tuberlin.ecobench.sensordataedgeworker.model.SensorData;
 
 @Service
+@EnableScheduling
 public class SensorService {
 
 	private static List<SensorData> sensorDataList = new ArrayList<>();
-
+    private static List<String> hostnames = new ArrayList<>();
 	private static String intervall;
 	private static String targetHost;
 	private static String targetPort;
 	private static String url;
-
+	
+	
+  
 	/**
-	 * Messung aus dem Post-Request zwischenspeichern Falls anzahl der
+	 * Messung aus dem Post-Request zwischenspeichern. <br>Falls anzahl der
 	 * Listeneinträge > übergebenes Intervall, werden die Daten zum Median
 	 * aggregiert und in die Cloud gesendet
 	 * 
@@ -48,6 +53,7 @@ public class SensorService {
 	 */
 	private void aggregateDataAndSendToCloud() {
 		double median = getMedian(sensorDataList);
+
  		try {
 			this.sendProcessedDataToCloudNode(SensorData.getSensorID(), median);
 			//Liste Leeren, falls Übermitteln der Daten erfolgreich war
@@ -55,7 +61,6 @@ public class SensorService {
  		} catch (UnirestException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	/**
@@ -76,7 +81,29 @@ public class SensorService {
 			median = (double) measurements.get(measurements.size() / 2);
 		return median;
 	}
-
+	/**
+	 * Temperatur von allen anderen Edge Worker Nodes abfragen <br>
+	 * alle 1000 ms
+	 * @param sublist
+	 * @return
+	 * @throws UnirestException 
+	 */
+	@Scheduled(fixedRateString = "1000")
+	private void getTemperature() {
+ 
+		for(String hostname:hostnames) {
+ 
+	     HttpResponse<String> response;
+		try {
+			response = Unirest.get(hostname).asString();
+		    String resp = response.getBody();
+            //DO nothing
+		} catch (UnirestException e) {
+ 			e.printStackTrace();
+		}
+   	  
+		}
+	}
 	/**
  	 * 
  	 * Übermittelt das berechnete median an einen entfernten cloud Node
@@ -97,6 +124,7 @@ public class SensorService {
  	               .asJson();
   	}
 
+ 	
 	@Value("${sensorEdgeWorker.intervall}")
 	public void setintervall(String intervall) {
 		SensorService.intervall = intervall;
@@ -116,7 +144,10 @@ public class SensorService {
 	public void setUrl(String url) {
 		SensorService.url = url;
 	}
-
+	@Value("#{'${kubernetes.api.endpoints}'.split(',')}") 
+	public void sethostnames(List<String> hostnames) {
+		  SensorService.hostnames = hostnames;
+ 	}
 	/**
 	 * Für Testzwecke
 	 * 

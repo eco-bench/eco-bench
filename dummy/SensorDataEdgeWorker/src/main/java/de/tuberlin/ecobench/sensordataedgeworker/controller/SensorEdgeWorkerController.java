@@ -16,35 +16,44 @@ import de.tuberlin.ecobench.sensordataedgeworker.service.SensorService;
 @RestController
 @RequestMapping("/")
 public class SensorEdgeWorkerController {
-	
-  	
-  	private final SensorService sensorService = new SensorService();
 
-     	
- 
- 	/**
- 	 * für Testzwecke
- 	 * @return
- 	 */
- 	@GetMapping
+	private final SensorService sensorService = new SensorService();
+
+	/**
+	 * für Testzwecke
+	 * 
+	 * @return
+	 */
+	@GetMapping
 	public ResponseEntity<List<SensorData>> getSensorData() {
-		
- 		List<SensorData> sensorData = sensorService.getSensorData();
+
+		List<SensorData> sensorData = sensorService.getSensorData();
 		return new ResponseEntity<>(sensorData, HttpStatus.OK);
-		
+
 	}
- 	/**
- 	 * Sensor-Messung hinzufügen
- 	 * @param sd Sensordata
- 	 * @return
- 	 */
- 	@PostMapping(path="/sensorData")
-	public ResponseEntity<SensorData> postSensorData( @RequestBody SensorData sd) {
- 		sensorService.addSensorData(sd);
-   		return new ResponseEntity<>(HttpStatus.OK);
- 
+
+	/**
+	 * Sensor-Messung hinzufügen
+	 * 
+	 * @param sd Sensordata
+	 * @return
+	 */
+	@PostMapping(path = "/sensorData")
+	public ResponseEntity<SensorData> postSensorData(@RequestBody SensorData sd) {
+		sensorService.addSensorData(sd);
+		return new ResponseEntity<>(HttpStatus.OK);
+
 	}
- 	
- 
+
+	/**
+	 * Temperatur Abfragen
+	 * 
+	 * @param sd Sensordata
+	 * @return -1
+	 */
+	@GetMapping(path = "/alert")
+	public ResponseEntity<Integer> getTemperature() {
+		return new ResponseEntity<>(-1, HttpStatus.OK);
+	}
 
 }

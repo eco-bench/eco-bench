@@ -1,6 +1,5 @@
 package de.tuberlin.ecobench.sensordataedgeworker.model;
 
-import org.springframework.beans.factory.annotation.Value;
 
 import lombok.Data;
 
@@ -14,7 +13,10 @@ public class SensorData {
   	private static String sensorID = "temperature-"+(int)(Math.random()*100);
 	private Double measurement;
 	
-	
+	/**
+	 * für testZwecke
+	 * @return
+	 */
 	public static String getSensorID() {
 		return sensorID;
 	}
