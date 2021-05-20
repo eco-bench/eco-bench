@@ -2,73 +2,97 @@ package main
 
 import (
 	// "compress/gzip"
-	"database/sql"
+	"bufio"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
+	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
-var db *sql.DB
+var counter = 0
+var N = 10
+var trainingStatus = false
 
 type Request struct {
 	Img  string `json:"img"`
 	UUID string `json:"uuid"`
 }
 
-// func compress(data bytes.Buffer) {
-// 	var buf bytes.Buffer
-// 	zw := gzip.NewWriter(&buf)
-// 	_, err := zw.Write([]byte("A long time ago in a galaxy far, far away..."))
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
+func sendModel() {
+	h, err := os.Open("data/hweights.model")
+	defer h.Close()
+	if err == nil {
+		log.Println("Error sending hweight.model")
+	}
 
-// 	if err := zw.Close(); err != nil {
-// 		log.Fatal(err)
-// 	}
-// }
+	o, err := os.Open("data/oweights.model")
+	if err == nil {
+		log.Println("Error sending hweight.model")
+	}
 
-// func decompress(data bytes.Buffer) {
-// 	zr, err := gzip.NewReader(&data)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
+}
 
-// 	fmt.Printf("Name: %s\nComment: %s\nModTime: %s\n\n", zr.Name, zr.Comment, zr.ModTime.UTC())
+func trainData(d Request) {
+	// Save data and every n values train the new model
+	// Train model if counter of images is greater then n
+	// Train with old and new data
+	// Send new Trained model to edge worker
 
-// 	if _, err := io.Copy(os.Stdout, zr); err != nil {
-// 		log.Fatal(err)
-// 	}
+	if counter >= N && !trainingStatus {
+		trainingStatus = true
+		log.Println("Taining starts")
 
-// 	if err := zr.Close(); err != nil {
-// 		log.Fatal(err)
-// 	}
-// }
+		// source: https://github.com/sausheong/gonn
+		net := CreateNetwork(784, 200, 10, 0.1)
+
+		rand.Seed(time.Now().UTC().UnixNano())
+		t1 := time.Now()
+
+		for epochs := 0; epochs < 1; epochs++ { // epochs < 5
+			testFile, _ := os.Open("mnist_train.csv")
+			r := csv.NewReader(bufio.NewReader(testFile))
+			for {
+				record, err := r.Read()
+				if err == io.EOF {
+					break
+				}
+
+				inputs := make([]float64, net.inputs)
+				for i := range inputs {
+					x, _ := strconv.ParseFloat(record[i], 64)
+					inputs[i] = (x / 255.0 * 0.999) + 0.001
+				}
+
+				targets := make([]float64, 10)
+				for i := range targets {
+					targets[i] = 0.001
+				}
+				x, _ := strconv.Atoi(record[0])
+				targets[x] = 0.999
+
+				net.Train(inputs, targets)
+			}
+			testFile.Close()
+		}
+		elapsed := time.Since(t1)
+		fmt.Printf("\nTime taken to train: %s\n", elapsed)
+
+		save(net)
+		trainingStatus = false
+		go sendModel()
+	} else {
+		counter += 1
+	}
+
+}
 
 func saveInfectedPlant(d Request) {
-	// decoded, err := base64.StdEncoding.DecodeString(d.Img)
-	tx, err := db.Begin()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	stmt, err := tx.Prepare("insert into plants(id, image) values(?, ?, ?, ?, ?)")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer stmt.Close()
-
-	_, err = stmt.Exec(d.UUID, d.Img)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	tx.Commit()
 
 }
 
@@ -88,23 +112,28 @@ func SickHandler(w http.ResponseWriter, r *http.Request) {
 	go saveInfectedPlant(data)
 }
 
-// func DataHandler(w http.ResponseWriter, r *http.Request) {
-// 	io.WriteString(w, time.Now().Format("2006-01-02 15:04:05"))
-// 	buf := ioutil.ReadAll(r.Body)
-// 	go compress(buf)
-// }
+func TrainHandler(w http.ResponseWriter, r *http.Request) {
+	timestamp := strconv.FormatInt(time.Now().UnixNano(), 10)
+	var data Request
+	err := json.NewDecoder(r.Body).Decode(&data)
+
+	if err != nil {
+		log.Print(err)
+		return
+	}
+
+	log.Printf("recv,image,%s,%s", data.UUID, timestamp)
+
+	go trainData(data)
+}
 
 func main() {
-	// http.HandleFunc("/data", DataHandler)
-
 	// TODO: connect over network
-	db, _ = sql.Open("sqlite3", "./plants.db")
-	// if err != nil {
-	// 	// return nil, err
-	// 	fmt.Println("Error")
-	// }
+	// db, _ = sql.Open("sqlite3", "./plants.db")
 
 	http.HandleFunc("/sick", SickHandler)
-	fmt.Println("Listening on port 5050...")
+	http.HandleFunc("/train", TrainHandler)
+
+	log.Println("Listening on port 5050...")
 	http.ListenAndServe(":5050", nil)
 }
