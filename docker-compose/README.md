@@ -1,3 +1,7 @@
+login into git, to be able to pull images
+```bash
+docker login -u $GITHUB_USERNAME -p $GITHUB_TOKEN docker.pkg.github.com
+```
 show containers
 ```bash
 $ docker ps
