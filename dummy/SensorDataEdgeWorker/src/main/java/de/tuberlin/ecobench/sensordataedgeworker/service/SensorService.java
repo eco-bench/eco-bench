@@ -33,8 +33,9 @@ public class SensorService {
 	 * @param sd
 	 */
 	public void addSensorData(SensorData sd) {
+		
 		if (sensorDataList.size() >= Integer.valueOf(intervall).intValue()) {
-			// Daten aggregieren und in die Cloud senden
+			// Daten aggregieren und in die Cloud senden, falls Anzahl der Sensordaten>Übergebenes Intervall
 			aggregateDataAndSendToCloud();
 		}
 		SensorData newSd = new SensorData();
@@ -47,10 +48,11 @@ public class SensorService {
 	 */
 	private void aggregateDataAndSendToCloud() {
 		double median = getMedian(sensorDataList);
-		System.out.println("median " + median);
-		try {
+ 		try {
 			this.sendProcessedDataToCloudNode(SensorData.getSensorID(), median);
-		} catch (UnirestException e) {
+			//Liste Leeren, falls Übermitteln der Daten erfolgreich war
+			sensorDataList = new ArrayList<>();
+ 		} catch (UnirestException e) {
 			e.printStackTrace();
 		}
 
