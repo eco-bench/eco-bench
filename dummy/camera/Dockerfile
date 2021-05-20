@@ -4,7 +4,7 @@ RUN mkdir /app
  
 COPY . /app
 WORKDIR /app
- 
+
 RUN go build -o camera . 
 
 CMD [ "/app/camera"] 

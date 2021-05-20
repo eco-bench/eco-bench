@@ -15,14 +15,14 @@ import (
 	"log"
 	"math/rand"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
 	"github.com/google/uuid"
 )
 
-// TODO: chanage host.docker.internal and port
-var cfdEndpoint string = fmt.Sprintf("http://%s:%s/image", "host.docker.internal", "5051")
+var ImageEdgeEndpoint string = fmt.Sprintf("http://%s:%s/image", os.Getenv("IMAGE_EDGE_IP"), os.Getenv("IMAGE_EDGE_PORT"))
 
 // update interval in milliseconds
 const interval int = 100
@@ -93,7 +93,7 @@ func main() {
 
 		log.Printf("send,camera,%s,%s", id.String(), strconv.FormatInt(time.Now().UnixNano(), 10))
 
-		req, err := http.NewRequest("POST", cfdEndpoint, bytes.NewReader(data))
+		req, err := http.NewRequest("POST", ImageEdgeEndpoint, bytes.NewReader(data))
 
 		if err != nil {
 			continue
