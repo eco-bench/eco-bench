@@ -5,7 +5,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.mashape.unirest.http.HttpResponse;
@@ -13,20 +17,27 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
+import de.tuberlin.ecobench.sensordataedgeworker.SensordataedgeworkerApplication;
 import de.tuberlin.ecobench.sensordataedgeworker.model.SensorData;
+import jdk.internal.net.http.common.Log;
 
 @Service
+@EnableScheduling
 public class SensorService {
+	
+    private static final Logger logger = LoggerFactory.getLogger(SensorService.class);
 
 	private static List<SensorData> sensorDataList = new ArrayList<>();
-
+    private static List<String> hostnames = new ArrayList<>();
 	private static String intervall;
 	private static String targetHost;
 	private static String targetPort;
 	private static String url;
-
+	
+	
+  
 	/**
-	 * Messung aus dem Post-Request zwischenspeichern Falls anzahl der
+	 * Messung aus dem Post-Request zwischenspeichern. <br>Falls anzahl der
 	 * Listeneinträge > übergebenes Intervall, werden die Daten zum Median
 	 * aggregiert und in die Cloud gesendet
 	 * 
@@ -48,14 +59,14 @@ public class SensorService {
 	 */
 	private void aggregateDataAndSendToCloud() {
 		double median = getMedian(sensorDataList);
+        logger.info("Meidan berechnen: "+sensorDataList);
  		try {
 			this.sendProcessedDataToCloudNode(SensorData.getSensorID(), median);
 			//Liste Leeren, falls Übermitteln der Daten erfolgreich war
 			sensorDataList = new ArrayList<>();
  		} catch (UnirestException e) {
-			e.printStackTrace();
-		}
-
+ 		    logger.error("Fehler beim Senden des berechneten Medians.");
+  		}
 	}
 
 	/**
@@ -76,7 +87,33 @@ public class SensorService {
 			median = (double) measurements.get(measurements.size() / 2);
 		return median;
 	}
-
+	
+	
+	/**
+	 * Temperatur von allen anderen Edge Worker Nodes abfragen <br>
+	 * alle 1000 ms
+	 * @param sublist
+	 * @return
+	 * @throws UnirestException 
+	 */
+	@Scheduled(fixedRateString = "10000")
+	private void getTemperature() {
+ 
+		for(String hostname:hostnames) {
+ 
+	     HttpResponse<String> response;
+		try {
+		    logger.info("Frage Temoperaturdaten ab.");
+			response = Unirest.get(hostname).asString();
+		    String resp = response.getBody();
+               //DO nothing
+		} catch (UnirestException e) {
+ 		    logger.error("Fehler bei Datenabfrage von anderen Edge-Nodes.");
+  		}
+   	  
+		}
+	}
+	
 	/**
  	 * 
  	 * Übermittelt das berechnete median an einen entfernten cloud Node
@@ -89,7 +126,8 @@ public class SensorService {
  	 * @throws UnirestException
  	 */
  	public void sendProcessedDataToCloudNode(String sensorId, double median) throws UnirestException {
- 	    HttpResponse<JsonNode> jsonResponse 
+ 		logger.info("Sending Data to Cloud.");
+  	    HttpResponse<JsonNode> jsonResponse 
  	      = Unirest.post("http://"+targetHost+":"+targetPort+url)
    	    	      .header("accept", "application/json")
  	    	       .field("sensorID", sensorId)
@@ -97,6 +135,7 @@ public class SensorService {
  	               .asJson();
   	}
 
+ 	
 	@Value("${sensorEdgeWorker.intervall}")
 	public void setintervall(String intervall) {
 		SensorService.intervall = intervall;
@@ -116,7 +155,10 @@ public class SensorService {
 	public void setUrl(String url) {
 		SensorService.url = url;
 	}
-
+	@Value("#{'${edge.endpoints}'.split(',')}") 
+	public void sethostnames(List<String> hostnames) {
+		  SensorService.hostnames = hostnames;
+ 	}
 	/**
 	 * Für Testzwecke
 	 * 
