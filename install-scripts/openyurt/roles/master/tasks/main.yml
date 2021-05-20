@@ -1,0 +1,51 @@
+---
+- name: Install Package Dependencies for
+  apt:
+    name:
+    - apt-transport-https
+    - ca-certificates 
+    - curl
+    state: present
+- name: Get KeyRing for Kubernetes Archive
+  shell: sudo curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+- name: add Kubernetes Repository
+  shell: echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+- name: update packet sources
+  apt: 
+    name: 
+    - kubeadm={{ kubernetes_version }}
+    - kubelet={{ kubernetes_version }} 
+    - kubectl={{ kubernetes_version }}
+    state: present
+    update_cache: yes
+- name: check cluster status
+  shell: kubectl cluster-info
+  register: cluster_info
+  ignore_errors: true
+# Does not Reset IP Table Rules
+- name: Reset Kubernetes component
+  shell: "kubeadm reset --force"
+  register: reset_cluster
+- name: print out message
+  debug:
+    msg: "{{reset_cluster}}"
+- name: Init Kubernetes cluster
+  shell: |
+    kubeadm init --token {{ token }} \
+                 --pod-network-cidr {{ pod_network_cidr }} \
+                 --apiserver-advertise-address {{ master_ip }}
+  register: init_cluster
+  when: reset_cluster is succeeded
+- name: Create Kubernetes config directory
+  file:
+    path: ".kube/"
+    state: directory
+- name: Copy admin.conf to Home directory
+  when: init_cluster is succeeded
+  copy:
+    src: "{{ kubeadmin_config }}"
+    dest: ".kube/config"
+    mode: 0755
+    remote_src: true
+- name: remove Taint from Master Node
+  shell: kubectl taint nodes master01 node-role.kubernetes.io/master:NoSchedule-

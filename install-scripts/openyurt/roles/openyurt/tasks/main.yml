@@ -1,0 +1,59 @@
+- name: update packet sources
+  apt: 
+    name: 
+    - make
+    - golang
+    - git
+    state: present
+    update_cache: yes
+
+- name: Git checkout
+  register: git_clone
+  git:
+    repo: 'https://github.com/openyurtio/openyurt.git'
+    dest: /etc/openyurt
+    clone: yes 
+
+- name: print git output
+  debug: 
+    msg: "{{git_clone}}"
+
+- name: check if binary exists
+  shell: ls /etc/openyurt/_output/bin/yurtctl
+  register: openyurt_binary
+  ignore_errors: true
+
+- name: Go to the folder and execute command
+  register: yurtctl_installation
+  shell: 
+    chdir: /etc/openyurt
+    cmd: make build WHAT=cmd/yurtctl
+  when: openyurt_binary is failed
+
+- name: print yurtctl_installation output
+  debug: 
+    msg: "{{yurtctl_installation}}"
+  when: openyurt_binary is failed
+
+# yurtctl reset?
+- name: revert openyurt cluster in case there was one
+  shell: /etc/openyurt/_output/bin/yurtctl revert
+  ignore_errors: true
+
+- name: convert to openyurt cluster
+  shell: /etc/openyurt/_output/bin/yurtctl convert --cloud-nodes {{ansible_hostname}} --provider kubeadm --deploy-yurttunnel
+  register: convert_openyurt_cluster
+
+- name: print convert_openyurt_cluster output
+  debug: 
+    msg: "{{convert_openyurt_cluster}}"
+
+# Wait for certain pods to come up again, yurthub and so on
+
+- name: run yurtctl cluster-info
+  shell: /etc/openyurt/_output/bin/yurtctl cluster-info
+  register: yurtctl_cluster_info
+
+- name: print yurtctl_cluster_info output
+  debug: 
+    msg: "{{yurtctl_cluster_info}}"
