@@ -9,8 +9,8 @@ Die Komponente SensorDataEdgeWorker simuliert einen Edge-Node, der Daten von ein
   <p><b>targetNode.port</b> - Port des zugehörigen Cloud-Nodes</p> 
   <p><b>targetNode.url</b>  - URL des zugehörigen Cloud-Nodes (default / )</p>
   <p><b>sensorEdgeWorker.intervall</b> - Aggregationsintervall (Alle n Einträge wird ein Median berechnet und in die Cloud gesendet)</p>
-  <p><b>kubernetes.api.endpoints</b> - Eine Liste von Endpoints anderer Edge Worker Nodes für Edge-to-Edge-Kommunikation. Der Parameter wird als eine Liste von Strings (CSV,Delimiter , ) übergeben. Die Endpoint Strings müssen die Protokoll-Angabe beinhalten. (http:// beginnen)</p>
-  
+  <p><b>edge.endpoints</b> - Eine Liste von Endpoints anderer Edge Worker Nodes für Edge-to-Edge-Kommunikation. Der Parameter wird als eine Liste von Strings (CSV,Delimiter , ) übergeben. Die Endpoint Strings müssen die Protokoll-Angabe beinhalten. (http:// beginnen)</p>
+    <p><b>edge.alertintervall</b> Höufigkeit des Alerts benachbarter Edge-Nodes. Abstand in Millisekunden. (Default 10000 )   </p>
   <h3>REST-API</h3>
   
   GET /alert Returns: Integer -1 <br>
