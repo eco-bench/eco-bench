@@ -5,6 +5,6 @@ RUN mkdir /app
 COPY . /app
 WORKDIR /app
 
-RUN go build -o camera . 
+RUN go build -o camera-edge-device . 
 
-CMD [ "/app/camera"] 
+CMD [ "/app/camera-edge-device"] 
