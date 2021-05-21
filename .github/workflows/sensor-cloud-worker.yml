@@ -8,7 +8,7 @@ on:
     branches:
       - main
     paths:
-      - dummy/CloudWorker/**
+      - dummy/sensor-cloud/**
   # Run tests for any PRs.
   pull_request:
 
@@ -18,7 +18,7 @@ env:
   
 defaults:
   run:
-    working-directory: dummy/CloudWorker
+    working-directory: dummy/sensor-cloud
 
 jobs:
   # Push image to GitHub Packages.
