@@ -6,7 +6,7 @@ services:
     ports:
       - "27017:27017"
   cloudworker:
-    image: docker.pkg.github.com/eco-bench/eco-bench/sensor-cloud-worker:latest
+    image: docker.pkg.github.com/eco-bench/eco-bench/sensor-cloud:latest
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -14,7 +14,7 @@ services:
       - spring.data.mongodb.host=mongodb
       - spring.data.mongodb.port=27017
   edgeworker1:
-    image: docker.pkg.github.com/eco-bench/eco-bench/sensor-edge-worker:latest
+    image: docker.pkg.github.com/eco-bench/eco-bench/sensor-edge:latest
     restart: unless-stopped
     ports:
       - "9080:8080"
@@ -23,7 +23,7 @@ services:
     - targetNode.url=/sensorData
     - edge.endpoints=http://edgeworker2:8080/alert
   edgeworker2:
-    image: docker.pkg.github.com/eco-bench/eco-bench/sensor-edge-worker:latest
+    image: docker.pkg.github.com/eco-bench/eco-bench/sensor-edge:latest
     restart: unless-stopped
     ports:
       - "10080:8080"
@@ -32,7 +32,7 @@ services:
     - targetNode.url=/sensorData
     - edge.endpoints=http://edgeworker1:8080/alert
   sensor:
-    image: docker.pkg.github.com/eco-bench/eco-bench/edge-device:latest
+    image: docker.pkg.github.com/eco-bench/eco-bench/sensor-edge-device:latest
     restart: unless-stopped
     environment:
     - DEVICE_TYPE=sensor
