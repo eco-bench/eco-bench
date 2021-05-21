@@ -1,5 +1,4 @@
-
-name: Build Sensor Cloud Image
+name: Build Sensor Edge Image
 
 on:
   workflow_dispatch:
@@ -8,17 +7,17 @@ on:
     branches:
       - main
     paths:
-      - dummy/sensor-cloud/**
+      - dummy/sensor-edge/**
   # Run tests for any PRs.
   pull_request:
 
 env:
   # TODO: Change variable to your image's name.
-  IMAGE_NAME: sensor-cloud-worker
+  IMAGE_NAME: sensor-edge
   
 defaults:
   run:
-    working-directory: dummy/sensor-cloud
+    working-directory: dummy/sensor-edge
 
 jobs:
   # Push image to GitHub Packages.
