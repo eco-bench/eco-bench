@@ -7,7 +7,7 @@ on:
     branches:
       - main
     paths:
-      - dummy/SensorDataEdgeWorker/**
+      - dummy/sensor-edge/**
   # Run tests for any PRs.
   pull_request:
 
@@ -17,7 +17,7 @@ env:
   
 defaults:
   run:
-    working-directory: dummy/SensorDataEdgeWorker
+    working-directory: dummy/sensor-edge
 
 jobs:
   # Push image to GitHub Packages.

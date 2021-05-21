@@ -1,4 +1,4 @@
-Die Komponente SensorDataEdgeWorker simuliert einen Edge-Node, der Daten von einem Edge-Device empfängt, vorverarbeitet und in die Cloud sendet. Außerdem fragt der Worker Node alle 1000ms den Status aller anderer Edge-Nodes. 
+Die Komponente sensor-edge simuliert einen Edge-Node, der Daten von einem Edge-Device empfängt, vorverarbeitet und in die Cloud sendet. Außerdem fragt der Worker Node alle 1000ms den Status aller anderer Edge-Nodes. 
  
 <h2> Konfiguration: </h2>
   Programmagumente können in der application.properties oder als Java-Argumente übergeben werden.
