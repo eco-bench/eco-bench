@@ -16,12 +16,15 @@ We install an Ingress Controller with some additional Configuration in the Clust
 | controller.kind=DaemonSet      |If you created a daemonset, ports 80 and 443 of the Ingress controller container are mapped to the same ports of the node where the container is running. To access the Ingress controller, use those ports and an IP address of any node of the cluster where the Ingress controller is running.|
 | controller.hostNetwork=true      |Enabling this option exposes every system daemon to the NGINX Ingress controller on any network interface, including the host's loopback. | 
 ```bash
-$ kubectl apply -f Ingress.yml Pod.yml Service.yml 
 $ helm install ingress-nginx/ingress-nginx --set controller.kind=DaemonSet,controller.hostNetwork=true --generate-name
 ```
 Verify that ports are open on your cluster nodes
 ```bash
 $ sudo netstat -tunelp | grep '443\|80'
+```
+Install Applications and Ingress Object
+```bash
+$ kubectl apply -f Ingress.yml Pod.yml Service.yml 
 ```
 Verify that you can reach the applications
 ```bash
