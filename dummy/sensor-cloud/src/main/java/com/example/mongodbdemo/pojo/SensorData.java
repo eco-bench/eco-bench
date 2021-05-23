@@ -1,6 +1,5 @@
 package com.example.mongodbdemo.pojo;
 
-@Data
 public class SensorData {
 
 	
