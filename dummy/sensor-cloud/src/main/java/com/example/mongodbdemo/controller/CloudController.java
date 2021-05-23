@@ -23,10 +23,10 @@ public class CloudController {
     @Autowired
     CloudService cloudService;
 
-    @PostMapping("/sensorData")
-    public ResponseEntity getDataList(@RequestBody SensorData data) {
+ 	@PostMapping(path="/sensorData",produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity postSensorData(@RequestBody SensorData data) {
         cloudService.writeJsonToDatabase(data);
-        return new ResponseEntity(HttpStatus.OK);
+    	return new ResponseEntity<SensorData>(HttpStatus.OK);
     }
 
 }
