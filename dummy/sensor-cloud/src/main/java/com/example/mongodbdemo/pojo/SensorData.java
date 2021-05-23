@@ -1,27 +1,18 @@
 package com.example.mongodbdemo.pojo;
 
+@Data
 public class SensorData {
 
+	
+  	private String sensorID;
+	private Double value;
+ 
 
-    /**
-     *  sensorID automatisch generieren
-     */
-    private final static String sensorID = "temperature-"+(int)(Math.random()*100);
-    private Double measurement;
-
-    /**
-     * für testZwecke
-     * @return
-     */
-    public static String getSensorID() {
-        return sensorID;
+    public Double getValue() {
+        return this.value;
     }
 
-    public Double getMeasurement() {
-        return measurement;
-    }
-
-    public void setMeasurement(Double measurement) {
-        this.measurement = measurement;
+    public void setValue(Double measurement) {
+        this.value = measurement;
     }
 }
