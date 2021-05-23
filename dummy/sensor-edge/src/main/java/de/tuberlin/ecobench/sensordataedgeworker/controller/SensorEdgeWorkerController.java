@@ -20,7 +20,7 @@ import de.tuberlin.ecobench.sensordataedgeworker.service.SensorService;
 public class SensorEdgeWorkerController {
 
 	private final SensorService sensorService = new SensorService();
-    private static final Logger logger = LoggerFactory.getLogger(SensorEdgeWorkerController.class);
+        private static final Logger logger = LoggerFactory.getLogger(SensorEdgeWorkerController.class);
 
 	/**
 	 * für Testzwecke
@@ -43,7 +43,7 @@ public class SensorEdgeWorkerController {
 	 */
 	@PostMapping(path = "/sensorData", produces = "applicatin/json")
 	public ResponseEntity<SensorData> postSensorData(@RequestBody SensorData sd) {
-		logger.info("Sensordaten empfangen: "+sd.getMeasurement());
+		//logger.info("Sensordaten empfangen: "+sd.getMeasurement());
 		sensorService.addSensorData(sd);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
