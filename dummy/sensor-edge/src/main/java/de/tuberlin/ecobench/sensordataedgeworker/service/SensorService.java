@@ -104,7 +104,9 @@ public class SensorService {
 	     HttpResponse<String> response;
 		try {
 		    logger.info("Frage Temoperaturdaten ab.");
-			response = Unirest.get(hostname).asString();
+		    response = Unirest.get(hostname)
+			    .header("accept", "application/json")
+	 	    	    .header("content-type", "application/json").asString();
 		    String resp = response.getBody();
                //DO nothing
 		} catch (UnirestException e) {
