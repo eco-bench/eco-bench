@@ -127,11 +127,15 @@ public class SensorService {
  	 */
  	public void sendProcessedDataToCloudNode(String sensorId, double median) throws UnirestException {
  		logger.info("Sending Data to Cloud.");
+ 		logger.info(""+median);
   	    HttpResponse<JsonNode> jsonResponse 
  	      = Unirest.post("http://"+targetHost+":"+targetPort+url)
-   	    	      .header("accept", "application/json")
- 	    	       .field("sensorID", sensorId)
- 	    	       .field("value",median)
+  	    	      .header("accept", "application/json")
+ 	    	      .header("content-type", "application/json")
+ 	    	       .body("{"
+ 	    	       		+ "	\"sensorID\":\""+sensorId+"\","
+ 	    	       		+ " \"value\":"+median
+ 	    	       		+ "}")
  	               .asJson();
   	}
 
