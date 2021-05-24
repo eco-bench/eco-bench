@@ -13,4 +13,6 @@ kubectl apply -f . --recursive
 ```
 
 Setup Github token in Kubernetes:
+```bash
 kubectl create secret docker-registry github-regsecr --docker-server=docker.pkg.github.com --docker-username=<username> --docker-password=<PAT>
+```
