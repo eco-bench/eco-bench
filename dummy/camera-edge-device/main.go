@@ -22,10 +22,10 @@ import (
 	"github.com/google/uuid"
 )
 
-var ImageEdgeEndpoint string = fmt.Sprintf("http://%s:%s/image", os.Getenv("IMAGE_EDGE_IP"), os.Getenv("IMAGE_EDGE_PORT"))
+var ImageEdgeEndpoint string = fmt.Sprintf("http://%s/image", os.Getenv("IMAGE_EDGE_IP"))
 
 // update interval in milliseconds
-const interval int = 100
+const interval int = 10000
 
 const width int = 100
 const height int = 100
@@ -102,6 +102,7 @@ func main() {
 		go func() {
 			_, err = (&http.Client{}).Do(req)
 
+			log.Println(req)
 			if err != nil {
 				log.Print(err)
 
