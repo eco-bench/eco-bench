@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.22.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: image-processing-edge
+  name: image-processing-edge
+spec:
+  ports:
+    - name: "5051"
+      port: 5051
+      targetPort: 5051
+  selector:
+    io.kompose.service: image-processing-edge
+status:
+  loadBalancer: {}
