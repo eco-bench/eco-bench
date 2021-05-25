@@ -3,6 +3,8 @@ package main
 import (
 	// "compress/gzip"
 	"bufio"
+	"bytes"
+	"context"
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
@@ -13,37 +15,66 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 var counter = 0
 var N = 10
 var trainingStatus = false
+var db *mongo.Database
+
+var imageEdgeTrainEndpoint string = fmt.Sprintf("http://%s:%s/model", os.Getenv("IMAGE_EDGE_IP"), os.Getenv("IMAGE_EDGE_PORT"))
 
 type Request struct {
 	Img  string `json:"img"`
 	UUID string `json:"uuid"`
 }
 
-func sendModel() {
-	h, err := os.Open("data/hweights.model")
-	defer h.Close()
-	if err == nil {
-		log.Println("Error sending hweight.model")
+type Model struct {
+	Hweights []byte `json:hweights`
+	Oweights []byte `json:oweights`
+}
+
+func sendModel(net *Network) {
+	log.Println("Start sending Model")
+	hWeights, err := net.hiddenWeights.MarshalBinary()
+	if err != nil {
+		log.Println("Error sending model.")
 	}
 
-	o, err := os.Open("data/oweights.model")
-	if err == nil {
-		log.Println("Error sending hweight.model")
+	oWeights, err := net.outputWeights.MarshalBinary()
+	if err != nil {
+		log.Println("Error sending model.")
 	}
 
+	model := &Model{Hweights: hWeights, Oweights: oWeights}
+
+	data, err := json.Marshal(model)
+
+	if err != nil {
+		return
+	}
+
+	req, err := http.NewRequest("POST", imageEdgeTrainEndpoint, bytes.NewReader(data))
+
+	if err != nil {
+		return
+	}
+
+	log.Printf("send,%s", strconv.FormatInt(time.Now().UnixNano(), 10))
+
+	_, err = (&http.Client{}).Do(req)
+
+	if err != nil {
+		log.Print(err)
+	}
+
+	log.Println("Sended Model")
 }
 
 func trainData(d Request) {
-	// Save data and every n values train the new model
-	// Train model if counter of images is greater then n
-	// Train with old and new data
-	// Send new Trained model to edge worker
-
 	if counter >= N && !trainingStatus {
 		trainingStatus = true
 		log.Println("Taining starts")
@@ -81,19 +112,26 @@ func trainData(d Request) {
 			testFile.Close()
 		}
 		elapsed := time.Since(t1)
-		fmt.Printf("\nTime taken to train: %s\n", elapsed)
+		log.Printf("\nTime taken to train: %s\n", elapsed)
 
-		save(net)
 		trainingStatus = false
-		go sendModel()
+		go sendModel(&net)
 	} else {
 		counter += 1
 	}
-
 }
 
-func saveInfectedPlant(d Request) {
+func savePlant(d Request, path string) {
+	collection := db.Collection(path)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
+	res, err := collection.InsertOne(ctx, d)
+	if err != nil {
+		log.Println(err)
+	}
+
+	log.Println(res)
 }
 
 func SickHandler(w http.ResponseWriter, r *http.Request) {
@@ -109,7 +147,7 @@ func SickHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("recv,image,%s,%s", data.UUID, timestamp)
 
-	go saveInfectedPlant(data)
+	go savePlant(data, "sick")
 }
 
 func TrainHandler(w http.ResponseWriter, r *http.Request) {
@@ -124,16 +162,29 @@ func TrainHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("recv,image,%s,%s", data.UUID, timestamp)
 
+	go savePlant(data, "all")
 	go trainData(data)
 }
 
 func main() {
-	// TODO: connect over network
-	// db, _ = sql.Open("sqlite3", "./plants.db")
+	uri := "mongodb://" + os.Getenv("MONGODB_IP") + ":" + os.Getenv("MONGODB_PORT")
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
+	if err != nil {
+		panic(err)
+	}
+	defer func() {
+		if err = client.Disconnect(ctx); err != nil {
+			panic(err)
+		}
+	}()
+
+	db = client.Database("plants")
 
 	http.HandleFunc("/sick", SickHandler)
 	http.HandleFunc("/train", TrainHandler)
 
-	log.Println("Listening on port 5050...")
-	http.ListenAndServe(":5050", nil)
+	http.ListenAndServe(":"+os.Getenv("IMAGE_CLOUD_PORT"), nil)
 }

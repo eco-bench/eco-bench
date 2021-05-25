@@ -1,0 +1,28 @@
+version: '3'
+services:
+    image-processing-cloud:
+        container_name: image-processing-cloud
+        restart: always
+        build: ./image-processing-cloud
+        env_file: ./image-processing-cloud/.env
+        ports:
+            - '5052:5052'
+    image-processing-egde:
+        container_name: image-processing-edge
+        restart: always
+        build: ./image-processing-edge
+        env_file: ./image-processing-edge/.env
+        ports:
+            - '5051:5051'
+    camera:
+        container_name: camera-edge-device
+        restart: always
+        env_file: ./camera-edge-device/.env
+        build: ./camera-edge-device
+    mongodb:
+        container_name: mongo
+        image: mongo
+        volumes:
+            - ~/Developer/eco-bench/dummy/mongodb-data:/data/db
+        ports:
+            - '27017:27017'
