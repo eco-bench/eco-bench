@@ -15,10 +15,10 @@ services:
         ports:
             - '5051:5051'
     camera:
-        container_name: camera
+        container_name: camera-edge-device
         restart: always
-        env_file: ./camera/.env
-        build: ./camera
+        env_file: ./camera-edge-device/.env
+        build: ./camera-edge-device
     mongodb:
         container_name: mongo
         image: mongo

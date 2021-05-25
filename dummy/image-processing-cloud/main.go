@@ -16,7 +16,6 @@ import (
 	"strconv"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -122,24 +121,17 @@ func trainData(d Request) {
 	}
 }
 
-func saveInfectedPlant(d Request) {
-	collection := db.Collection("sick")
+func savePlant(d Request, path string) {
+	collection := db.Collection(path)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	var doc interface{}
-	err := bson.UnmarshalExtJSON([]byte(`{"foo":"bar"}`), true, &doc)
-	if err != nil {
-		panic(err)
-	}
-
-	res, err := collection.InsertOne(ctx, doc)
+	res, err := collection.InsertOne(ctx, d)
 	if err != nil {
 		log.Println(err)
 	}
-	log.Println(res)
 
-	fmt.Println("Successfully connected and pinged.")
+	log.Println(res)
 }
 
 func SickHandler(w http.ResponseWriter, r *http.Request) {
@@ -155,7 +147,7 @@ func SickHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("recv,image,%s,%s", data.UUID, timestamp)
 
-	go saveInfectedPlant(data)
+	go savePlant(data, "sick")
 }
 
 func TrainHandler(w http.ResponseWriter, r *http.Request) {
@@ -170,6 +162,7 @@ func TrainHandler(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("recv,image,%s,%s", data.UUID, timestamp)
 
+	go savePlant(data, "all")
 	go trainData(data)
 }
 
@@ -177,6 +170,7 @@ func main() {
 	uri := "mongodb://" + os.Getenv("MONGODB_IP") + ":" + os.Getenv("MONGODB_PORT")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {
 		panic(err)

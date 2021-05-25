@@ -1,0 +1,38 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /sick
+        pathType: Prefix
+        backend:
+          service:
+            name: image-processing-cloud
+            port:
+              number: 5052
+      - path: /train
+        pathType: Prefix
+        backend:
+          service:
+            name: image-processing-cloud
+            port:
+              number: 5052
+      - path: /image
+        pathType: Prefix
+        backend:
+          service:
+            name: image-processing-edge
+            port:
+              number: 5051
+      - path: /model
+        pathType: Prefix
+        backend:
+          service:
+            name: image-processing-edge
+            port:
+              number: 5051

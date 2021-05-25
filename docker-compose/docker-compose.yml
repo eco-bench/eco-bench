@@ -6,7 +6,7 @@ services:
     ports:
       - "27017:27017"
   cloudworker:
-    image: docker.pkg.github.com/eco-bench/eco-bench/sensor-cloud-worker:latest
+    image: docker.pkg.github.com/eco-bench/eco-bench/sensor-cloud:latest
     restart: unless-stopped
     ports:
       - "8080:8080"
@@ -14,7 +14,7 @@ services:
       - spring.data.mongodb.host=mongodb
       - spring.data.mongodb.port=27017
   edgeworker1:
-    image: docker.pkg.github.com/eco-bench/eco-bench/sensor-edge-worker:latest
+    image: docker.pkg.github.com/eco-bench/eco-bench/sensor-edge:latest
     restart: unless-stopped
     ports:
       - "9080:8080"
@@ -23,7 +23,7 @@ services:
     - targetNode.url=/sensorData
     - edge.endpoints=http://edgeworker2:8080/alert
   edgeworker2:
-    image: docker.pkg.github.com/eco-bench/eco-bench/sensor-edge-worker:latest
+    image: docker.pkg.github.com/eco-bench/eco-bench/sensor-edge:latest
     restart: unless-stopped
     ports:
       - "10080:8080"
@@ -32,10 +32,36 @@ services:
     - targetNode.url=/sensorData
     - edge.endpoints=http://edgeworker1:8080/alert
   sensor:
-    image: docker.pkg.github.com/eco-bench/eco-bench/edge-device:latest
+    image: docker.pkg.github.com/eco-bench/eco-bench/sensor-edge-device:latest
     restart: unless-stopped
     environment:
     - DEVICE_TYPE=sensor
     - WORKER_IP=http://edgeworker1
     - WORKER_PORT=8080
     - WORKER_ENDPOINT=sensorData
+  image-processing-cloud:
+    image: docker.pkg.github.com/eco-bench/eco-bench/image-processing-cloud:latest
+    restart: unless-stopped
+    ports:
+      - "5052:5052"
+    environment:
+    - IMAGE_CLOUD_PORT=5052
+    - IMAGE_EDGE_IP=image-processing-edge
+    - IMAGE_EDGE_PORT=5051
+    - MONGODB_IP=mongodb
+    - MONGODB_PORT=27017
+  image-processing-edge:
+    image: docker.pkg.github.com/eco-bench/eco-bench/image-processing-edge:latest
+    restart: unless-stopped
+    ports:
+      - "5051:5051"
+    environment:
+    - IMAGE_EDGE_PORT=5051
+    - IMAGE_CLOUD_IP=image-processing-cloud
+    - IMAGE_CLOUD_PORT=5052
+  camera-edge-device:
+    image: docker.pkg.github.com/eco-bench/eco-bench/camera-edge-device:latest
+    restart: unless-stopped
+    environment:
+    - IMAGE_EDGE_IP=image-processing-edge
+    - IMAGE_EDGE_PORT=5051

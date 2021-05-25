@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.22.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: image-processing-edge
+  name: image-processing-edge
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: image-processing-edge
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.22.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: image-processing-edge
+    spec:
+      containers:
+        - env:
+            - name: IMAGE_CLOUD_IP
+              value: image-processing-cloud
+            - name: IMAGE_CLOUD_PORT
+              value: "5052"
+            - name: IMAGE_EDGE_PORT
+              value: "5051"
+          image: docker.pkg.github.com/eco-bench/eco-bench/image-processing-edge:latest
+          name: image-processing-edge
+          ports:
+            - containerPort: 5051
+          resources: {}
+      imagePullSecrets:
+        - name: github-regsecr
+      restartPolicy: Always
+status: {}
