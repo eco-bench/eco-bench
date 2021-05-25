@@ -1,8 +1,8 @@
 - hosts: master
   become: yes
   roles:
-    - geerlingguy.docker
-    - geerlingguy.kubernetes
+  #   - geerlingguy.docker
+  #   - geerlingguy.kubernetes
     - master
   tasks:
     - name: Check Docker Version
@@ -17,12 +17,22 @@
     - name: Print Version
       debug:
         msg: "Kubernetes Version: {{ kubernetesVersion.stdout }}"
+    - name: Create Kubernetes config directory
+      file:
+        path: ".kube/"
+        state: directory
+    - name: Copy admin.conf to Home directory
+      copy:
+        src: "/etc/kubernetes/admin.conf"
+        dest: ".kube/config"
+        mode: 0755
+        remote_src: true
 
 - hosts: node
   become: yes
   roles:
-    - geerlingguy.docker
-    - geerlingguy.kubernetes
+    # - geerlingguy.docker
+    # - geerlingguy.kubernetes
     - node
   tasks:
     - name: Check Docker Version
@@ -54,9 +64,3 @@
     - name: Print Version
       debug:
         msg: "Docker Version: {{ dockerVersion.stdout }}"
-    - name: Check Kubernetes Version
-      command: kubectl version --short
-      register: kubernetesVersion
-    - name: Print Version
-      debug:
-        msg: "Kubernetes Version: {{ kubernetesVersion.stdout }}"

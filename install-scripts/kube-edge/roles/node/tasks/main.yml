@@ -22,6 +22,15 @@
     chdir: /src/github.com/kubeedge/kubeedge
     target: keadm
   become: yes
+- name: Copy file with owner and permission, using symbolic representation
+  become: yes
+  ansible.builtin.copy:
+    src: /src/github.com/kubeedge/kubeedge/_output/local/bin/keadm
+    dest: /usr/local/sbin
+    owner: root
+    group: root
+    remote_src: yes
+    mode: "0755"
 - name: Create a etc/kubeedge if it does not exist
   ansible.builtin.file:
     path: etc/kubeedge

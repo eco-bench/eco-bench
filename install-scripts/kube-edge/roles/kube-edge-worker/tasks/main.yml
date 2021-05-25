@@ -3,8 +3,11 @@
   shell: sudo tar -xvzf certs.tgz
   args:
     chdir: /etc/kubeedge/
+- name: stop edgecore.service and remove service file
+  shell: sudo systemctl stop edgecore.service && sudo rm /etc/systemd/system/edgecore.service && sudo systemctl daemon-reload
 - name: go to bin directory and Setup Edge Side (KubeEdge Worker Node)
-#to do
-  shell: sudo ./keadm join --cloudcore-ipport=35.193.18.16:10000
+#todo template ip
+  shell: ./keadm join --cloudcore-ipport=35.193.18.16:10000
+  become: yes
   args:
     chdir: /src/github.com/kubeedge/kubeedge/_output/local/bin
