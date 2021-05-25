@@ -1,0 +1,19 @@
+- name: update packet sources and install snapd
+  become: yes
+  apt: 
+    name: 
+    - snapd
+    state: present
+    update_cache: yes
+
+- name: Install microk8s
+  become: yes
+  shell: snap install microk8s --channel=1.21/stable --classic
+  register: microk8s_output
+
+- name: copy mikrok8s binary to path for root
+  become: yes
+  copy:
+    src: /snap/bin/microk8s
+    dest: /usr/local/sbin/microk8s
+    remote_src: yes

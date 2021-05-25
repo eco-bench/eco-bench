@@ -1,0 +1,63 @@
+- hosts: cloud01
+  tasks:
+    - name: Start Time
+      command: date
+      register: time
+    - name: Print Start Time
+      debug:
+        msg: "time: {{ time.stdout }}"
+        
+- hosts: cloud01
+  roles:
+    - microk8s
+  tasks:
+    - name: Run join Node Command
+      become: true
+      command: microk8s add-node
+      register: join_command1
+    - name: Run join Node Command
+      become: true
+      command: microk8s add-node
+      register: join_command2
+
+- hosts: edge01
+  roles:
+    - microk8s
+  tasks:
+    - name: Print Join Command
+      debug:
+        msg: "{{ hostvars['cloud01']['join_command1'].stdout_lines[4] }}"
+    - name: join cluster
+      become: yes
+      command: "{{ hostvars['cloud01']['join_command1'].stdout_lines[4] }}"
+      ignore_errors: yes
+      delay: 300
+
+- hosts: edge02
+  roles:
+    - microk8s
+  tasks:
+    - name: Print Join Command
+      debug:
+        msg: "{{ hostvars['cloud01']['join_command2'].stdout_lines[4] }}"
+    - name: join cluster
+      become: yes
+      command: "{{ hostvars['cloud01']['join_command2'].stdout_lines[4] }}"
+      ignore_errors: yes
+      delay: 300
+
+- hosts: cloud01
+  tasks:
+    - name: Check Cluster Status
+      become: yes
+      command: microk8s kubectl get nodes
+      register: get_nodes
+    - name: Print out Status of Node
+      debug:
+        msg: "get_nodes: {{ get_nodes.stdout }}"
+    - name: End Time
+      command: date
+      register: time
+    - name: Print End Time
+      debug:
+        msg: "time: {{ time.stdout }}"
