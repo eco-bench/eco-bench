@@ -1,0 +1,10 @@
+---
+- name: Change the working directory to /etc/kubeedge/ before executing the command
+  shell: sudo tar -xvzf certs.tgz
+  args:
+    chdir: /etc/kubeedge/
+- name: go to bin directory and Setup Edge Side (KubeEdge Worker Node)
+#to do
+  shell: sudo ./keadm join --cloudcore-ipport=35.193.18.16:10000
+  args:
+    chdir: /src/github.com/kubeedge/kubeedge/_output/local/bin

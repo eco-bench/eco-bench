@@ -1,0 +1,25 @@
+---
+- name: Install Package Dependencies for
+  apt:
+    name:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - golang
+    - make
+    state: present
+- name: check go version
+  shell: go version
+- name: download kubeedge
+  git:
+    repo: 'https://github.com/kubeedge/kubeedge.git'
+    dest: $GOPATH/src/github.com/kubeedge/kubeedge
+    clone: yes
+    update: no
+- name: Run 'keadm' target as root
+  community.general.make:
+    chdir: /src/github.com/kubeedge/kubeedge
+    target: keadm
+  become: yes
+- name: initialize kubeedge
+  shell: sudo /src/github.com/kubeedge/kubeedge/_output/local/bin/keadm init
