@@ -1,0 +1,48 @@
+{
+  "gcp_project_id": "eco-bench",
+  "region": "europe-central2",
+  "ssh_pub_key": "~/.ssh/id_rsa.pub",
+  "keyfile_location": "./eco-bench-96d0fa486a15.json",
+  "prefix": "kubeedge-cluster",
+  "ssh_whitelist": [
+    "0.0.0.0/0"
+  ],
+  "api_server_whitelist": [
+    "0.0.0.0/0"
+  ],
+  "nodeport_whitelist": [
+    "0.0.0.0/0"
+  ],
+  "machines": {
+    "master-0": {
+      "node_type": "master",
+      "size": "e2-small",
+      "zone": "europe-central2-a",
+      "additional_disks": {},
+      "boot_disk": {
+        "image_name": "ubuntu-os-cloud/ubuntu-2004-focal-v20210429",
+        "size": 10
+      }
+    },
+    "worker-0": {
+      "node_type": "worker",
+      "size": "e2-small",
+      "zone": "europe-central2-a",
+      "additional_disks": {},
+      "boot_disk": {
+        "image_name": "ubuntu-os-cloud/ubuntu-2004-focal-v20210429",
+        "size": 10
+      }
+    },
+    "worker-1": {
+      "node_type": "worker",
+      "size": "e2-small",
+      "zone": "europe-central2-a",
+      "additional_disks": {},
+      "boot_disk": {
+        "image_name": "ubuntu-os-cloud/ubuntu-2004-focal-v20210429",
+        "size": 10
+      }
+    }
+  }
+}

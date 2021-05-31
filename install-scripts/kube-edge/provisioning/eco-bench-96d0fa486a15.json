@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "eco-bench",
+  "private_key_id": "96d0fa486a1551acd7cdfe9be78a5fe3cdf9300f",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCisoqQGnLhZmhq\nW/zj44WpGQFWO8DyfEL1nmHwz8RJWhs5n8u9kWdudihQ0NABWlFkPPUYf6qz+W8n\nHFHm7FIfxTuyeC0sg5QKru8eDkN3ygdyfhsTyUWfoPNtkQBqK4OkxvICcimkMj2Q\n1y+qUkUrPcib4KHrf6Jd08ktKduEHx48P4Bv8Fw0Lt3WEmkyoN+u0hNxKS3NK2I8\nu6AilajhUpEPkvYGlrAFhi6XgSn4jdqo73bcenzuhn32OKGZy3t5fngJQZIiEPXz\nlf4kEFsW7vLb6602zTwEdBvfb76nPEQJ00h9IFM6v07IsASqZcdPJeBSF8nZKaYj\nsPa4Zp+RAgMBAAECggEAJ91Lakewwl3PU9A6RLRo+afw1epKOqAL4BbwtIqT880q\nQpJO36ITD9PPyQ2BCfPRYZg2DcyqTPLfM1wTDVv2O2aeW/pqRy/uRDfcyyZ/jYhp\nDrqrc8urTZOoUb5ntZv345YDkmnanirZPvYa7ca+v/uhfeAqjIN3iznrXy+UY+i/\n64eHPvtxxgoaFco2aNCNfmZekhnqACNbOyr0U+3AfsaL+9mwlGwZttUTbKj2seMj\n2wuqicivr9U2fNVqv7HNsyfcmRzOvWz+Lw4Q8zlRPN90OEPXXHooJXy44qfe0g0C\nt4qXc9PQYSS45vT+Z+yidBGlQS5ooqR9d2JRm4IXYQKBgQDU9tuWmsnBjKWqgjOg\naJJXyYPBtgmtTQGQuW5gvdokD7VaeUyscZACL58Y6e6dGmevX0J37C9tx4hgxp6Q\nJqUVZ17Fizu33t3JM69cXjDgENgkeaGGfxehPf5T1+rvyMu3hY2H5/xF6xm1dise\n+XzIHnXu4SBQVmD9DWtnO+KyJQKBgQDDk0LF7DE1px+Y6cEQm8byBhXWI7I7gH4R\nLX9xFlPS7V5rszsW0gKYfXFU2GMVq5VCLYeJzdaoWUKQky2q9J+yWtvyX4TZv6Yn\n/4GfO8b8aGCyZNblIFRxXPDRQP6NF7TtwV/BDd3vUxKklSjC7CKCo3AOutknzmVO\nkbMhpbb9/QKBgHnYIxqvxO8wATjk9ZS5P8FqUi/qbu7wOA0NitFezggD1MbGz895\nyeL2TBh8/0Bzcw8reWQTha9Rkf2MpfvjoF/2nIp5dtlkcZBEOfinC1+nQ4La9Ed3\nP5XJWlGuH4TBZYzCpI81c2itcjAYQ+Oc6n+0rdTWiR5tzV/65ZBS+wjhAoGAIfme\nGvYKInDy+0R4ZqM5L2hBON8goleTDvbhccrYKwdTZNBRDojTLJx2KLAinmwdVM7G\nAfmBNeOzvZvjzhQK/hfsp7FSSeWSPtaTNQ9UZRrY2YTNFCbGpJ7psuBgmDArHTZ/\npPD8wgujbHYBC8OrxxgPam+pM9IWJU0IWmsIXB0CgYEAqeDvyLUjdEOxO2CwALbv\nI57CNs+2UaXRFRlxL2q+IajHkN5nTToOjhyzXAdnbaC9c6F/2wyzRJEJVLwb7nDR\n8eBv0WT9drcQKiNGEuKtachZBQ0/rKast1P0oCMd8u4/BUh/kQY7zcXse4xMXTXV\narpj4e0+LLM6R1HzOxvByQ4=\n-----END PRIVATE KEY-----\n",
+  "client_email": "kubespray@eco-bench.iam.gserviceaccount.com",
+  "client_id": "112765715056595122606",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/kubespray%40eco-bench.iam.gserviceaccount.com"
+}
