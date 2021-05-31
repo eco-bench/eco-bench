@@ -27,12 +27,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: docker.pkg.github.com
-          repository: ${{ github.repository }}/image-processing-cloud
+          repository: image-processing-cloud
           tags: lastest, ${{ github.run_number }}
       - name: Publish to Docker Hub
         uses: docker/build-push-action@v1
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-          repository: ${{ github.repository }}/image-processing-cloud
+          repository: image-processing-cloud
           tags: lastest, ${{ github.run_number }}
