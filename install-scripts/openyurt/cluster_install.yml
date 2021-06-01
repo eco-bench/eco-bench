@@ -1,4 +1,16 @@
 - hosts: master01
+  become: yes
+  tasks:
+    - name: Check Docker Version
+      command: date
+      register: time
+    - name: Print Version
+      debug:
+        msg: "date: {{ time.stdout }}"
+    
+
+- hosts: master01
+  become: yes
   roles:
     - geerlingguy.docker
     - master
@@ -16,7 +28,8 @@
       debug:
         msg: "Kubernetes Version: {{ kubernetesVersion.stdout }}"
 
-- hosts: worker01
+- hosts: worker
+  become: yes
   roles:
     - geerlingguy.docker
     - worker
@@ -29,9 +42,21 @@
         msg: "Docker Version: {{ dockerVersion.stdout }}"
 
 - hosts: master01
+  become: yes
   roles:
     - cni
 
 - hosts: master01
+  become: yes
   roles:
     - openyurt
+
+- hosts: master01
+  become: yes
+  tasks:
+    - name: Check Docker Version
+      command: date
+      register: time
+    - name: Print Version
+      debug:
+        msg: "date: {{ time.stdout }}"

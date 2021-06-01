@@ -48,4 +48,4 @@
     mode: 0755
     remote_src: true
 - name: remove Taint from Master Node
-  shell: kubectl taint nodes master01 node-role.kubernetes.io/master:NoSchedule-
+  shell: "kubectl taint nodes {{master_hostname}} node-role.kubernetes.io/master:NoSchedule-"
