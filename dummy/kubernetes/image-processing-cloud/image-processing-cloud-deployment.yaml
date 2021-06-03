@@ -35,6 +35,10 @@ spec:
               value: mongodb
             - name: MONGODB_PORT
               value: "27017"
+            - name: EPOCHS
+              value: "1"
+            - name: RATE_IN_IMAGES
+              value: "10"
           image: registry.hub.docker.com/ecobench/image-processing-cloud
           name: image-processing-cloud
           ports:

@@ -21,7 +21,8 @@ import (
 )
 
 var counter = 0
-var N = 10
+var N = os.Getenv("RATE_IN_IMAGES") // Sendrate in images e.g. 10 images reveiced before training is started
+var maxEpochs = os.Getenv("EPOCHS") // Epochs
 var trainingStatus = false
 var db *mongo.Database
 
@@ -75,7 +76,10 @@ func sendModel(net *Network) {
 }
 
 func trainData(d Request) {
-	if counter >= N && !trainingStatus {
+	NInt, _ := strconv.Atoi(N)
+	maxEpochsInt, _ := strconv.Atoi(maxEpochs)
+
+	if counter >= NInt && !trainingStatus {
 		trainingStatus = true
 		log.Println("Taining starts")
 
@@ -85,7 +89,7 @@ func trainData(d Request) {
 		rand.Seed(time.Now().UTC().UnixNano())
 		t1 := time.Now()
 
-		for epochs := 0; epochs < 1; epochs++ { // epochs < 5
+		for epochs := 0; epochs < maxEpochsInt; epochs++ { // epochs < 5
 			testFile, _ := os.Open("mnist_train.csv")
 			r := csv.NewReader(bufio.NewReader(testFile))
 			for {
