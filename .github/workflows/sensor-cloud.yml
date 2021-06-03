@@ -1,6 +1,10 @@
 
 name: Build Sensor Cloud Image
 
+env:
+  REPOSITORY: ecobench
+  IMAGE_NAME: sensor-cloud
+
 on:
   workflow_dispatch:
   push:
@@ -12,10 +16,6 @@ on:
   # Run tests for any PRs.
   pull_request:
 
-env:
-  # TODO: Change variable to your image's name.
-  IMAGE_NAME: sensor-cloud
-  
 defaults:
   run:
     working-directory: dummy/sensor-cloud
@@ -41,23 +41,17 @@ jobs:
         run: mvn -B package --file pom.xml
       
       - name: Build image
-        run: docker build . --tag $IMAGE_NAME
+        run: docker build . --tag ${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}
+        
+      - name: Login to Docker Registry
+        uses: docker/login-action@v1
+        with:
+          registry: hub.docker.com
+          username: ecobench
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+    
+      - name: Run docker push
+        run: docker push ${{ env.registry }}/${{ env.image_name }}:latest
 
-      - name: Log into registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-
-      - name: Push image
-        run: |
-          IMAGE_ID=docker.pkg.github.com/${{ github.repository }}/$IMAGE_NAME
-          # Change all uppercase to lowercase
-          IMAGE_ID=$(echo $IMAGE_ID | tr '[A-Z]' '[a-z]')
-          # Strip git ref prefix from version
-          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
-          # Strip "v" prefix from tag name
-          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
-          # Use Docker `latest` tag convention
-          [ "$VERSION" == "main" ] && VERSION=latest
-          echo IMAGE_ID=$IMAGE_ID
-          echo VERSION=$VERSION
-          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
-          docker push $IMAGE_ID:$VERSION
+      - name: Name of Image 
+        run: echo "${{ env.registry }}/${{ env.image_name }}:latest"
