@@ -26,10 +26,10 @@ import (
 var ImageEdgeEndpoint string = fmt.Sprintf("http://%s:%s/image", os.Getenv("IMAGE_EDGE_IP"), os.Getenv("IMAGE_EDGE_PORT"))
 
 // update interval in milliseconds
-const interval int = 1000
+var interval string = os.Getenv("INTERVAL")
 
-const width int = 100
-const height int = 100
+var width string = os.Getenv("WIDTH")
+var height string = os.Getenv("HEIGHT")
 
 type Pick struct {
 	ready bool   `json:"ready"`
@@ -43,13 +43,17 @@ type Request struct {
 
 func generateImage() string {
 	upLeft := image.Point{0, 0}
-	lowRight := image.Point{width, height}
+
+	widthInt, _ := strconv.Atoi(width)
+	heightInt, _ := strconv.Atoi(height)
+
+	lowRight := image.Point{widthInt, heightInt}
 
 	img := image.NewRGBA(image.Rectangle{upLeft, lowRight})
 
 	// Set color for each pixel.
-	for x := 0; x < width; x++ {
-		for y := 0; y < height; y++ {
+	for x := 0; x < widthInt; x++ {
+		for y := 0; y < heightInt; y++ {
 			if rand.Intn(2) == 1 {
 				img.Set(x, y, color.White)
 			} else {
@@ -76,7 +80,8 @@ func generateImage() string {
 }
 
 func sendImage() {
-	ticker := time.NewTicker(time.Duration(interval) * time.Millisecond)
+	intervalInt, _ := strconv.Atoi(interval)
+	ticker := time.NewTicker(time.Duration(intervalInt) * time.Millisecond)
 
 	for range ticker.C {
 
