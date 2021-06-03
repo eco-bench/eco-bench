@@ -48,7 +48,7 @@ jobs:
         with:
           registry: hub.docker.com
           username: ecobench
-          password: ${{ secrets.REGISTRY_PASSWORD }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
     
       - name: Run docker push
         run: docker push ${{ env.registry }}/${{ env.image_name }}:latest
