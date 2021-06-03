@@ -51,7 +51,7 @@ jobs:
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
     
       - name: Run docker push
-        run: docker push ${{ env.registry }}/${{ env.image_name }}:latest
+        run: docker push ${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}
 
       - name: Name of Image 
-        run: echo "${{ env.registry }}/${{ env.image_name }}:latest"
+        run: echo "${{ env.REPOSITORY }}/${{ env.IMAGE_NAME }}"
