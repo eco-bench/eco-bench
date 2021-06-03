@@ -18,6 +18,8 @@ var imageCloudSickEndpoint string = fmt.Sprintf("http://%s:%s/sick", os.Getenv("
 var imageCloudTrainEndpoint string = fmt.Sprintf("http://%s:%s/train", os.Getenv("IMAGE_CLOUD_IP"), os.Getenv("IMAGE_CLOUD_PORT"))
 var edgeDeviceRoboterEndpoint string = fmt.Sprintf("http://%s:%s/pick", os.Getenv("IMAGE_EDGE_DEVICE_IP"), os.Getenv("IMAGE_EDGE_DEVICE_PORT"))
 
+var imageAcceptanceRate = os.Getenv("IMAGE_ACCEPTANCE_RATE")
+
 type Model struct {
 	Hweights []byte `json:hweights`
 	Oweights []byte `json:oweights`
@@ -118,8 +120,9 @@ func processImage(d Request) {
 	//log.Print(totalpixels)
 	//log.Print(blacks / totalpixels)
 
+	imageAcceptanceRateFloat, _ := strconv.ParseFloat(imageAcceptanceRate, 32)
 	answer := false
-	if blacks/totalpixels > 0.5 {
+	if blacks/totalpixels > imageAcceptanceRateFloat {
 		// there is a disease, send instruction to prod_cntrl
 		answer = true
 		fmt.Println("Can be picked")

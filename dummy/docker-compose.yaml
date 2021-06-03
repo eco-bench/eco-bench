@@ -7,7 +7,7 @@ services:
         env_file: ./image-processing-cloud/.env
         ports:
             - '5052:5052'
-    image-processing-egde:
+    image-processing-edge:
         container_name: image-processing-edge
         restart: always
         build: ./image-processing-edge

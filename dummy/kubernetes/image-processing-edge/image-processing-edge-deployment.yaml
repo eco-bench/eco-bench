@@ -31,6 +31,8 @@ spec:
               value: "5052"
             - name: IMAGE_EDGE_PORT
               value: "5051"
+            -name: IMAGE_ACCEPTANCE_RATE
+              value: "0.5"
           image: registry.hub.docker.com/ecobench/image-processing-edge
           name: image-processing-edge
           ports:
