@@ -19,6 +19,8 @@ services:
         restart: always
         env_file: ./camera-edge-device/.env
         build: ./camera-edge-device
+        ports:
+            - '5050:5050'
     mongodb:
         container_name: mongo
         image: mongo
