@@ -16,6 +16,7 @@ import (
 
 var imageCloudSickEndpoint string = fmt.Sprintf("http://%s:%s/sick", os.Getenv("IMAGE_CLOUD_IP"), os.Getenv("IMAGE_CLOUD_PORT"))
 var imageCloudTrainEndpoint string = fmt.Sprintf("http://%s:%s/train", os.Getenv("IMAGE_CLOUD_IP"), os.Getenv("IMAGE_CLOUD_PORT"))
+var edgeDeviceRoboterEndpoint string = fmt.Sprintf("http://%s:%s/pick", os.Getenv("IMAGE_EDGE_DEVICE_IP"), os.Getenv("IMAGE_EDGE_DEVICE_PORT"))
 
 type Model struct {
 	Hweights []byte `json:hweights`
@@ -25,6 +26,11 @@ type Model struct {
 type Request struct {
 	Img  string `json:"img"`
 	UUID string `json:"uuid"`
+}
+
+type Pick struct {
+	ready bool   `json:"ready"`
+	UUID  string `json:"uuid"`
 }
 
 func isBlack(p color.RGBA) bool {
@@ -44,6 +50,37 @@ func isBlack(p color.RGBA) bool {
 
 	return true
 
+}
+
+func sendRobotPick(uuid string, answer bool) {
+	timestamp := strconv.FormatInt(time.Now().UnixNano(), 10)
+
+	data, err := json.Marshal(Pick{
+		ready: answer,
+		UUID:  uuid,
+	})
+
+	if err != nil {
+		return
+	}
+
+	log.Printf("send,pick,%s,%s", uuid, timestamp)
+
+	req, err := http.NewRequest("POST", edgeDeviceRoboterEndpoint, bytes.NewReader(data))
+
+	if err != nil {
+		return
+	}
+
+	go func() {
+		_, err = (&http.Client{}).Do(req)
+
+		log.Println(req)
+		if err != nil {
+			log.Print(err)
+
+		}
+	}()
 }
 
 // source: https://github.com/OpenFogStack/smart-factory-fog-example
@@ -81,9 +118,11 @@ func processImage(d Request) {
 	//log.Print(totalpixels)
 	//log.Print(blacks / totalpixels)
 
+	answer := false
 	if blacks/totalpixels > 0.5 {
 		// there is a disease, send instruction to prod_cntrl
-		// fmt.Println("Disease alert!")
+		answer = true
+		fmt.Println("Can be picked")
 
 		// send data
 		data, err := json.Marshal(d)
@@ -107,6 +146,9 @@ func processImage(d Request) {
 		}
 
 	}
+
+	go sendRobotPick(d.UUID, answer)
+	answer = false
 }
 
 func sendCloud(d Request) {
