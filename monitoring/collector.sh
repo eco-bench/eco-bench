@@ -1,7 +1,8 @@
 # CPU and Memory:
 while true; do
     timestamp=$(printf '%s' "$(date)");
-    cpu_usage=$(top -b -d1 -n1|grep -i "Cpu(s)"|head -c21|cut -d ' ' -f3|cut -d '%' -f1);
+    cpu_usage=$(top -b -d1 -n1|grep -i "Cpu(s)"|head -c13|tail -c5);
+    # |cut -d ' ' -f3|cut -d '%' -f1);
     memory_all=$(top -b | head -4 | tail -1);
     memory_total=$(echo $memory_all | head -c16 | tail -c6);
     memory_free=$(echo $memory_all | head -c29 | tail -c6);
