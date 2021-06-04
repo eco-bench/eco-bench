@@ -7,7 +7,6 @@ SECONDS=0
 echo "{'logs': [" >> stats.json
 while [ $SECONDS -le $max_seconds ]; do
     timestamp=$(printf '%s' "$(date)");
-    echo $SECONDS
     cpu_usage=$(top -b -d1 -n1|grep -i "Cpu(s)"|head -c13|tail -c5);
     # |cut -d ' ' -f3|cut -d '%' -f1);
     memory_all=$(top -b | head -4 | tail -1);
