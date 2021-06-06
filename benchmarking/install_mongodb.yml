@@ -1,0 +1,16 @@
+- hosts: mongodb
+  become: yes
+  vars:
+    mongodb_net_bindip: 0.0.0.0
+    mongodb_security_authorization: "enabled"
+    mongodb_users:
+      - {name: testUser,password: passw0rd,roles: readWrite, database: metrics}
+  roles:
+    - undergreen.mongodb
+  tasks:
+  - name: check mongodb version
+    command: mongo --version
+    register: mongo_version
+  - name: print out mongodb version
+    debug: 
+      msg: "{{ mongo_version.stdout }}"

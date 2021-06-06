@@ -1,0 +1,13 @@
+- hosts: server
+  become: yes
+  vars:
+    test: var
+  roles:
+    - geerlingguy.docker
+  tasks: 
+  - name: check docker version
+    command: docker -v
+    register: docker_version
+  - name: print out docker version
+    debug: 
+      msg: "{{ docker_version.stdout }}"
