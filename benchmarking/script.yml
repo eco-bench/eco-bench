@@ -1,6 +1,10 @@
 - hosts: server
   become: true
   tasks:
+  - name: install iotop
+    apt:
+      name: iotop
+      state: present
   - name: Install mongo client
     shell: |
       sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
@@ -38,7 +42,7 @@
     register: cat_output
     ignore_errors: True
     shell: 
-      cmd: cat stats.log
+      cmd: cat stats.json
       chdir: /etc/scripts
   - name: print out
     debug: 

@@ -2,9 +2,9 @@
   become: yes
   vars:
     mongodb_net_bindip: 0.0.0.0
-    mongodb_security_authorization: "enabled"
-    mongodb_users:
-      - {name: testUser,password: passw0rd,roles: readWrite, database: metrics}
+    mongodb_security_authorization: "disabled"
+    # mongodb_users:
+    #   - {name: testUser,password: passw0rd,roles: readWrite, database: metrics}
   roles:
     - undergreen.mongodb
   tasks:

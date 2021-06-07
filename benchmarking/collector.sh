@@ -5,10 +5,11 @@ max_seconds=$1
 # Mongo DB Endpoint
 # user=testUser
 # password=passw0rd
-host_ip=mongodb://localhost:8080
+host_ip=10.128.0.29
 database=metrics
 SECONDS=0
 
+"" > stats.json
 echo "db.metrics_collection_new.insertMany([" >> stats.json
 
 while [ $SECONDS -le $max_seconds ]; do
