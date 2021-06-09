@@ -13,6 +13,6 @@ Die Komponente sensor-edge simuliert einen Edge-Node, der Daten von einem Edge-D
     <p><b>edge.alertintervall</b> Höufigkeit des Alerts benachbarter Edge-Nodes. Abstand in Millisekunden. (Default 10000 )   </p>
   <h3>REST-API</h3>
   
-  GET /alert Returns: Integer -1 <br>
+  GET /sensorData Returns: json mit allen zwischengespeicherten SensorData-Objekten
   POST /sensorData Parameter: json - "measurement":<double_value>
   
