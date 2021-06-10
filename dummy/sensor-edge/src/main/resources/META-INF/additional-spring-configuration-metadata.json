@@ -5,11 +5,6 @@
     "description": "A description for 'targetNode.port'"
   },
   {
-    "name": "sensorEdgeWorker.intervall",
-    "type": "java.lang.String",
-    "description": "A description for 'sensorEdgeWorker.intervall'"
-  },
-  {
     "name": "targetNode.host",
     "type": "java.lang.String",
     "description": "A description for 'targetNode.host'"
@@ -19,11 +14,40 @@
     "type": "java.lang.String",
     "description": "A description for 'targetNode.url'"
   },
- 
   {
     "name": "edge.endpoints",
     "type": "java.lang.String",
     "description": "A description for 'edge.endpoints'"
+  },
+  {
+    "name": "irrigation.host",
+    "type": "java.lang.String",
+    "description": "A description for 'irrigation.host'"
+  },
+  {
+    "name": "irrigation.port",
+    "type": "java.lang.String",
+    "description": "A description for 'irrigation.port'"
+  },
+  {
+    "name": "criticalTemp",
+    "type": "java.lang.String",
+    "description": "A description for 'criticalTemp'"
+  },
+  {
+    "name": "criticalHumidity",
+    "type": "java.lang.String",
+    "description": "A description for 'criticalHumidity'"
+  },
+  {
+    "name": "criticalsoilMoisture",
+    "type": "java.lang.String",
+    "description": "A description for 'criticalsoilMoisture'"
+  },
+  {
+    "name": "criticalPrecipitation",
+    "type": "java.lang.String",
+    "description": "A description for 'criticalPrecipitation'"
   }
- 
+
 ]}

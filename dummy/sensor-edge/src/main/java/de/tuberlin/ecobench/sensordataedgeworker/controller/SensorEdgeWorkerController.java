@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.tuberlin.ecobench.sensordataedgeworker.model.SensorData;
+import de.tuberlin.ecobench.sensordataedgeworker.model.SensorWorkerConfig;
 import de.tuberlin.ecobench.sensordataedgeworker.service.SensorService;
  
 @RestController
@@ -20,7 +21,7 @@ import de.tuberlin.ecobench.sensordataedgeworker.service.SensorService;
 public class SensorEdgeWorkerController {
 
 	private final SensorService sensorService = new SensorService();
-        private static final Logger logger = LoggerFactory.getLogger(SensorEdgeWorkerController.class);
+    private static final Logger logger = LoggerFactory.getLogger(SensorEdgeWorkerController.class);
 
 	/**
 	 * für Testzwecke
@@ -41,10 +42,9 @@ public class SensorEdgeWorkerController {
 	 * @param sd Sensordata
 	 * @return
 	 */
-	@PostMapping(path = "/sensorData", produces = "applicatin/json")
+	@PostMapping(path = "sensorData", consumes = "application/json", produces = "applicatin/json")
 	public ResponseEntity<SensorData> postSensorData(@RequestBody SensorData sd) {
-		//logger.info("Sensordaten empfangen: "+sd.getMeasurement());
-		sensorService.addSensorData(sd);
+ 		sensorService.processSensorData(sd);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
@@ -54,10 +54,31 @@ public class SensorEdgeWorkerController {
 	 * @param sd Sensordata
 	 * @return -1
 	 */
-	@GetMapping(path = "/alert",consumes = "application/json")
-	public ResponseEntity<Integer> getTemperature() {
-		logger.info("Alert empfangen.");
-		return new ResponseEntity<>(-1, HttpStatus.OK);
+	@GetMapping(path = "sensorData",consumes = "application/json",produces = "applicatin/json")
+	public ResponseEntity<String> getWeather() {
+		logger.info("Processing Weather Data Request from other Plantation.");
+	    String resp = SensorService.getSensorDataList();
+ 		return new ResponseEntity<>(resp, HttpStatus.OK);
 	}
-
+	
+	/**
+	 * Properties abfragen
+	 * @return
+	 */
+	@GetMapping(path = "config",produces="application/json", consumes = "application/json")
+	public ResponseEntity<String> getConfig() { 
+		String resp = SensorService.getConfig();
+ 		return new ResponseEntity<>(resp, HttpStatus.OK);
+	}
+	
+	/**
+	 * Properties anpassen
+	 * @param props
+	 * @return
+	 */
+	@PostMapping(path = "config",produces="application/json", consumes = "application/json")
+	public ResponseEntity<SensorWorkerConfig> postAppProperties(@RequestBody SensorWorkerConfig config) { 
+	     SensorService.changeConfig(config);
+ 		return new ResponseEntity<>(HttpStatus.OK);
+	}
 }
