@@ -1,5 +1,6 @@
-package model;
+package de.tuberlin.ecobench.edgeirrigationsystem.model;
 
+ 
 public class IrrigationConfig {
 
 	/**

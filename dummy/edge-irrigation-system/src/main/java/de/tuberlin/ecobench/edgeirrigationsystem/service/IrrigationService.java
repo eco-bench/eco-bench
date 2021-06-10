@@ -1,4 +1,4 @@
-package service;
+package de.tuberlin.ecobench.edgeirrigationsystem.service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,6 +6,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.mashape.unirest.http.HttpResponse;
@@ -13,8 +14,9 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
-import model.IrrigationConfig;
+import de.tuberlin.ecobench.edgeirrigationsystem.model.IrrigationConfig;
  
+@Service
 public class IrrigationService {
 
 	
@@ -44,6 +46,10 @@ public class IrrigationService {
  	               .asJson();
   	}
  	
+ 	/**
+ 	 * für test
+ 	 * @return
+ 	 */
  	public static String getConfigList() {
  		String jsonLogs = new Gson().toJson(configList);
  		return jsonLogs;
@@ -57,7 +63,7 @@ public class IrrigationService {
         newConfig.setWaterPressure(config.getWaterPressure());
         //Calculate Time Delta: Worker timestamp - Irrigation Timestamp (Transmission Latency)
         newConfig.setTimeDelta(System.currentTimeMillis()-config.getTimeDelta());
- 		configList.add(config);
+ 		configList.add(newConfig);
  		if(configList.size()>=logStorageLimit) {
  			try {
 				sendLogsToEndpoint();
