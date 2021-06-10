@@ -2,6 +2,9 @@ package de.tuberlin.ecobench.sensordataedgeworker.model;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jdk.internal.org.jline.utils.Log;
 
 public class SensorData {
@@ -9,6 +12,7 @@ public class SensorData {
 	public enum SensorType {
 		TEMPERATURE, HUMIDITY, SOILMOISTURE, PRECIPITATION
 	}
+	private static final Logger log = LoggerFactory.getLogger(SensorType.class);
 
 	/**
 	 * sensorID automatisch generieren
@@ -63,7 +67,10 @@ public class SensorData {
 
 	public void setGeneratedSensorID() {
 		this.sensorID = generateSensorID();
+		
 	}
+	
+	
 	public void setSensorTypeByID() {
 		if(this.getSensorID()!=null) {
 		this.sensorType = getSensorTypeByID(this.getSensorID());
@@ -72,15 +79,20 @@ public class SensorData {
  		}
 	}
 
-	/**
-	 * Für den Objekt SensorID und SensorTyp generieren
-	 */
-	public void initSensorObject() {
-		this.setSensorID(generateSensorID());
-		this.setSensorType(this.getSensorTypeByID(this.sensorID));
-		
+ 
+	
+	public static SensorData initSensorObject() {
+		SensorData sd = new SensorData();
+		String sensorID = generateSensorID();
+		String sensorType = getSensorTypeByID(sensorID);
+		sd.setSensorID(sensorID);
+		sd.setSensorType(sensorType);
+		 log.info("Sensor erstellt: ID="+sd.getSensorID()+" , Typ: "+sd.getSensorType());
+		return sd;
 	}
-	public String getSensorTypeByID(String sensorID) {
+ 
+	
+	public static String getSensorTypeByID(String sensorID) {
 		if (sensorID.toUpperCase().contains("TEMPERATURE")) {
 			return "TEMPERATURE";
 		} else if (sensorID.toUpperCase().contains("HUMIDITY")) {

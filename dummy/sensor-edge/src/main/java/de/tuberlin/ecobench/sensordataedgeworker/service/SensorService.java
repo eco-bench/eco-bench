@@ -50,13 +50,13 @@ public class SensorService {
 	 */
 	public void processSensorData(SensorData sd) {
 		// Speichern
-		SensorData newSd = new SensorData();
-		newSd.initSensorObject();
+ 		SensorData newSd = SensorData.initSensorObject();
 		newSd.setMeasurement(sd.getMeasurement());
+		
 		sensorDataList.add(newSd);
 
 		// Bei kritischen Messwert Daten benachbarter Plantagen abfragen, bewässerung anpasssen und an das Bewässerungssystem (irrigation System) übermitteln
-		if (this.isCriticalValue(sd.getSensorType(), sd.getMeasurement())) {
+		if (this.isCriticalValue(newSd.getSensorType(), newSd.getMeasurement())) {
 			// Daten von benachbarten Plantagen abfragen
 			List<SensorData> nearPlantData = getWeatherDataFromNeighbourPlantations();
 			// SOLL-Wasserdruck
@@ -216,6 +216,7 @@ public class SensorService {
 	 */
 	public boolean isCriticalValue(String sensorType, double value) {
 		boolean result = false;
+		
 		switch (sensorType.toUpperCase()) {
 		case "TEMPERATURE":
 			result = ((int) value > (int) SensorWorkerConfig.getCriticalTemp()) ? true : false;
