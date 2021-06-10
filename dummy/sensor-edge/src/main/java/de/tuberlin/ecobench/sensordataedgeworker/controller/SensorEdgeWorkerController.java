@@ -33,7 +33,6 @@ public class SensorEdgeWorkerController {
 
 		List<SensorData> sensorData = sensorService.getSensorData();
 		return new ResponseEntity<>(sensorData, HttpStatus.OK);
-
 	}
 
 	/**
@@ -44,6 +43,7 @@ public class SensorEdgeWorkerController {
 	 */
 	@PostMapping(path = "sensorData", consumes = "application/json", produces = "applicatin/json")
 	public ResponseEntity<SensorData> postSensorData(@RequestBody SensorData sd) {
+		System.out.println(sd.getMeasurement());
  		sensorService.processSensorData(sd);
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
