@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import de.tuberlin.ecobench.edgeirrigationsystem.model.IrrigationConfig;
+import de.tuberlin.ecobench.edgeirrigationsystem.model.IrrigationProperties;
 import de.tuberlin.ecobench.edgeirrigationsystem.service.IrrigationService;
 
 @RestController
@@ -45,4 +46,27 @@ public class IrrigationController {
 		String resp = IrrigationService.getConfigList();
  		return new ResponseEntity<>(resp, HttpStatus.OK);
 	}
+	
+	/**
+	 * Properties abfragen
+	 * @return
+	 */
+	@GetMapping(path = "config",produces="application/json", consumes = "application/json")
+	public ResponseEntity<String> getAppProperties() { 
+		String resp = IrrigationService.getAppProperties();
+ 		return new ResponseEntity<>(resp.toString(), HttpStatus.OK);
+	}
+	
+	/**
+	 * Properties anpassen
+	 * @param props
+	 * @return
+	 */
+	@PostMapping(path = "config",produces="application/json", consumes = "application/json")
+	public ResponseEntity<IrrigationProperties> postAppProperties(@RequestBody IrrigationProperties props) { 
+	     IrrigationService.changeProperties(props);
+ 		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	
 }

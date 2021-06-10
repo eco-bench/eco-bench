@@ -3,9 +3,9 @@ package de.tuberlin.ecobench.edgeirrigationsystem.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
@@ -15,19 +15,17 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
 import de.tuberlin.ecobench.edgeirrigationsystem.model.IrrigationConfig;
- 
+import de.tuberlin.ecobench.edgeirrigationsystem.model.IrrigationProperties;
+
 @Service
 public class IrrigationService {
 
-	
 	private static final Logger log = LoggerFactory.getLogger(IrrigationService.class);
 
 	private static List<IrrigationConfig> configList = new ArrayList<>();
-	
-	private static int logStorageLimit;
-	private static String benchmarkEndPointHost;
-	private static String benchmarkEndpointPort;
-	private static String benchmarkEndpointURL;
+
+	private static IrrigationProperties props = new IrrigationProperties();
+
 	/**
 	 * Logs an den Benchmarking Endpoint zur Auswertung senden
 	 * 
@@ -35,62 +33,88 @@ public class IrrigationService {
 	 * @param median
 	 * @throws UnirestException
 	 */
- 	private static void sendLogsToEndpoint() throws UnirestException {
- 		log.info("Sending Logs");
- 		String jsonLogs = new Gson().toJson(configList);
-   	    HttpResponse<JsonNode> jsonResponse 
- 	      = Unirest.post("http://"+benchmarkEndPointHost+":"+benchmarkEndpointPort+benchmarkEndpointURL)
-  	    	      .header("accept", "application/json")
- 	    	      .header("content-type", "application/json")
- 	    	      .body(jsonLogs)
- 	               .asJson();
-  	}
- 	
- 	/**
- 	 * für test
- 	 * @return
- 	 */
- 	public static String getConfigList() {
- 		String jsonLogs = new Gson().toJson(configList);
- 		return jsonLogs;
+	private static void sendLogsToEndpoint() throws UnirestException {
+		if (IrrigationProperties.getBenchmarkEndPointHost() != null
+				&& !IrrigationProperties.getBenchmarkEndPointHost().isEmpty()
+				&& IrrigationProperties.getBenchmarkEndpointPort() != null
+				&& !IrrigationProperties.getBenchmarkEndpointPort().isEmpty()) {
+			log.info("Sending Logs");
+			String jsonLogs = new Gson().toJson(configList);
+			HttpResponse<JsonNode> jsonResponse = Unirest
+					.post("http://" + IrrigationProperties.getBenchmarkEndPointHost() + ":"
+							+ IrrigationProperties.getBenchmarkEndPointHost()
+							+ IrrigationProperties.getBenchmarkEndpointURL())
+					.header("accept", "application/json").header("content-type", "application/json").body(jsonLogs)
+					.asJson();
+			// Speicher freigeben
+			configList = new ArrayList<>();
+		} else {
+			log.info("Kein Bancharking Endpoint spezifiziert");
+		}
+	}
 
- 	}
- 	
- 	public static void addConfig(IrrigationConfig config) {
- 		log.info("Water Pressure Adjusted to: "+config.getWaterPressure()+" bar.");
- 		IrrigationConfig newConfig = new IrrigationConfig();
- 		newConfig.setWorkerID(config.getWorkerID());
-        newConfig.setWaterPressure(config.getWaterPressure());
-        //Calculate Time Delta: Worker timestamp - Irrigation Timestamp (Transmission Latency)
-        newConfig.setTimeDelta(System.currentTimeMillis()-config.getTimeDelta());
- 		configList.add(newConfig);
- 		if(configList.size()>=logStorageLimit) {
- 			try {
+	/**
+	 * für test
+	 * 
+	 * @return
+	 */
+	public static String getConfigList() {
+		String jsonLogs = new Gson().toJson(configList);
+		return jsonLogs;
+
+	}
+
+	public static void addConfig(IrrigationConfig config) {
+		log.info("Water Pressure Adjusted to: " + config.getWaterPressure() + " bar.");
+		IrrigationConfig newConfig = new IrrigationConfig();
+		newConfig.setWorkerID(config.getWorkerID());
+		newConfig.setWaterPressure(config.getWaterPressure());
+		// Calculate Time Delta: Worker timestamp - Irrigation Timestamp (Transmission
+		// Latency)
+		newConfig.setTimeDelta(System.currentTimeMillis() - config.getTimeDelta());
+		configList.add(newConfig);
+		if (configList.size() >= IrrigationProperties.getlogStorageLimit()) {
+			try {
 				sendLogsToEndpoint();
 			} catch (UnirestException e) {
- 			    log.error("Error sending Logs to Benchmarking Endpoint");
+				log.error("Error sending Logs to Benchmarking Endpoint");
 			}
- 		}
- 	}
- 	
-	@Value("${logStorageLimit}")
-	public void setlogStorageLimit(int logStorageLimit) {
-		IrrigationService.logStorageLimit = logStorageLimit;
-	}
- 
-	@Value("${benchmarkEndPointHost}")
-	public static void setBenchmarkEndPointHost(String benchmarkEndPointHost) {
-		IrrigationService.benchmarkEndPointHost = benchmarkEndPointHost;
+		}
 	}
 
-	@Value("${benchmarkEndpointPort}")
-	public static void setBenchmarkEndpointPort(String benchmarkEndpointPort) {
-		IrrigationService.benchmarkEndpointPort = benchmarkEndpointPort;
+	/**
+	 * properties abfragen
+	 * 
+	 * @return
+	 */
+	public static String getAppProperties() {
+		JSONObject obj = new JSONObject();
+		obj.put("benchmarkEndPointHost", IrrigationProperties.getBenchmarkEndPointHost());
+		obj.put("benchmarkEndpointPort", IrrigationProperties.getBenchmarkEndpointPort());
+		obj.put("benchmarkEndpointURL", IrrigationProperties.getBenchmarkEndpointURL());
+		obj.put("logStorageLimit", IrrigationProperties.getlogStorageLimit());
+		return obj.toString();
 	}
 
-	@Value("${benchmarkEndpointURL}")
-	public static void setBenchmarkEndpointURL(String benchmarkEndpointURL) {
-		IrrigationService.benchmarkEndpointURL = benchmarkEndpointURL;
+	/**
+	 * Properties Anpassen
+	 * 
+	 * @param props
+	 */
+	public static void changeProperties(IrrigationProperties props) {
+		if (props.getBenchmarkEndPointHost() != null && !props.getBenchmarkEndPointHost().isEmpty()) {
+			props.setBenchmarkEndPointHost(props.getBenchmarkEndPointHost());
+		}
+		if (props.getBenchmarkEndpointPort() != null && !props.getBenchmarkEndpointPort().isEmpty()) {
+
+			props.setBenchmarkEndpointPort(props.getBenchmarkEndpointPort());
+		}
+		if (props.getBenchmarkEndpointURL() != null && !props.getBenchmarkEndpointURL().isEmpty()) {
+
+			props.setBenchmarkEndpointURL(props.getBenchmarkEndpointURL());
+		}
+			props.setlogStorageLimit(props.getlogStorageLimit());
+		 
 	}
-	
+
 }
