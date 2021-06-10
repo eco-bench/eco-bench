@@ -1,21 +1,22 @@
-Die Komponente sensor-edge simuliert einen Edge-Node, der Daten von einem Edge-Device empfängt, vorverarbeitet und in die Cloud sendet. Außerdem wird beim Über-/Unterschreiten kritischer Messwerte die Wetterlage banchbarter Plantagen (andere sensor-edge-nodes) abgefragt und die Bewässerung ggf. angepasst.
+Die Komponente sensor-edge simuliert einen Edge-Node, der Daten von einem Edge-Device empfängt, vorverarbeitet und in die Cloud sendet. Außerdem wird beim Über-/Unterschreiten kritischer Messwerte die Wetterlage banchbarter Plantagen (andere sensor-edge-nodes) abgefragt und die Bewässerung ggf. angepasst. <br></br>
 Die Komponente Arbeitet mit Daten im int-Format und führt ggf. Casts durch. 
-Die Namen der Sensoren, Typen der Sensoren und die Worker-ID werden automatisch generiert.
+Die Namen der Sensoren, Typen der Sensoren und die Worker-ID werden automatisch generiert. <br></br>
+
 Es werden vier Sensor-Typen unterstützt: TEMPERATURE, HUMIDITY, SOILMOISTURE, PRECIPITATION.
  
 <h2> Konfiguration: </h2>
-  Programmagumente können in der application.properties oder als Java-Argumente übergeben werden.
-  Alle Argumente sind obligatrisch.
-  
-  <h3>Konfiguration</h3>
+<p>  Programmagumente können in der application.properties, manche über HTTP-Post oder als Java-Argumente übergeben werden. </p>
+   
+  <h3><b>Cloud-Argumente</b></h3>
   <p><b>targetNode.host</b> - Host des zugehörigen Cloud-Nodes</p>
   <p><b>targetNode.port</b> - Port des zugehörigen Cloud-Nodes</p> 
   <p><b>targetNode.url</b>  - URL des zugehörigen Cloud-Nodes (default / )</p>
   <p><b>intervall</b> - Aggregationsintervall (Alle n Einträge wird ein Median berechnet und in die Cloud gesendet)</p>
+  <h3><b>Edge2-Edge-Bewässerung-Argumente</b></h3>
   <p><b>edge.endpoints</b> - Eine Liste von Endpoints anderer Edge Worker Nodes für Edge-to-Edge-Kommunikation. Der Parameter wird als eine Liste von Strings (CSV,Delimiter , ) übergeben. Die Endpoint Strings müssen die Protokoll-Angabe beinhalten. (http:// beginnen)</p>
-   <p><b>intervall</b> - Aggregationsintervall (Alle n Einträge wird ein Median berechnet und in die Cloud gesendet)</p>
-  <p><b>irrigation.host </b> - Host der Bewässerungsanlage.</p>
-  <p><b>irrigation.port</b> - Port der Bewässerungsanlage.</p>
+   <p><b>irrigation.host </b> - Host der Bewässerungsanlage. Url "/water" ist hard gecoded. </p>
+  <p><b>irrigation.port</b> - Port der Bewässerungsanlage. Url "/water" ist hard gecoded.</p>
+    <h3><b>Kritische Trigger-Werte für Bewässerung (default 50)</b></h3>
   <p><b>criticalTemp</b> - Kritische Temperatur, die beim Überschreiten eine Anpassung der Bewässerung auslöst.</p>
      <p><b>criticalHumidity</b> - Kritische Luftfeuchtigkeit, die beim Unterschreiten eine Anpassung der Bewässerung auslöst.</p>
   <p><b>criticalsoilMoisture</b> - Kritische Bodenfeuchtigkeit, die beim Unterschreiten eine Anpassung der Bewässerung auslöst.</p>
