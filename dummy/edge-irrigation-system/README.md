@@ -13,7 +13,7 @@
 <h3>HTTP-Pfade</h3>
 <p><b>POST /water</b> Neue Bewässerungskonfiguration als JSON übermitteln (siehe unten)</p>
 <p><b>GET /water</b> Für Testzwecke. Alle gebufferten Konfigurationen abrufen.</p>
-<p><b>POST /config</b> Properties zur Laufzeit Anpassen als JSON.z.B. für logSotageLimit {"logStorageLimit":123} </p>
+<p><b>POST /config</b> Properties zur Laufzeit Anpassen als JSON.z.B. für logStorageLimit {"logStorageLimit":123} </p>
 <p><b>GET /config</b> Properties als JSON anzeigen. </p>
 <br></br>
 
