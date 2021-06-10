@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
         - name: sensor-device
-          image: docker.pkg.github.com/eco-bench/eco-bench/sensor-edge-device:latest
+          image: ecobench/sensor-edge-device:latest
           ports:
             - containerPort: 8080
           envFrom:
@@ -45,6 +45,6 @@ metadata:
 data:
   DEVICE_TYPE: "sensor"
   WORKER_PORT: "80"
-  WORKER_IP: "http://sensor-ew-service"
+  WORKER_IP: "http://sensor-ew1-service"
   WORKER_ENDPOINT: "sensorData"
   PING_INTERVAL: "200" #in ms
