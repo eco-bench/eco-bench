@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 
-# CPU and Memory:
 max_seconds=$1
-# Mongo DB Endpoint
-# user=testUser
-# password=passw0rd
 host_ip=10.128.0.2
 database=metrics
 SECONDS=0
@@ -18,14 +14,10 @@ while [ $SECONDS -le $max_seconds ]; do
     hostname=$(echo $(hostname));
     cpu_usage=$(top -b -d1 -n1 |grep -i "Cpu(s)" |awk '{print $2}')
 
-    # memory_all=$(top -b | head -4 | tail -1);
     memory_all=$(top -b -d1 -n1 |grep "KiB Mem")
     memory_total=$(echo $memory_all |awk '{print $4}');
     memory_free=$(echo $memory_all |awk '{print $6}');
     memory_used=$(echo $memory_all |awk '{print $8}');
-    # memory_total=$(echo $memory_all | head -c16 | tail -c6);
-    # memory_free=$(echo $memory_all | head -c29 | tail -c6);
-    # memory_used=$(echo $memory_all | head -c43 | tail -c6);
 
     io_all=$(iotop -b -n 1 -o);
     io_total_read=$(echo $io_all |grep -e Total | awk '{print $5}');
@@ -41,7 +33,4 @@ echo "])" >> stats.json
 
 mongo $host_ip/$database < stats.json
 
-# watch -n 2
-# top -b | head -4 | tail -2 | perl -anlE 'say sprintf("used: %s   total: %s  => RAM Usage: %.1f%%", \$F[7], \$F[3], 100*\$F[7]/\$F[3]) if /MiB Mem/'
-# grep -E --color 'Mem|Cache|Swap' /proc/meminfo
 exit 0
