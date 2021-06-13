@@ -28,7 +28,8 @@ spec:
     spec:
       containers:
         - name: sensor-ew1
-          image: ecobench/sensor-edge:latest
+          image: ecobench/sensor-edge
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
           envFrom:
