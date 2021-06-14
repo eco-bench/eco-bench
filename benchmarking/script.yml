@@ -36,7 +36,7 @@
     poll: 5 # poll will check if the task is completed or not for every x secs
     ignore_errors: True
     shell: 
-      cmd: bash collector.sh 30
+      cmd: bash collector.sh 30 k3s
       chdir: /etc/scripts
   - name: execute shell script
     register: cat_output
