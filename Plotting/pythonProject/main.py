@@ -8,6 +8,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import json
+from datetime import datetime
 from pandas import DataFrame
 from pymongo import MongoClient
 
@@ -25,7 +26,8 @@ def print_hi(name):
     values = []
     timestamps = []
     for x in parsed_json:
-        timestamps.append(x['timestamp'])
+        datetime_object = datetime.strptime(x['timestamp'], '%a %b %d %H:%M:%S %Z %Y').strftime('%M:%S')
+        timestamps.append(datetime_object)
         values.append(x['MEM_USED'])
     data = {'value': values,
             'time': timestamps}
@@ -33,6 +35,7 @@ def print_hi(name):
     plt.xlabel("Time")
     plt.ylabel("Value")
     plt.xticks(range(len(data['time'])), data['time'])
+    plt.xticks(rotation=45)
 
     plt.show()
 
