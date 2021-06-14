@@ -21,23 +21,33 @@ def print_hi(name):
     # db = client['metrics']
     # collection = db['metrics_collection_new']
     # val = collection.find()
-    json_data = open("data.json").read()
+    data = data_for_plot(open("data.json").read())
+    data2 = data_for_plot(open("data_k3s.json").read())
+
+    plt.plot(data['value'], label="microk8s")
+    plt.xticks(range(len(data['time'])), data['time'])
+    plt.xticks(rotation=30)
+
+    plt.plot(data2['value'], label="k3s")
+    plt.xticks(range(len(data2['time'])), data2['time'])
+    plt.xticks(rotation=30)
+    plt.title('CPU over Time')
+    plt.legend()
+    plt.show()
+
+
+def data_for_plot(json_data):
+    # json_data: str = open("data.json").read()
     parsed_json = (json.loads(json_data))
     values = []
     timestamps = []
     for x in parsed_json:
-        datetime_object = datetime.strptime(x['timestamp'], '%a %b %d %H:%M:%S %Z %Y').strftime('%M:%S')
+        datetime_object = datetime.strptime(x['timestamp'], '%a %b %d %H:%M:%S %Z %Y').strftime('%H:%M:%S')
         timestamps.append(datetime_object)
-        values.append(x['MEM_USED'])
+        values.append(x['CPU'])
     data = {'value': values,
             'time': timestamps}
-    plt.plot(data['value'])
-    plt.xlabel("Time")
-    plt.ylabel("Value")
-    plt.xticks(range(len(data['time'])), data['time'])
-    plt.xticks(rotation=45)
-
-    plt.show()
+    return data
 
 
 # Press the green button in the gutter to run the script.
