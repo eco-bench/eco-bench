@@ -16,14 +16,27 @@
     dest: /root
     remote_src: yes
 - name: Move keadm bin
-  command: mv /root/keadm-v1.4.0-linux-amd64/keadm/keadm /usr/local/bin
+  shell: mv /root/keadm-v1.4.0-linux-amd64/keadm/keadm /usr/local/bin
 #- name: Copy Kube Config
 #  command: cp /etc/kubernetes/admin.conf $HOME/.kube/config
+- name: Reset KE
+  shell: keadm reset
+  ignore_errors: yes
 - name: initialize kubeedge
-  shell: keadm init --advertise-address="{{ hostvars['kubeedge-cluster-master-0']['ansible_host'] }}"
+  become: true
+  shell: keadm init --advertise-address={{ hostvars['kubeedge-cluster-master-0']['ansible_host'] }}
+  register: init_output
+- name: whoami
+  shell: whoami
+  register: whoami
+- debug:
+    msg: "{{ whoami }}"
+- debug:
+    msg: "{{ init_output }}"
 - name: Generate Token
-  command: keadm gettoken --kube-config=/etc/kubernetes/admin.conf
+  become: true
+  shell: keadm gettoken
   register: generate_token_output
-- name: Set token
-  set_fact:
-    keadm_token: "{{ generate_token_output.stdout }}"
+#- name: Set token
+#  set_fact:
+#    keadm_token: "{{ generate_token_output.stdout }}"

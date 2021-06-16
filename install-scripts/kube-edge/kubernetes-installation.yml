@@ -34,7 +34,7 @@
   become: yes
   roles:
     - geerlingguy.docker
-    - geerlingguy.kubernetes
+    # - geerlingguy.kubernetes
     # - node
   tasks:
     - name: Check Docker Version
