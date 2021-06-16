@@ -13,31 +13,23 @@ from pandas import DataFrame
 from pymongo import MongoClient
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
-
+def benchmarking_plot(title, attribute):
     # client = MongoClient(host='35.192.54.171')
     # db = client['metrics']
     # collection = db['metrics_collection_new']
     # val = collection.find()
-    data = data_for_plot(open("data.json").read())
-    data2 = data_for_plot(open("k3s_data.json").read())
+    data = data_for_plot(open("micro_data.json").read(), attribute, True)
+    data2 = data_for_plot(open("k3s_data2.json").read(), attribute, False)
 
-    plt.plot(data['value'], label="microk8s")
-    plt.xticks(range(len(data['time'])), data['time'])
-    plt.xticks(rotation=30)
+    plt.plot(data['time'], data['value'], label="microk8s")
+    plt.plot(data2['time'], data2['value'], label="k3s")
 
-    plt.plot(data2['value'], label="k3s")
-    plt.xticks(range(len(data2['time'])), data2['time'])
-    plt.xticks(rotation=30)
-    plt.title('CPU over Time')
+    plt.xticks(range(0,30))
+    plt.title(title)
     plt.legend()
     plt.show()
 
-
-def data_for_plot(json_data):
-    # json_data: str = open("data.json").read()
+def data_for_plot(json_data, attribute, calc):
     parsed_json = (json.loads(json_data))
     values = []
     timestamps = []
@@ -45,18 +37,20 @@ def data_for_plot(json_data):
 
     for index, x in enumerate(parsed_json):
         datetime_object = datetime.strptime(x['timestamp'], '%a %b %d %H:%M:%S %Z %Y')
-        datetime_diff = (datetime_object-last_datetime).total_seconds()
+        datetime_diff = int((datetime_object-last_datetime).total_seconds())
         timestamps.append(datetime_diff)
 
-        values.append(float(x['CPU']))
+        att = float(x[attribute])
+        if (attribute == 'MEM_USED' and calc):
+            att = att / 1000
+
+        values.append(att)
 
     data = {'value': values,
             'time': timestamps}
+
     return data
 
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    benchmarking_plot('CPU over time', 'CPU')
+    benchmarking_plot('Memory usage over time', 'MEM_USED')
