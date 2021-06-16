@@ -22,7 +22,7 @@ def print_hi(name):
     # collection = db['metrics_collection_new']
     # val = collection.find()
     data = data_for_plot(open("data.json").read())
-    data2 = data_for_plot(open("data_k3s.json").read())
+    data2 = data_for_plot(open("k3s_data.json").read())
 
     plt.plot(data['value'], label="microk8s")
     plt.xticks(range(len(data['time'])), data['time'])
@@ -41,10 +41,15 @@ def data_for_plot(json_data):
     parsed_json = (json.loads(json_data))
     values = []
     timestamps = []
-    for x in parsed_json:
-        datetime_object = datetime.strptime(x['timestamp'], '%a %b %d %H:%M:%S %Z %Y').strftime('%H:%M:%S')
-        timestamps.append(datetime_object)
-        values.append(x['CPU'])
+    last_datetime = datetime.strptime(parsed_json[0]['timestamp'], '%a %b %d %H:%M:%S %Z %Y')
+
+    for index, x in enumerate(parsed_json):
+        datetime_object = datetime.strptime(x['timestamp'], '%a %b %d %H:%M:%S %Z %Y')
+        datetime_diff = (datetime_object-last_datetime).total_seconds()
+        timestamps.append(datetime_diff)
+
+        values.append(float(x['CPU']))
+
     data = {'value': values,
             'time': timestamps}
     return data
