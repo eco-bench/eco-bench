@@ -40,7 +40,7 @@ i=1
 for name in "${MASTER_NAMES[@]}"; do
   private_ip=$(jq -r '. | select( .key=='"\"${name}\""' ) | .value.private_ip'  <(echo "${MASTERS}"))
   public_ip=$(jq -r '. | select( .key=='"\"${name}\""' ) | .value.public_ip'  <(echo "${MASTERS}"))
-  echo "${name} ansible_user=ubuntu ansible_host=${public_ip} ip=${private_ip} etcd_member_name=etcd${i}"
+  echo "${name} ansible_user=root ansible_host=${public_ip} ip=${private_ip} etcd_member_name=etcd${i}"
   i=$(( i + 1 ))
 done
 
@@ -48,7 +48,7 @@ done
 for name in "${WORKER_NAMES[@]}"; do
   private_ip=$(jq -r '. | select( .key=='"\"${name}\""' ) | .value.private_ip'  <(echo "${WORKERS}"))
   public_ip=$(jq -r '. | select( .key=='"\"${name}\""' ) | .value.public_ip'  <(echo "${WORKERS}"))
-  echo "${name} ansible_user=ubuntu ansible_host=${public_ip} ip=${private_ip}"
+  echo "${name} ansible_user=root ansible_host=${public_ip} ip=${private_ip}"
 done
 
 echo ""

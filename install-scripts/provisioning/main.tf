@@ -18,110 +18,20 @@ provider "google" {
 ## General
 ##
 
-resource "google_compute_network" "main" {
-  name = "${var.prefix}-network"
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "google_compute_subnetwork" "main" {
-  name          = "${var.prefix}-subnet"
-  network       = google_compute_network.main.name
-  ip_cidr_range = var.private_network_cidr
-  region        = var.region
-}
-
-resource "google_compute_firewall" "deny_all" {
-  name    = "${var.prefix}-default-firewall"
-  network = google_compute_network.main.name
-
-  priority = 1000
-
-  deny {
-    protocol = "all"
-  }
-}
-
-resource "google_compute_firewall" "allow_internal" {
-  name    = "${var.prefix}-internal-firewall"
-  network = google_compute_network.main.name
-
-  priority = 500
-
-  source_ranges = [var.private_network_cidr]
-
-  allow {
-    protocol = "all"
-  }
-}
-
-resource "google_compute_firewall" "ssh" {
-  name    = "${var.prefix}-ssh-firewall"
-  network = google_compute_network.main.name
-
-  priority = 100
-
-  source_ranges = var.ssh_whitelist
-
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
-}
-
-resource "google_compute_firewall" "api_server" {
-  name    = "${var.prefix}-api-server-firewall"
-  network = google_compute_network.main.name
-
-  priority = 100
-
-  source_ranges = var.api_server_whitelist
-
-  allow {
-    protocol = "tcp"
-    ports    = ["6443"]
-  }
-}
-
-resource "google_compute_firewall" "nodeport" {
-  name    = "${var.prefix}-nodeport-firewall"
-  network = google_compute_network.main.name
-
-  priority = 100
-
-  source_ranges = var.nodeport_whitelist
-
-  allow {
-    protocol = "tcp"
-    ports    = ["30000-32767"]
-  }
-}
-
-resource "google_compute_firewall" "ingress_http" {
-  name    = "${var.prefix}-http-ingress-firewall"
-  network = google_compute_network.main.name
-
-  priority = 100
-
-  allow {
-    protocol = "tcp"
-    ports    = ["80"]
-  }
-}
-
-resource "google_compute_firewall" "ingress_https" {
-  name    = "${var.prefix}-https-ingress-firewall"
-  network = google_compute_network.main.name
-
-  priority = 100
-
-  allow {
-    protocol = "tcp"
-    ports    = ["443"]
-  }
-}
+//resource "google_compute_network" "main" {
+//  name = "${var.prefix}-network"
+//
+//  lifecycle {
+//    create_before_destroy = true
+//  }
+//}
+//
+//resource "google_compute_subnetwork" "main" {
+//  name          = "${var.prefix}-subnet"
+//  network       = google_compute_network.main.name
+//  ip_cidr_range = var.private_network_cidr
+//  region        = var.region
+//}
 
 #################################################
 ##
@@ -230,7 +140,7 @@ resource "google_compute_instance" "master" {
   }
 
   network_interface {
-    subnetwork = google_compute_subnetwork.main.name
+    subnetwork = var.network-name
 
     access_config {
       nat_ip = google_compute_address.master[each.key].address
@@ -238,7 +148,7 @@ resource "google_compute_instance" "master" {
   }
 
   metadata = {
-    ssh-keys = "ubuntu:${trimspace(file(pathexpand(var.ssh_pub_key)))}"
+    ssh-keys = "root:${trimspace(file(pathexpand(var.ssh_pub_key)))}"
   }
 
   service_account {
@@ -327,7 +237,7 @@ resource "google_compute_instance" "worker" {
   }
 
   network_interface {
-    subnetwork = google_compute_subnetwork.main.name
+    subnetwork = var.network-name
 
     access_config {
       nat_ip = google_compute_address.worker[each.key].address
@@ -335,7 +245,7 @@ resource "google_compute_instance" "worker" {
   }
 
   metadata = {
-    ssh-keys = "ubuntu:${trimspace(file(pathexpand(var.ssh_pub_key)))}"
+    ssh-keys = "root:${trimspace(file(pathexpand(var.ssh_pub_key)))}"
   }
 
   service_account {

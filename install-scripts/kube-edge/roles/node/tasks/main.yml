@@ -17,20 +17,15 @@
     clone: yes
     update: no
   become: yes
-- name: Run 'keadm' target as root
-  community.general.make:
-    chdir: /src/github.com/kubeedge/kubeedge
-    target: keadm
-  become: yes
-- name: Copy file with owner and permission, using symbolic representation
-  become: yes
-  ansible.builtin.copy:
-    src: /src/github.com/kubeedge/kubeedge/_output/local/bin/keadm
-    dest: /usr/local/sbin
-    owner: root
-    group: root
+- name: download kubeedge
+  ansible.builtin.unarchive:
+    src: https://github.com/kubeedge/kubeedge/releases/download/v1.4.0/keadm-v1.4.0-linux-amd64.tar.gz
+    dest: /root
     remote_src: yes
-    mode: "0755"
+- name: Move keadm bin
+  command: mv /root/keadm-v1.4.0-linux-amd64/keadm/keadm /usr/local/bin
+- name: Join EdgeNode
+  command: keadm join --cloudcore-ipport={{hostvars['kubeedge-cluster-master-0']['ansible_host']}}:10000 --token={{keadm_token}}
 - name: Create a etc/kubeedge if it does not exist
   ansible.builtin.file:
     path: etc/kubeedge

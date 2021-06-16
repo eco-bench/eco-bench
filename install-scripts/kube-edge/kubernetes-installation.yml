@@ -1,8 +1,10 @@
-- hosts: master
+- hosts: kube-master
   become: yes
+  vars:
+    kubernetes_role: "master"
   roles:
-  #   - geerlingguy.docker
-  #   - geerlingguy.kubernetes
+    - geerlingguy.docker
+    - geerlingguy.kubernetes
     - master
   tasks:
     - name: Check Docker Version
@@ -28,12 +30,12 @@
         mode: 0755
         remote_src: true
 
-- hosts: node
+- hosts: kube-node
   become: yes
   roles:
-    # - geerlingguy.docker
-    # - geerlingguy.kubernetes
-    - node
+    - geerlingguy.docker
+    - geerlingguy.kubernetes
+    # - node
   tasks:
     - name: Check Docker Version
       command: docker -v
@@ -42,25 +44,25 @@
       debug:
         msg: "Docker Version: {{ dockerVersion.stdout }}"
 
-- hosts: master, node
-  become: yes
-  tasks:
-    - name: Fetch the file from the master to local
-      run_once: yes
-      fetch: src=/etc/kubeedge/certs.tgz dest=buffer/ flat=yes
-      when: "{{inventory_hostname == 'server1'}}"
-    - name: Copy the file from local to node
-      copy: src=buffer/certs.tgz dest=/etc/kubeedge/
-      when: "{{inventory_hostname == 'server2'}}"
+#- hosts: kube-master, kube-node
+#  become: yes
+#  tasks:
+#    - name: Fetch the file from the master to local
+#      run_once: yes
+#      fetch: src=/etc/kubeedge/certs.tgz dest=buffer/ flat=yes
+#      when: "{{inventory_hostname == 'server1'}}"
+#    - name: Copy the file from local to node
+#      copy: src=buffer/certs.tgz dest=/etc/kubeedge/
+#      when: "{{inventory_hostname == 'server2'}}"
 
-- hosts: node
-  become: yes
-  roles:
-    - kube-edge-worker
-  tasks:
-    - name: Check Docker Version
-      command: docker -v
-      register: dockerVersion
-    - name: Print Version
-      debug:
-        msg: "Docker Version: {{ dockerVersion.stdout }}"
+#- hosts: node
+#  become: yes
+#  roles:
+#    - kube-edge-worker
+#  tasks:
+#    - name: Check Docker Version
+#      command: docker -v
+#      register: dockerVersion
+#    - name: Print Version
+#      debug:
+#        msg: "Docker Version: {{ dockerVersion.stdout }}"

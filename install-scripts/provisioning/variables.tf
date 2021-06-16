@@ -66,3 +66,7 @@ variable "nodeport_whitelist" {
 variable "private_network_cidr" {
   default = "10.0.10.0/24"
 }
+
+variable "network-name" {
+  default = "default"
+}

@@ -2,7 +2,7 @@
   "gcp_project_id": "eco-bench",
   "region": "europe-central2",
   "ssh_pub_key": "~/.ssh/id_rsa.pub",
-  "keyfile_location": "./eco-bench-96d0fa486a15.json",
+  "keyfile_location": "./eco-bench-9ac0399f5e02.json",
   "prefix": "kubeedge-cluster",
   "ssh_whitelist": [
     "0.0.0.0/0"
