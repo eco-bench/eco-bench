@@ -11,4 +11,4 @@ Use the above command with `--ignore-certs` if you have an issue with the certif
 ```bash
 $ ansible-playbook kubernetes-installation.yml -i <path_to_hosts.ini>
 ```
-
+Use --force if you have an older version installed
