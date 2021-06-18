@@ -24,7 +24,7 @@
   ignore_errors: yes
 - name: initialize kubeedge
   become: true
-  shell: keadm init --advertise-address={{ hostvars['kubeedge-cluster-master-0']['ansible_host'] }}
+  shell: keadm init --advertise-address={{ hostvars['kubeedge-cluster-master-0']['ansible_host'] }} && sleep 5
   register: init_output
 - name: whoami
   shell: whoami
