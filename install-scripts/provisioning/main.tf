@@ -92,7 +92,7 @@ resource "google_compute_address" "master" {
 
   name         = "${var.prefix}-${each.key}-pip"
   address_type = "EXTERNAL"
-  region       = var.region
+  region       = var.cloud_region
 }
 
 resource "google_compute_disk" "master" {
@@ -148,7 +148,7 @@ resource "google_compute_instance" "master" {
   }
 
   metadata = {
-    ssh-keys = "root:${trimspace(file(pathexpand(var.ssh_pub_key)))}"
+    ssh-keys = "ubuntu:${trimspace(file(pathexpand(var.ssh_pub_key)))}"
   }
 
   service_account {
@@ -160,19 +160,6 @@ resource "google_compute_instance" "master" {
   lifecycle {
     ignore_changes = ["attached_disk"]
   }
-}
-
-resource "google_compute_forwarding_rule" "master_lb" {
-  name = "${var.prefix}-master-lb-forward-rule"
-
-  port_range = "6443"
-
-  target = google_compute_target_pool.master_lb.id
-}
-
-resource "google_compute_target_pool" "master_lb" {
-  name      = "${var.prefix}-master-lb-pool"
-  instances = local.master_target_list
 }
 
 #################################################
@@ -213,7 +200,7 @@ resource "google_compute_address" "worker" {
 
   name         = "${var.prefix}-${each.key}-pip"
   address_type = "EXTERNAL"
-  region       = var.region
+  region       = var.edge_region
 }
 
 resource "google_compute_instance" "worker" {
@@ -245,7 +232,7 @@ resource "google_compute_instance" "worker" {
   }
 
   metadata = {
-    ssh-keys = "root:${trimspace(file(pathexpand(var.ssh_pub_key)))}"
+    ssh-keys = "ubuntu:${trimspace(file(pathexpand(var.ssh_pub_key)))}"
   }
 
   service_account {
@@ -262,28 +249,9 @@ resource "google_compute_instance" "worker" {
 resource "google_compute_address" "worker_lb" {
   name         = "${var.prefix}-worker-lb-address"
   address_type = "EXTERNAL"
-  region       = var.region
+  region       = var.edge_region
 }
 
-resource "google_compute_forwarding_rule" "worker_http_lb" {
-  name = "${var.prefix}-worker-http-lb-forward-rule"
 
-  ip_address = google_compute_address.worker_lb.address
-  port_range = "80"
 
-  target = google_compute_target_pool.worker_lb.id
-}
 
-resource "google_compute_forwarding_rule" "worker_https_lb" {
-  name = "${var.prefix}-worker-https-lb-forward-rule"
-
-  ip_address = google_compute_address.worker_lb.address
-  port_range = "443"
-
-  target = google_compute_target_pool.worker_lb.id
-}
-
-resource "google_compute_target_pool" "worker_lb" {
-  name      = "${var.prefix}-worker-lb-pool"
-  instances = local.worker_target_list
-}

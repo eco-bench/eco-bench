@@ -1,6 +1,8 @@
 {
   "gcp_project_id": "eco-bench",
   "region": "europe-central2",
+  "cloud_region": "europe-central2",
+  "edge_region": "us-west1",
   "ssh_pub_key": "~/.ssh/id_rsa.pub",
   "keyfile_location": "./service-account.json",
   "prefix": "kubeedge-cluster",
@@ -27,7 +29,7 @@
     "worker-0": {
       "node_type": "worker",
       "size": "e2-small",
-      "zone": "europe-central2-a",
+      "zone": "us-west1-a",
       "additional_disks": {},
       "boot_disk": {
         "image_name": "ubuntu-os-cloud/ubuntu-2004-focal-v20210429",
@@ -37,7 +39,7 @@
     "worker-1": {
       "node_type": "worker",
       "size": "e2-small",
-      "zone": "europe-central2-a",
+      "zone": "us-west1-a",
       "additional_disks": {},
       "boot_disk": {
         "image_name": "ubuntu-os-cloud/ubuntu-2004-focal-v20210429",

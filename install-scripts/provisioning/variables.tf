@@ -12,6 +12,14 @@ variable "region" {
   type = string
 }
 
+variable "cloud_region" {
+  type = string
+}
+
+variable "edge_region" {
+  type = string
+}
+
 variable "prefix" {}
 
 variable "machines" {

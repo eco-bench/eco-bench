@@ -18,10 +18,10 @@ output "worker_ip_addresses" {
   }
 }
 
-output "ingress_controller_lb_ip_address" {
-  value = google_compute_address.worker_lb.address
-}
-
-output "control_plane_lb_ip_address" {
-  value = google_compute_forwarding_rule.master_lb.ip_address
-}
+//output "ingress_controller_lb_ip_address" {
+//  value = google_compute_address.worker_lb.address
+//}
+//
+//output "control_plane_lb_ip_address" {
+//  value = google_compute_forwarding_rule.master_lb.ip_address
+//}

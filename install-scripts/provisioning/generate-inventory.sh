@@ -40,7 +40,7 @@ i=1
 for name in "${MASTER_NAMES[@]}"; do
   private_ip=$(jq -r '. | select( .key=='"\"${name}\""' ) | .value.private_ip'  <(echo "${MASTERS}"))
   public_ip=$(jq -r '. | select( .key=='"\"${name}\""' ) | .value.public_ip'  <(echo "${MASTERS}"))
-  echo "${name} ansible_user=root ansible_host=${public_ip} ip=${private_ip} etcd_member_name=etcd${i}"
+  echo "${name} ansible_user=ubuntu ansible_host=${public_ip} ip=${private_ip} etcd_member_name=etcd${i}"
   i=$(( i + 1 ))
 done
 
@@ -48,18 +48,19 @@ done
 for name in "${WORKER_NAMES[@]}"; do
   private_ip=$(jq -r '. | select( .key=='"\"${name}\""' ) | .value.private_ip'  <(echo "${WORKERS}"))
   public_ip=$(jq -r '. | select( .key=='"\"${name}\""' ) | .value.public_ip'  <(echo "${WORKERS}"))
-  echo "${name} ansible_user=root ansible_host=${public_ip} ip=${private_ip}"
+  echo "${name} ansible_user=ubuntu ansible_host=${public_ip} ip=${private_ip}"
 done
 
 echo ""
-echo "[kube-master]"
+echo "[cloud]"
 for name in "${MASTER_NAMES[@]}"; do
   echo "${name}"
 done
 
 echo ""
-echo "[kube-master:vars]"
+echo "[cloud:vars]"
 echo "supplementary_addresses_in_ssl_keys = [ '${API_LB}' ]" # Add LB address to API server certificate
+echo "kubernetes_role=master"
 echo ""
 echo "[etcd]"
 for name in "${MASTER_NAMES[@]}"; do
@@ -67,12 +68,22 @@ for name in "${MASTER_NAMES[@]}"; do
 done
 
 echo ""
-echo "[kube-node]"
+echo "[edge]"
 for name in "${WORKER_NAMES[@]}"; do
   echo "${name}"
 done
 
 echo ""
+echo "[edge:vars]"
+echo "supplementary_addresses_in_ssl_keys = [ '${API_LB}' ]" # Add LB address to API server certificate
+echo "kubernetes_role=edge"
+echo ""
+echo "[etcd]"
+for name in "${MASTER_NAMES[@]}"; do
+  echo "${name}"
+done
+
+echo ""
 echo "[k8s-cluster:children]"
-echo "kube-master"
-echo "kube-node"
+echo "cloud"
+echo "edge"
