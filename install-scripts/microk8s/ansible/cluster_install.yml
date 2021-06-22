@@ -65,10 +65,12 @@
     - name: Check Cluster Status
       become: yes
       command: microk8s kubectl get nodes
-      register: get_nodes
-    - name: Print out Status of Node
+      register: cluster_status
+    - name: Loop over lines in a file
+      become: yes
       debug:
-        msg: "get_nodes: {{ get_nodes.stdout }}"
+        var: item
+      with_items: "{{ cluster_status.stdout_lines }}"
     - name: End Time
       command: date
       register: time
