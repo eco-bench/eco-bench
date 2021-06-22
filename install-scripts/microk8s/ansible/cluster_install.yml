@@ -1,4 +1,4 @@
-- hosts: cloud01
+- hosts: cloud[0]
   tasks:
     - name: Start Time
       command: date
@@ -7,7 +7,7 @@
       debug:
         msg: "time: {{ time.stdout }}"
         
-- hosts: cloud01
+- hosts: cloud[0]
   roles:
     - microk8s
   tasks:
@@ -15,38 +15,52 @@
       become: true
       command: microk8s add-node
       register: join_command1
+    - name: Set token
+      set_fact:
+        join_token_1: "{{ join_command1.stdout_lines[4] }}"
+    - name: Print join_token_1
+      debug:
+        msg: "time: {{ join_token_1 }}"
     - name: Run join Node Command
       become: true
       command: microk8s add-node
       register: join_command2
+    - name: Set token
+      set_fact:
+        join_token_2: "{{ join_command2.stdout_lines[4] }}"
+    - name: Print join_token_2
+      debug:
+        msg: "time: {{ join_token_2 }}"
 
-- hosts: edge01
+- hosts: edge[0]
+  roles:
+    - microk8s
+  vars: 
+    tmp_variable: "lalala"
+  tasks:
+    - name: Print Join Command
+      debug:
+        msg: "{{ hostvars[groups['cloud'][0]]['join_token_1'] }}"
+    - name: join cluster
+      become: yes
+      command: "{{ hostvars[groups['cloud'][0]]['join_token_1'] }}"
+      ignore_errors: yes
+      delay: 300
+
+- hosts: edge[1]
   roles:
     - microk8s
   tasks:
     - name: Print Join Command
       debug:
-        msg: "{{ hostvars['cloud01']['join_command1'].stdout_lines[4] }}"
+        msg: "{{ hostvars[groups['cloud'][0]]['join_token_2'] }}"
     - name: join cluster
       become: yes
-      command: "{{ hostvars['cloud01']['join_command1'].stdout_lines[4] }}"
+      command: "{{ hostvars[groups['cloud'][0]]['join_token_2'] }}"
       ignore_errors: yes
       delay: 300
 
-- hosts: edge02
-  roles:
-    - microk8s
-  tasks:
-    - name: Print Join Command
-      debug:
-        msg: "{{ hostvars['cloud01']['join_command2'].stdout_lines[4] }}"
-    - name: join cluster
-      become: yes
-      command: "{{ hostvars['cloud01']['join_command2'].stdout_lines[4] }}"
-      ignore_errors: yes
-      delay: 300
-
-- hosts: cloud01
+- hosts: cloud[0]
   tasks:
     - name: Check Cluster Status
       become: yes
