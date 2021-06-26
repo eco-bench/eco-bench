@@ -92,6 +92,10 @@ jobs:
     - name: Terraform Init
       working-directory: ./install-scripts/provisioning
       run: terraform init
+    
+    - name: Terraform Destroy
+      working-directory: ./install-scripts/provisioning
+      run: ./destroy.sh
 
     - name: Terraform Apply
       working-directory: ./install-scripts/provisioning
