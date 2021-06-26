@@ -101,7 +101,7 @@ jobs:
       working-directory: ./install-scripts/provisioning
       run: terraform apply -var-file tfvars.json -state cluster.tfstate -auto-approve
     
-    - name: Terraform Apply
+    - name: Generate Inventory File
       working-directory: ./install-scripts/provisioning
       run: bash ./generate-inventory.sh cluster.tfstate > ../hosts.ini
     
