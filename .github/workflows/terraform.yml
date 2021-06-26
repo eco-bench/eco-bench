@@ -82,7 +82,7 @@ jobs:
       run: terraform fmt
 
     # Move Public Key for current User
-    - name: Format Terraform Files
+    - name: Create Public Key
       run: |
         mkdir ~/.ssh
         touch ~/.ssh/id_rsa.pub
