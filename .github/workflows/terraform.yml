@@ -68,32 +68,25 @@ jobs:
       uses: hashicorp/setup-terraform@v1
 
     # Copy Service Account Secret to provisioning Directory
-    - name: Create Service Account Json
+    - name: Create Service Account Json File
       working-directory: ./install-scripts/provisioning
       run: touch service-account.json
       
     # Copy Service Account Secret to provisioning Directory
-    - name: Create Service Account Json
+    - name: Copy Secret to Service Account Json File
       working-directory: ./install-scripts/provisioning
       run: echo '${{ secrets.GCE_SERVICE_ACCOUNT }}' >> service-account.json
       
-    # Confirm 
-    - name: Terraform Init
-      working-directory: ./install-scripts/provisioning
-      run: head -n 3 service-account.json
-    
-    # Confirm 
-    - name: Terraform Init
-      working-directory: ./install-scripts/provisioning
-      run: ls -lah
-
-    # Confirm 
-    - name: Terraform Init
-      run: ls -lah
-      
-    - name: Terraform Init
+    - name: Format Terraform Files
       working-directory: ./install-scripts/provisioning
       run: terraform fmt
+
+    # Move Public Key for current User
+    - name: Format Terraform Files
+      run: |
+        mkdir ~/.ssh
+        touch ~/.ssh/id_rsa.pub
+        echo '${{ secrets.PUBLIC_KEY }}' >> ~/.ssh/id_rsa.pub
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
