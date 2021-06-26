@@ -70,7 +70,7 @@ jobs:
     # Copy Service Account Secret to provisioning Directory
     - name: Create Service Account Json
       working-directory: ./install-scripts/provisioning
-      run: touch service-account.json && echo ${{ secrets.GCE_SERVICE_ACCOUNT }} >> service-account.json
+      run: touch service-account.json
       
     # Copy Service Account Secret to provisioning Directory
     - name: Create Service Account Json
