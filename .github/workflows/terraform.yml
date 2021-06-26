@@ -110,7 +110,7 @@ jobs:
       run: cat cluster.tfstate
   
     - name: Generate Inventory File
-      continue-on-error: true
+      # continue-on-error: true
       working-directory: ./install-scripts/provisioning
-      run: bash ./generate-inventory.sh cluster.tfstate > ../hosts.ini
+      run: bash ./generate-inventory.sh cluster.tfstate # > ../hosts.ini
     
