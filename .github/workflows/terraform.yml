@@ -75,7 +75,7 @@ jobs:
     # Copy Service Account Secret to provisioning Directory
     - name: Create Service Account Json
       working-directory: ./install-scripts/provisioning
-      run: echo ${{ secrets.GCE_SERVICE_ACCOUNT }} >> service-account.json
+      run: echo '${{ secrets.GCE_SERVICE_ACCOUNT }}' >> service-account.json
       
     # Confirm 
     - name: Terraform Init
