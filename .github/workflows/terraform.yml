@@ -72,7 +72,7 @@ jobs:
     # Copy Service Account Secret to provisioning Directory
     - name: Create Service Account Json
       working-directory: ./install-scripts/provisioning
-      run: touch service-account.json && echo $GCE_SERVICE_ACCOUNT >> service-account.json
+      run: touch service-account.json && echo ${{ secrets.GCE_SERVICE_ACCOUNT }} >> service-account.json
       
     # Confirm 
     - name: Terraform Init
@@ -87,6 +87,14 @@ jobs:
     # Confirm 
     - name: Terraform Init
       run: ls -lah
+
+    - name: Terraform Init
+      working-directory: ./install-scripts/provisioning
+      run: terraform fmt -check
+
+    - name: Terraform Init
+      working-directory: ./install-scripts/provisioning
+      run: terraform fmt
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
