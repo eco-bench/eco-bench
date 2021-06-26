@@ -101,11 +101,11 @@ jobs:
       working-directory: ./install-scripts/provisioning
       run: terraform apply -var-file tfvars.json -state cluster.tfstate -auto-approve
     
-    - name: Verify
+    - name: terraform validate
       working-directory: ./install-scripts/provisioning
-      run: cat cluster.tfstate
+      run: terraform validate
     
-    - name: Verify
+    - name: cat cluster.tfstate
       working-directory: ./install-scripts/provisioning
       run: cat cluster.tfstate
   
