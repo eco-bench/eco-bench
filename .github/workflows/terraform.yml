@@ -78,16 +78,20 @@ jobs:
     - name: Terraform Init
       working-directory: ./install-scripts/provisioning
       run: head -n 3 service-account.json
+    
+    # Confirm 
+    - name: Terraform Init
+      working-directory: ./install-scripts/provisioning
+      run: ls -lah
+
+    # Confirm 
+    - name: Terraform Init
+      run: ls -lah
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
       working-directory: ./install-scripts/provisioning
       run: terraform init
-
-    # Checks that all Terraform configuration files adhere to a canonical format
-    - name: Terraform Format
-      working-directory: ./install-scripts/provisioning
-      run: terraform fmt -check
 
     - name: Terraform Apply
       working-directory: ./install-scripts/provisioning
