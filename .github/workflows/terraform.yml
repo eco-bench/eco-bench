@@ -45,11 +45,7 @@
 name: 'Install Edge Orchestrator'
 
 on:
-  push:
-    branches:
-    - main
-    paths: 
-    - some/path/to/benchmarks 
+  workflow_dispatch:
     
 jobs:
   terraform:
