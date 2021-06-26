@@ -90,11 +90,7 @@ jobs:
     # Confirm 
     - name: Terraform Init
       run: ls -lah
-
-    - name: Terraform Init
-      working-directory: ./install-scripts/provisioning
-      run: terraform fmt -check
-
+      
     - name: Terraform Init
       working-directory: ./install-scripts/provisioning
       run: terraform fmt
