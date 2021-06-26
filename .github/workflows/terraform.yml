@@ -93,10 +93,15 @@ jobs:
       working-directory: ./install-scripts/provisioning
       run: terraform init
     
-    - name: Terraform Destroy
-      working-directory: ./install-scripts/provisioning
-      run: ./destroy.sh
+#    - name: Terraform Destroy
+#      working-directory: ./install-scripts/provisioning
+#      run: ./destroy.sh
 
     - name: Terraform Apply
       working-directory: ./install-scripts/provisioning
-      run: ./provision.sh
+      run: terraform apply -var-file tfvars.json -state cluster.tfstate -auto-approve
+    
+    - name: Terraform Apply
+      working-directory: ./install-scripts/provisioning
+      run: bash ./generate-inventory.sh cluster.tfstate > ../hosts.ini
+    
