@@ -1,5 +1,5 @@
 # Camera
-The camera-edge-device simulates an edge camera device by generating base6e encoded images and sends them to the edge.
+The camera-edge-device simulates an edge camera device by generating base64 encoded images and sends them to the edge.
 
 ```bash
 docker build -t camera .
