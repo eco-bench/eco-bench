@@ -36,8 +36,12 @@ output "worker_ip_addresses" {
 resource "local_file" "AnsibleInventory" {
   content = templatefile("inventory.tmpl",
     {
-      test = {
+      worker = {
       for key, instance in google_compute_instance.worker :
+      instance.name => instance.network_interface.0.access_config.0.nat_ip
+      }
+      master = {
+      for key, instance in google_compute_instance.master :
       instance.name => instance.network_interface.0.access_config.0.nat_ip
       }
     }
