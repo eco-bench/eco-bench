@@ -54,8 +54,13 @@ Es werden vier Sensor-Typen unterstützt: TEMPERATURE, HUMIDITY, SOILMOISTURE, P
   ```
   <br></br>
   <h3><b>JSON-Format der Benchmarkdaten</b></h3>
-  <br></br>
-  <h1>SensorTypen: </h1>
+    <ul>
+ <li>timestamp - Startzeitpunkt</li>
+ <li>timeDelta - Zeitdifferenz</li>
+ <li>workerID - Id des Workers, der die Daten erzeugt hat</li>
+ <li>3: Computation</li>
+ </ul>
+   <h4>SensorTypen: </h4>
   <br></br>
   <ul>
  <li>0: Edge2Edge - Bewässerung</li>
