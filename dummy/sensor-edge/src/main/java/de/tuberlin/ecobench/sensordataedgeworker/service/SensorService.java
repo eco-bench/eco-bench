@@ -21,6 +21,7 @@ import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 
+import de.tuberlin.ecobench.sensordataedgeworker.model.BenchmarkData;
 import de.tuberlin.ecobench.sensordataedgeworker.model.SensorData;
 import de.tuberlin.ecobench.sensordataedgeworker.model.SensorWorkerConfig;
 
@@ -36,7 +37,10 @@ public class SensorService {
 	private static List<SensorData> sensorDataList = new ArrayList<>();
 	// Benachbarte Nodes aus properties als Kommaseparierte, vollständige hostnames
 	private static List<String> hostnames = new ArrayList<>();
-    
+	
+	// Buffer für Benchmark-Messungen
+	private static List<BenchmarkData> benchDataList = new ArrayList<>();
+
 	private static SensorWorkerConfig config = new SensorWorkerConfig();
  
 	/**
@@ -52,9 +56,17 @@ public class SensorService {
 		// Speichern
  		SensorData newSd = SensorData.initSensorObject();
 		newSd.setMeasurement(sd.getMeasurement());
-		
 		sensorDataList.add(newSd);
-
+        
+		if(benchDataList.size()>=config.getlogStorageLimit()) {
+			if(SensorWorkerConfig.benchEndpointSpecified()) {
+				try {
+					sendLogsToEndpoint();
+				} catch (UnirestException e) {
+					 //
+				}
+			}
+		}
 		// Bei kritischen Messwert Daten benachbarter Plantagen abfragen, bewässerung anpasssen und an das Bewässerungssystem (irrigation System) übermitteln
 		if (this.isCriticalValue(newSd.getSensorType(), newSd.getMeasurement())) {
 			// Daten von benachbarten Plantagen abfragen
@@ -99,14 +111,16 @@ public class SensorService {
 	 */
 	private Map<String, Double> calculateMedianBySensorGroup(List<SensorData> dataList) {
 		// Sensornamen extrahieren
-		Map<String, Double> sensorMap = new HashMap<>();
+		
+		
+ 		Map<String, Double> sensorMap = new HashMap<>();
 		List<String> uniqueSensorNames = getUniqueNamesFromList(dataList);
 		for (String sensorID : uniqueSensorNames) {
 			double median = getMedian(sensorDataList.stream().filter(s -> s.getSensorID().equalsIgnoreCase(sensorID))
 					.collect(Collectors.toList()));
 			sensorMap.put(sensorID, Double.valueOf(median));
 		}
-
+	 
 		return sensorMap;
 
 	}
@@ -118,8 +132,7 @@ public class SensorService {
 	 * ermittelten Durchschnittswerte werden einzeln in die Cloud gesendet.
 	 */
 	private void aggregateDataAndSendToCloud() {
-
-		// Für jede sensorID Median ermitteln und zum Cloud-Node senden
+ 		// Für jede sensorID Median ermitteln und zum Cloud-Node senden
 		Map<String, Double> sensorMap = this.calculateMedianBySensorGroup(sensorDataList);
 		for (String key : sensorMap.keySet()) {
 			// key = sensorID
@@ -180,10 +193,14 @@ public class SensorService {
 	 * @return
 	 */
 	public static int extractAVGValue(List<SensorData> dataList, String sensorType) {
+		long startTime = System.currentTimeMillis();
 		int avg = dataList.stream().filter(sd -> sd.getSensorType().toUpperCase().equals("sensorType"))
 				.map(SensorData::getMeasurement).reduce(0.0, (x, y) -> {
 					return (x * (dataList.size() - 1) + y) / dataList.size();
 				}).intValue();
+		long endTime = System.currentTimeMillis();
+		long timeDelta = endTime-startTime;
+		addBenchmarkData(startTime, timeDelta, 3);
 		logger.info("Average of " + sensorType + " = " + avg);
 		return avg;
 	}
@@ -195,6 +212,7 @@ public class SensorService {
 	 * @return
 	 */
 	private Double getMedian(List<SensorData> sublist) {
+		long startTime = System.currentTimeMillis();
 		List<Double> measurements = sublist.stream().map(SensorData::getMeasurement).collect(Collectors.toList());
 		Collections.sort(measurements);
 
@@ -204,6 +222,10 @@ public class SensorService {
 					+ (double) measurements.get(measurements.size() / 2) - 1) / 2;
 		else
 			median = (double) measurements.get(measurements.size() / 2);
+		
+		long endTime = System.currentTimeMillis();
+		long timeDelta = endTime-startTime;
+		addBenchmarkData(startTime, timeDelta, 3);
 		return median;
 	}
 
@@ -251,8 +273,12 @@ public class SensorService {
 			HttpResponse<String> response;
 			try {
 				logger.info("Requesting Weather Data from Neighbor Plantations.");
+				long startTime = System.currentTimeMillis();
 				response = Unirest.get(hostname).header("accept", "application/json")
 						.header("content-type", "application/json").asString();
+				long endTime = System.currentTimeMillis();
+				long timeDelta = endTime - startTime;
+				addBenchmarkData(startTime, timeDelta, 1);
 				String resp = response.getBody();
 				// Json Array aus dem GET-Request parsen
 				JSONArray jsonarray = new JSONArray(resp);
@@ -294,9 +320,13 @@ public class SensorService {
  		}else {
 		logger.info("Sending Data to Cloud.");
 		logger.info("Median:"+ median);
+		long startTime = System.currentTimeMillis();
 		HttpResponse<JsonNode> jsonResponse = Unirest.post("http://" + targetHost + ":" + targetPort + url)
 				.header("accept", "application/json").header("content-type", "application/json")
 				.body("{" + "	\"sensorID\":\"" + sensorId + "\"," + " \"value\":" + median + "}").asJson();
+        long endTime = System.currentTimeMillis();
+        long timeDelta = endTime - startTime;
+        addBenchmarkData(startTime, timeDelta, 2);
  		}
 	}
 
@@ -321,12 +351,16 @@ public class SensorService {
 		logger.info("Wasserdruck wird auf "+waterPressure+" angepasst.");
  		//neben waterPressure werden timestamp und Worker-ID für spätere Benchmark-Berechnungen mit gesendet
 		try {
+			long startTime = System.currentTimeMillis();
 			HttpResponse<JsonNode> jsonResponse = Unirest.post("http://" + irrigationHost + ":" + irrigationPort + "/water")
 					.header("accept", "application/json").header("content-type", "application/json")
 					.body("{" + "	\"workerID\":\"" + SensorService.workerID + "\","
 					+ " \"waterPressure\":" + waterPressure + ","
 					+ " \"timeDelta\":" + System.currentTimeMillis()+
 							"}").asJson();
+			long endTime = System.currentTimeMillis();
+			long timeDelta = endTime - startTime;
+			addBenchmarkData(startTime, timeDelta, 0);
 		} catch (UnirestException e) {
  	        logger.error("Keine Bewässerungsanlage spezifiziert.");
 		}
@@ -375,7 +409,42 @@ public class SensorService {
  		}
  		
 	}
+	/**
+	 * Logs an den Benchmarking Endpoint zur Auswertung senden
+	 * 
+	 * @param ti
+	 * @param median
+	 * @throws UnirestException
+	 */
+	private static void sendLogsToEndpoint() throws UnirestException {
+		if (SensorWorkerConfig.getBenchmarkEndPointHost() != null
+				&& !SensorWorkerConfig.getBenchmarkEndPointHost().isEmpty()
+				&& SensorWorkerConfig.getBenchmarkEndpointPort() != null
+				&& !SensorWorkerConfig.getBenchmarkEndpointPort().isEmpty()) {
+			logger.info("Sending Logs");
+			String jsonLogs = new Gson().toJson(benchDataList);
+			HttpResponse<JsonNode> jsonResponse = Unirest
+					.post("http://" + SensorWorkerConfig.getBenchmarkEndPointHost() + ":"
+							+ SensorWorkerConfig.getBenchmarkEndPointHost()
+							+ SensorWorkerConfig.getBenchmarkEndpointURL())
+					.header("accept", "application/json").header("content-type", "application/json").body(jsonLogs)
+					.asJson();
+			// Speicher freigeben
+			benchDataList = new ArrayList<>();
+		} else {
+			logger.info("Kein Bancharking Endpoint spezifiziert");
+		}
+	}
 	
+	
+	public static void addBenchmarkData(long timestamp, long timedelta, int type) {
+		BenchmarkData bd = new BenchmarkData();
+	    bd.setWorkerID(workerID);
+	    bd.setTimestamp(timestamp);
+	    bd.setType(type);
+	    bd.setTimeDelta(timedelta);
+		SensorService.benchDataList.add(bd);
+	}
 	
 	/**
 	 * Lokale Konfiguration abfragen
@@ -388,7 +457,6 @@ public class SensorService {
 		obj.put("criticalHumidity", SensorWorkerConfig.getCriticalHumidity());
 		obj.put("criticalsoilMoisture", SensorWorkerConfig.getCriticalsoilMoisture());
 		obj.put("criticalPrecipitation", SensorWorkerConfig.getCriticalPrecipitation());
-
 		return obj.toString();
  }
  

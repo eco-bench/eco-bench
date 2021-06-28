@@ -92,11 +92,27 @@ jobs:
     - name: Terraform Init
       working-directory: ./install-scripts/provisioning
       run: terraform init
-    
-    - name: Terraform Destroy
-      working-directory: ./install-scripts/provisioning
-      run: ./destroy.sh
 
     - name: Terraform Apply
       working-directory: ./install-scripts/provisioning
-      run: ./provision.sh
+      run: terraform apply -var-file tfvars.json -state cluster.tfstate -auto-approve
+    
+    - name: terraform validate
+      working-directory: ./install-scripts/provisioning
+      run: terraform validate
+    
+    - name: cat cluster.tfstate
+      working-directory: ./install-scripts/provisioning
+      run: cat cluster.tfstate
+  
+    - name: Generate Inventory File
+      continue-on-error: true
+      working-directory: ./install-scripts/provisioning
+      run: bash ./generate-inventory.sh cluster.tfstate # > ../hosts.ini
+    
+    - name: Sleep
+      run: sleep 10
+    
+#    - name: Terraform Destroy
+#      working-directory: ./install-scripts/provisioning
+#      run: ./destroy.sh

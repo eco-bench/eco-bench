@@ -48,6 +48,30 @@
     "name": "criticalPrecipitation",
     "type": "java.lang.String",
     "description": "A description for 'criticalPrecipitation'"
+  },
+  {
+    "name": "benchmarkEndPointHost",
+    "type": "java.lang.String",
+    "description": "A description for 'benchmarkEndPointHost'"
+  },
+  {
+    "name": "benchmarkEndpointPort",
+    "type": "java.lang.String",
+    "description": "A description for 'benchmarkEndpointPort'"
+  },
+  {
+    "name": "benchmarkEndpointURL",
+    "type": "java.lang.String",
+    "description": "A description for 'benchmarkEndpointURL'"
+  },
+  {
+    "name": "logStorageLimit",
+    "type": "java.lang.String",
+    "description": "A description for 'logStorageLimit'"
+  },
+    {
+    "name": "intervall",
+    "type": "java.lang.String",
+    "description": "A description for 'intervall'"
   }
-
 ]}
