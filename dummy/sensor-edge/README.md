@@ -21,9 +21,13 @@ Es werden vier Sensor-Typen unterstützt: TEMPERATURE, HUMIDITY, SOILMOISTURE, P
      <p><b>criticalHumidity</b> - Kritische Luftfeuchtigkeit, die beim Unterschreiten eine Anpassung der Bewässerung auslöst.</p>
   <p><b>criticalsoilMoisture</b> - Kritische Bodenfeuchtigkeit, die beim Unterschreiten eine Anpassung der Bewässerung auslöst.</p>
   <p><b>criticalPrecipitation</b> - Kritischer Niederschlag, der beim Unterschreiten eine Anpassung der Bewässerung auslöst.</p>
+    <h3><b>Benchmark Endpoint</b></h3>
 
-
-    
+   <p><b>benchmarkEndPointHost</b> - Kritische Luftfeuchtigkeit, die beim Unterschreiten eine Anpassung der Bewässerung auslöst.</p>
+  <p><b>benchmarkEndpointPort</b> - Kritische Bodenfeuchtigkeit, die beim Unterschreiten eine Anpassung der Bewässerung auslöst.</p>
+  <p><b>benchmarkEndpointURL</b> - Kritischer Niederschlag, der beim Unterschreiten eine Anpassung der Bewässerung auslöst.</p>
+    <p><b>logStorageLimit</b> - Kritischer Niederschlag, der beim Unterschreiten eine Anpassung der Bewässerung auslöst.</p>
+ 
   <h3><b>HTTP-Pfade</b></h3>
   
   <b>GET /sensorData </b> Returns: json mit allen zwischengespeicherten SensorData-Objekten <br></br>
