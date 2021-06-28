@@ -25,7 +25,7 @@ public class SensordataedgeworkerApplication implements ApplicationRunner {
 	    public void run(ApplicationArguments args) throws Exception {
 	        logger.info("Edge Node started with command-line arguments: {}", Arrays.toString(args.getSourceArgs()));
 	        for (String name : args.getOptionNames()){
-	            logger.info("arg-" + name + "=" + args.getOptionValues(name));
+	            logger.info("arg-" + name + "=" + args.getOptionValues(name));                 
 	        }
  	    }
 	}

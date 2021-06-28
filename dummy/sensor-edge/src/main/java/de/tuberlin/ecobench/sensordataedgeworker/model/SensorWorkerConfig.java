@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+ 
 @Component
 public class SensorWorkerConfig {
 	
@@ -28,7 +29,71 @@ public class SensorWorkerConfig {
 	private static int criticalHumidity;
 	private static int criticalsoilMoisture;
 	private static int criticalPrecipitation;
+	private static int logStorageLimit;
+	//Benchmarking spec
+	private static String benchmarkEndPointHost;
+	private static String benchmarkEndpointPort;
+	private static String benchmarkEndpointURL;
 	
+ 
+	/**
+	 * Prüft ob Benchmarking-Endpoint angegeben ist, um Fehlermeldungen zu vermeiden
+	 * @return
+	 */
+	public static boolean benchEndpointSpecified() {
+		if(getBenchmarkEndPointHost()!=null && !getBenchmarkEndPointHost().isEmpty()
+				&& getBenchmarkEndpointURL()!=null && getBenchmarkEndpointURL().isEmpty()
+				&& getBenchmarkEndpointPort()!=null && !getBenchmarkEndpointPort().isEmpty()) {
+			return true;
+		}
+		logger.info("Benchmark-Endpoint not specified.");
+		return false;
+	}
+ 
+
+	@Value("${logStorageLimit}")
+	public void setlogStorageLimit(int logStorageLimit) {
+		logger.info("LOGSOTRAGELIMIT adjusted to " + logStorageLimit);
+		SensorWorkerConfig.logStorageLimit = logStorageLimit;
+	}
+
+	@Value("${benchmarkEndPointHost}")
+	public void setBenchmarkEndPointHost(String benchmarkEndPointHost) {
+		logger.info("benchmarkEndPointHost adjusted to " + benchmarkEndPointHost); 
+		SensorWorkerConfig.benchmarkEndPointHost = benchmarkEndPointHost;
+	}
+
+	@Value("${benchmarkEndpointPort}")
+	public void setBenchmarkEndpointPort(String benchmarkEndpointPort) {
+		logger.info("benchmarkEndpointPort adjusted to " + benchmarkEndpointPort);
+		SensorWorkerConfig.benchmarkEndpointPort = benchmarkEndpointPort;
+	}
+
+	@Value("${benchmarkEndpointURL}")
+	public void setBenchmarkEndpointURL(String benchmarkEndpointURL) {
+		logger.info("benchmarkEndpointURL adjusted to " + benchmarkEndpointURL);
+		SensorWorkerConfig.benchmarkEndpointURL = benchmarkEndpointURL;
+	}
+
+	@Value("${logStorageLimit}")
+	public static int getlogStorageLimit() {
+		return logStorageLimit;
+	}
+
+	@Value("${benchmarkEndPointHost}")
+	public static String getBenchmarkEndPointHost() {
+ 		return benchmarkEndPointHost;
+	}
+
+	@Value("${benchmarkEndpointPort}")
+	public static String getBenchmarkEndpointPort() {
+		return benchmarkEndpointPort;
+	}
+
+	@Value("${benchmarkEndpointURL}")
+	public static String getBenchmarkEndpointURL() {
+ 		return benchmarkEndpointURL;
+	}
 
 	@Value("#{'${edge.endpoints}'.split(',')}")
 	public static List<String> getHostnames() {
@@ -114,7 +179,7 @@ public class SensorWorkerConfig {
 
 	@Value("${criticalTemp}")
 	public void setCriticalTemp(int criticalTemp) {
-		logger.info("Ciritcal Temp set to: " + criticalTemp);
+  		logger.info("Ciritcal Temp set to: " + criticalTemp);
 		SensorWorkerConfig.criticalTemp = criticalTemp;
 	}
 
