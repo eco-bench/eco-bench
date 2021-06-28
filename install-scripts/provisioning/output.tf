@@ -25,3 +25,19 @@ output "worker_ip_addresses" {
 //output "control_plane_lb_ip_address" {
 //  value = google_compute_forwarding_rule.master_lb.ip_address
 //}
+
+resource "local_file" "AnsibleInventory" {
+  content = templatefile("inventory.tmpl",
+    {
+      worker = {
+      for key, instance in google_compute_instance.worker :
+      instance.name => instance.network_interface.0.access_config.0.nat_ip
+      }
+      master = {
+      for key, instance in google_compute_instance.master :
+      instance.name => instance.network_interface.0.access_config.0.nat_ip
+      }
+    }
+  )
+  filename = "./inventory.ini"
+}

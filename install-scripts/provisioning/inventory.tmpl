@@ -1,0 +1,19 @@
+[all:vars]
+ansible_connection=ssh
+ansible_user=lucas
+
+[cloud]
+%{ for ip in master ~}
+${ip}
+%{ endfor ~}
+
+[edge]
+%{ for ip in worker ~}
+${ip}
+%{ endfor ~}
+
+[cloud:vars]
+kubernetes_role=master
+
+[edge:vars]
+kubernetes_role=edge
