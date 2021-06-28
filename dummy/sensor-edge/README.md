@@ -65,7 +65,7 @@ Es werden vier Sensor-Typen unterstützt: TEMPERATURE, HUMIDITY, SOILMOISTURE, P
  <li>0: Edge2Edge - Bewässerung</li>
  <li>1: Edge2Edge - Worker-Abfrage</li>
  <li>2: Edge2Cloud - Übertragung</li>
- <li>3: Computation</li>
+ <li>3: Computation-Dauer</li>
  </ul>
   
  ```JSON
