@@ -1,9 +1,9 @@
-variable keyfile_location {
+variable "keyfile_location" {
   description = "Location of the json keyfile to use with the google provider"
   type        = string
 }
 
-variable gcp_project_id {
+variable "gcp_project_id" {
   description = "ID of the project"
   type        = string
 }
@@ -32,7 +32,7 @@ variable "machines" {
     }))
     boot_disk = object({
       image_name = string
-      size = number
+      size       = number
     })
   }))
 }

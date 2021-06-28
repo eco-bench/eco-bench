@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     google = {
-      source = "hashicorp/google"
+      source  = "hashicorp/google"
       version = "3.69.0"
     }
   }
@@ -40,41 +40,41 @@ provider "google" {
 
 locals {
   master_target_list = [
-  for name, machine in google_compute_instance.master :
-  "${machine.zone}/${machine.name}"
+    for name, machine in google_compute_instance.master :
+    "${machine.zone}/${machine.name}"
   ]
 
   worker_target_list = [
-  for name, machine in google_compute_instance.worker :
-  "${machine.zone}/${machine.name}"
+    for name, machine in google_compute_instance.worker :
+    "${machine.zone}/${machine.name}"
   ]
 
   master_disks = flatten([
-  for machine_name, machine in var.machines : [
-  for disk_name, disk in machine.additional_disks : {
-    "${machine_name}-${disk_name}" = {
-      "machine_name": machine_name,
-      "machine": machine,
-      "disk_size": disk.size,
-      "disk_name": disk_name
-    }
-  }
-  ]
-  if machine.node_type == "master"
+    for machine_name, machine in var.machines : [
+      for disk_name, disk in machine.additional_disks : {
+        "${machine_name}-${disk_name}" = {
+          "machine_name" : machine_name,
+          "machine" : machine,
+          "disk_size" : disk.size,
+          "disk_name" : disk_name
+        }
+      }
+    ]
+    if machine.node_type == "master"
   ])
 
   worker_disks = flatten([
-  for machine_name, machine in var.machines : [
-  for disk_name, disk in machine.additional_disks : {
-    "${machine_name}-${disk_name}" = {
-      "machine_name": machine_name,
-      "machine": machine,
-      "disk_size": disk.size,
-      "disk_name": disk_name
-    }
-  }
-  ]
-  if machine.node_type == "worker"
+    for machine_name, machine in var.machines : [
+      for disk_name, disk in machine.additional_disks : {
+        "${machine_name}-${disk_name}" = {
+          "machine_name" : machine_name,
+          "machine" : machine,
+          "disk_size" : disk.size,
+          "disk_name" : disk_name
+        }
+      }
+    ]
+    if machine.node_type == "worker"
   ])
 }
 
@@ -85,9 +85,9 @@ locals {
 
 resource "google_compute_address" "master" {
   for_each = {
-  for name, machine in var.machines :
-  name => machine
-  if machine.node_type == "master"
+    for name, machine in var.machines :
+    name => machine
+    if machine.node_type == "master"
   }
 
   name         = "${var.prefix}-${each.key}-pip"
@@ -97,8 +97,8 @@ resource "google_compute_address" "master" {
 
 resource "google_compute_disk" "master" {
   for_each = {
-  for item in local.master_disks :
-  keys(item)[0] => values(item)[0]
+    for item in local.master_disks :
+    keys(item)[0] => values(item)[0]
   }
 
   name = "${var.prefix}-${each.key}"
@@ -111,8 +111,8 @@ resource "google_compute_disk" "master" {
 
 resource "google_compute_attached_disk" "master" {
   for_each = {
-  for item in local.master_disks :
-  keys(item)[0] => values(item)[0]
+    for item in local.master_disks :
+    keys(item)[0] => values(item)[0]
   }
 
   disk     = google_compute_disk.master[each.key].id
@@ -121,9 +121,9 @@ resource "google_compute_attached_disk" "master" {
 
 resource "google_compute_instance" "master" {
   for_each = {
-  for name, machine in var.machines :
-  name => machine
-  if machine.node_type == "master"
+    for name, machine in var.machines :
+    name => machine
+    if machine.node_type == "master"
   }
 
   name         = "${var.prefix}-${each.key}"
@@ -135,7 +135,7 @@ resource "google_compute_instance" "master" {
   boot_disk {
     initialize_params {
       image = each.value.boot_disk.image_name
-      size = each.value.boot_disk.size
+      size  = each.value.boot_disk.size
     }
   }
 
@@ -169,8 +169,8 @@ resource "google_compute_instance" "master" {
 
 resource "google_compute_disk" "worker" {
   for_each = {
-  for item in local.worker_disks :
-  keys(item)[0] => values(item)[0]
+    for item in local.worker_disks :
+    keys(item)[0] => values(item)[0]
   }
 
   name = "${var.prefix}-${each.key}"
@@ -183,8 +183,8 @@ resource "google_compute_disk" "worker" {
 
 resource "google_compute_attached_disk" "worker" {
   for_each = {
-  for item in local.worker_disks :
-  keys(item)[0] => values(item)[0]
+    for item in local.worker_disks :
+    keys(item)[0] => values(item)[0]
   }
 
   disk     = google_compute_disk.worker[each.key].id
@@ -193,9 +193,9 @@ resource "google_compute_attached_disk" "worker" {
 
 resource "google_compute_address" "worker" {
   for_each = {
-  for name, machine in var.machines :
-  name => machine
-  if machine.node_type == "worker"
+    for name, machine in var.machines :
+    name => machine
+    if machine.node_type == "worker"
   }
 
   name         = "${var.prefix}-${each.key}-pip"
@@ -205,9 +205,9 @@ resource "google_compute_address" "worker" {
 
 resource "google_compute_instance" "worker" {
   for_each = {
-  for name, machine in var.machines :
-  name => machine
-  if machine.node_type == "worker"
+    for name, machine in var.machines :
+    name => machine
+    if machine.node_type == "worker"
   }
 
   name         = "${var.prefix}-${each.key}"
@@ -219,7 +219,7 @@ resource "google_compute_instance" "worker" {
   boot_disk {
     initialize_params {
       image = each.value.boot_disk.image_name
-      size = each.value.boot_disk.size
+      size  = each.value.boot_disk.size
     }
   }
 
