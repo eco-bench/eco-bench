@@ -18,10 +18,12 @@ output "worker_ip_addresses" {
   }
 }
 
-output "test" {
-  value = google_compute_instance.worker.*
-  sensitive = false
-}
+//output "test" {
+//  value = {
+//  for key, instance in google_compute_instance.worker :
+//  instance.name => instance.network_interface.0.access_config.0.nat_ip
+//  }
+//}
 
 //output "ingress_controller_lb_ip_address" {
 //  value = google_compute_address.worker_lb.address
@@ -34,8 +36,11 @@ output "test" {
 resource "local_file" "AnsibleInventory" {
   content = templatefile("inventory.tmpl",
     {
-      test = google_compute_instance.worker
+      test = {
+      for key, instance in google_compute_instance.worker :
+      instance.name => instance.network_interface.0.access_config.0.nat_ip
+      }
     }
   )
-  filename = "inventory"
+  filename = "./inventory.ini"
 }

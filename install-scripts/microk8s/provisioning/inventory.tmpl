@@ -3,6 +3,11 @@ ansible_connection=ssh
 ansible_user=lucas
 
 [cloud]
+%{ for ip in test ~}
+${ip}
+%{ endfor ~}
+
+
 [edge]
 [cloud:vars]
 kubernetes_role=master
