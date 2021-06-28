@@ -61,7 +61,6 @@ Es werden vier Sensor-Typen unterstützt: TEMPERATURE, HUMIDITY, SOILMOISTURE, P
  <li>3: Computation</li>
  </ul>
    <h4>SensorTypen: </h4>
-  <br></br>
   <ul>
  <li>0: Edge2Edge - Bewässerung</li>
  <li>1: Edge2Edge - Worker-Abfrage</li>
