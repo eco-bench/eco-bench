@@ -45,10 +45,32 @@ Es werden vier Sensor-Typen unterstützt: TEMPERATURE, HUMIDITY, SOILMOISTURE, P
 }
   ```
   <br></br>
-  <b> POST /config </b> Parameter: JSON mit Konfiguration, die zur Laufzeit angepasst werden soll. Ein oder Mehrere Felder möglich (s.u.)
+  <b> POST /config </b> Parameter können über ENV-Variablen angepasst werden oder über HTTP-Requests.<br></br>
+  Parameter: JSON mit Konfiguration, die zur Laufzeit angepasst werden soll. Ein oder Mehrere Felder möglich (s.u.)
   ```JSON
   {
     "intervall": "2222"
   }
   ```
   <br></br>
+  <h3><b>JSON-Format der Benchmarkdaten</b></h3>
+  <br></br>
+  <h1>SensorTypen: </h1>
+  <br></br>
+  <ul>
+ <li>0: Edge2Edge - Bewässerung</li>
+ <li>1: Edge2Edge - Worker-Abfrage</li>
+ <li>2: Edge2Cloud - Übertragung</li>
+ <li>3: Computation</li>
+ </ul>
+  
+    ```JSON
+  {
+    "type": 0-3,
+    "timestamp": 123456,
+    "timeDelta": 123,
+    "workerID": "Worker-X123",
+ }
+  ```
+  
+  
