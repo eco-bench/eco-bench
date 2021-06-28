@@ -96,19 +96,10 @@ jobs:
     - name: Terraform Apply
       working-directory: ./install-scripts/provisioning
       run: terraform apply -var-file tfvars.json -state cluster.tfstate -auto-approve
-    
-    - name: terraform validate
-      working-directory: ./install-scripts/provisioning
-      run: terraform validate
-    
-    - name: cat cluster.tfstate
-      working-directory: ./install-scripts/provisioning
-      run: cat cluster.tfstate
   
-    - name: Generate Inventory File
-      continue-on-error: true
+    - name: check inventory file
       working-directory: ./install-scripts/provisioning
-      run: bash ./generate-inventory.sh cluster.tfstate # > ../hosts.ini
+      run: cat inventory.ini      
     
     - name: Sleep
       run: sleep 10
