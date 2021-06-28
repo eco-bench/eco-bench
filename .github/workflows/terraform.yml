@@ -113,6 +113,6 @@ jobs:
     - name: Sleep
       run: sleep 10
     
-    - name: Terraform Destroy
-      working-directory: ./install-scripts/provisioning
-      run: ./destroy.sh
+#    - name: Terraform Destroy
+#      working-directory: ./install-scripts/provisioning
+#      run: ./destroy.sh
