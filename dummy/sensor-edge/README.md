@@ -64,7 +64,7 @@ Es werden vier Sensor-Typen unterstützt: TEMPERATURE, HUMIDITY, SOILMOISTURE, P
  <li>3: Computation</li>
  </ul>
   
-    ```JSON
+ ```JSON
   {
     "type": 0-3,
     "timestamp": 123456,
