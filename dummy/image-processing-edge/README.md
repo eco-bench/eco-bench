@@ -16,13 +16,13 @@ docker run -it --rm -p 5051:5051 --env-file ./.env image-processing-worker
   <li><b>benchmarkEndpointURL</b></li>
 </ul>
 <p>
-Produziert einen JSON-Array mit Objekten:
+Produziert einen JSON-Array mit Objekten (Benchmark-Typen: 3,4 siehe Drive):
   
 </p>
  <br> 
 
  ```JSON
-  {"workerID":"Picking-Robot",
+  {"workerID":"Image-Edge",
   "timestamp":1625001357227329800,
   "type":0,
   "timeDelta":449400}
