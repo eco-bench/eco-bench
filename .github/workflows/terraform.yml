@@ -154,7 +154,7 @@ jobs:
         echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa.pub 
 
     - name: run ansible playbook
-      run: ansible-playbook install_mongodb.yml -i ./install-scripts/provisioning/inventory.ini
+      run: ansible-playbook ./benchmarking/install_mongodb.yml -i ./install-scripts/provisioning/inventory.ini
 
     - name: Run playbook
       uses: dawidd6/action-ansible-playbook@v2
