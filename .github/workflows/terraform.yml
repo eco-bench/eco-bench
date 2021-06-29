@@ -150,7 +150,6 @@ jobs:
     - name: Run playbook
       uses: dawidd6/action-ansible-playbook@v2
       with:
-        playbook: install_mongodb.yml
-        directory: ./benchmarking/
+        playbook: ./benchmarking/install_mongodb.yml
         key: ${{secrets.PRIVATE_KEY}}
-        inventory:  ../install-scripts/provisioning/inventory.ini
+        inventory:  ./install-scripts/provisioning/inventory.ini
