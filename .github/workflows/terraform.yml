@@ -204,7 +204,7 @@ jobs:
     needs: 
       - terraform
       - deploy-applications
-    if: always
+    if: always()
     runs-on: ubuntu-latest
     environment: production
 
