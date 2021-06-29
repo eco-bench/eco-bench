@@ -144,6 +144,8 @@ jobs:
 
     - run: ansible-galaxy install undergreen.mongodb
 
+    - run: export ANSIBLE_HOST_KEY_CHECKING=False
+
     - name: run ansible playbook
       run: ansible-playbook ./benchmarking/install_mongodb.yml -i tmp/inventory.ini
 
@@ -177,6 +179,8 @@ jobs:
         mkdir ~/.ssh
         touch ~/.ssh/id_rsa
         echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
+
+    - run: export ANSIBLE_HOST_KEY_CHECKING=False
 
     - name: run ansible playbook
       working-directory: install-scripts/microk8s/ansible
