@@ -13,11 +13,12 @@ sns.set_style("whitegrid")
 data_path = "./data/"
 user = ''
 ssh_key_path = ''
+mongo_db_ip = ''
 
 def get_data_from_mongodb(eco):
     print(eco)
     session = MongoSession(
-        host='34.84.99.17',
+        host=mongo_db_ip,
         user=user,
         key=ssh_key_path,
         uri='mongodb://127.0.0.1:27017')
@@ -84,6 +85,7 @@ def data_for_plot(json_data, attribute, calc, eco) -> object:
 if __name__ == '__main__':
     # user = 'miha'
     # ssh_key_path = '/Users/miha/Uni/eco-bench.ssh'
+    # mongo_db_ip = '34.84.99.17'
     get_data_from_mongodb('microk8s')
     # get_data_from_mongodb('k3s')
     benchmarking_plot(False, 'CPU over time', 'CPU', 'CPU in Percentage')
