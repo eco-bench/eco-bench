@@ -145,6 +145,8 @@ jobs:
         touch ~/.ssh/id_rsa.pub
         echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa.pub 
 
+    - run: ansible-galaxy install undergreen.mongodb
+
     - name: run ansible playbook
       run: ansible-playbook ./benchmarking/install_mongodb.yml -i tmp/inventory.ini
 
@@ -169,16 +171,19 @@ jobs:
         name: my-artifact
         path: tmp
 
-    - run: cat tmp/inventory.ini
+    - run: cat tmp/inventory.ini install-scripts/microk8s/ansible/
+
+    - run: cp tmp/inventory.ini
 
     - name: create file with ssh key
       run: |
         mkdir ~/.ssh
         touch ~/.ssh/id_rsa.pub
         echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa.pub
-    
+
     - name: run ansible playbook
-      run: ansible-playbook  -i install-scripts/microk8s/ansible/cluster_install.yml tmp/inventory.ini
+      working-directory: install-scripts/microk8s/ansible
+      run: ansible-playbook cluster_install.yml -i inventory.ini
 
   deploy-applications:
     name: 'deploy-applications'
@@ -226,6 +231,5 @@ jobs:
     - run: ls tmp
 
     - name: destroy cluster state
-      working-directory: ./install-scripts/provisioning
       run: bash tmp/destroy.sh
 
