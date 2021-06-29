@@ -206,37 +206,12 @@ jobs:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v2
-
-  apply-application:
-    name: 'apply-application'
-    needs: 
-      - terraform
-      - deploy-applications
-    if: always()
-    runs-on: ubuntu-latest
-    environment: production
-
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-    defaults:
-      run:
-        shell: bash
-
-    steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v2
-
-    - uses: actions/download-artifact@master
-      with:
-        name: my-artifact
-        path: tmp
     
   destroy:
     name: 'destroy'
     needs: 
       - terraform
       - deploy-applications
-      - apply-application
     if: always()
     runs-on: ubuntu-latest
     environment: production
