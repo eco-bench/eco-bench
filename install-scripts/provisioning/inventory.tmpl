@@ -3,8 +3,8 @@ ansible_connection=ssh
 ansible_user=lucas
 
 [cloud]
-%{ for ip in master ~}
-${ip}
+%{ for name, ip in master ~}
+${name} ansible-host=${ip}
 %{ endfor ~}
 
 [edge]
