@@ -46,7 +46,9 @@ name: 'Install Edge Orchestrator'
 
 on:
   workflow_dispatch:
-    
+  push:
+    paths:
+      - '.github/workflows/terraform.yml'
 jobs:
   terraform:
     name: 'Terraform'
@@ -107,3 +109,40 @@ jobs:
 #    - name: Terraform Destroy
 #      working-directory: ./install-scripts/provisioning
 #      run: ./destroy.sh
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: host_file
+        path: ./install-scripts/provisioning/inventory.ini 
+    
+    
+  mongodb:
+    name: 'mongodb'
+    needs: terraform
+    runs-on: ubuntu-latest
+    environment: production
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
+    
+    - uses: actions/download-artifact@v2
+      with:
+        name: host_file
+        
+    - name: install ansible role
+      run: ansible-galaxy install undergreen.mongodb
+      
+    - name: Run playbook
+      uses: dawidd6/action-ansible-playbook@v2
+      with:
+        playbook: install_mongodb.yml
+        directory: ./benchmarking/
+        key: ${{secrets.PRIVATE_KEY}}
+        inventory:  ./install-scripts/provisioning/inventory.ini

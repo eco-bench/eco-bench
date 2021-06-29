@@ -1,23 +1,47 @@
-import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
+from typing import TextIO
 import json
 from datetime import datetime
-from pymongo import MongoClient
+import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn as sns
+from pymongo.collection import Collection
+from pymongo.database import Database
+from ssh_pymongo import MongoSession
+
 sns.set_style("whitegrid")
 
 data_path = "./data/"
+user = ''
+ssh_key_path = ''
+mongo_db_ip = ''
 
-# def get_data_from_mongodb(eco):
-#     client = MongoClient(host='35.192.54.171:27017')
-#     db = client['metrics']
-#     collection = db[eco]
-#     val = collection.find()
+def get_data_from_mongodb(eco):
+    print(eco)
+    session = MongoSession(
+        host=mongo_db_ip,
+        user=user,
+        key=ssh_key_path,
+        uri='mongodb://127.0.0.1:27017')
 
-def benchmarking_plot(title, attribute, yLabel, boxplot=False):
-    data = data_for_plot(open(data_path + "microk8s-idle.json").read(), attribute, True, 'microk8s')
-    data2 = data_for_plot(open(data_path + "k3s-idle.json").read(), attribute, False, 'k3s')
+    db: Database = session.connection['metrics']
+    mycol: Collection = db[eco]
+    cursor = mycol.find({})
+    type_documents_count = mycol.find({}).count()
+    file: TextIO
+    with open(f'data/{eco}-application.json', 'w') as file:
+        file.write('[')
+        document: object
+        for i, document in enumerate(cursor, 1):
+            document.pop('_id')
+            file.write(json.dumps(document, default=str))
+            if i != type_documents_count:
+                file.write(',')
+        file.write(']')
+    session.stop()
+
+def benchmarking_plot(title , attribute, yLabel, boxplot=False):
+    data = data_for_plot(open(data_path + "microk8s-application.json").read(), attribute, False, 'microk8s')
+    data2 = data_for_plot(open(data_path + "k3s-application.json").read(), attribute, False, 'k3s')
     ax = None
 
     if boxplot:
@@ -54,8 +78,14 @@ def data_for_plot(json_data, attribute, calc, eco):
 
 
 if __name__ == '__main__':
+    # user = 'miha'
+    # ssh_key_path = '/Users/miha/Uni/eco-bench.ssh'
+    # mongo_db_ip = '34.84.99.17'
+    get_data_from_mongodb('microk8s')
+    # get_data_from_mongodb('k3s')
+
     benchmarking_plot('CPU over time', 'CPU', 'CPU in Percentage')
     benchmarking_plot('CPU over time', 'CPU', 'CPU in Percentage', boxplot=True)
-    # benchmarking_plot('Memory usage over time', 'MEM_USED', 'Mem in MiB')
-    # benchmarking_plot('File IO total read', 'FIO_TOTAL_READ', 'Reads in Percentage')
-    # benchmarking_plot('Fiel IO total write', 'FIO_TOTAL_WRITE', 'Writes in Percentage')
+    benchmarking_plot('Memory usage over time', 'MEM_USED', 'Mem in MiB')
+    benchmarking_plot('File IO total read', 'FIO_TOTAL_READ', 'Reads in Percentage')
+    benchmarking_plot('File IO total write', 'FIO_TOTAL_WRITE', 'Writes in Percentage')
