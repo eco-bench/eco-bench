@@ -14,3 +14,15 @@ docker run -it --rm --env-file ./.env camera
   <li><b>benchmarkEndpointPort</b></li>
   <li><b>benchmarkEndpointURL</b></li>
 </ul>
+<p>
+Produziert einen JSON-Array mit Objekten>
+  
+</p>
+ <br> 
+
+ ```JSON
+  {"workerID":"Picking-Robot",
+  "timestamp":1625001357227329800,
+  "type":0,
+  "timeDelta":449400}
+ ```
