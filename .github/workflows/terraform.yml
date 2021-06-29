@@ -97,6 +97,7 @@ jobs:
 
     - name: Terraform Apply
       working-directory: ./install-scripts/provisioning
+      continue-on-error: yes
       run: terraform apply -var-file tfvars.json -state cluster.tfstate -auto-approve
   
     - name: check inventory file
