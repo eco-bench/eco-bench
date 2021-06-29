@@ -39,12 +39,7 @@ def get_data_from_mongodb(eco):
         file.write(']')
     session.stop()
 
-def benchmarking_plot(idle: bool, title , attribute, yLabel, boxplot=False):
-    data = object
-    data2 = object
-    if idle:
-        data = data_for_plot(open(data_path + "microk8s-idle.json").read(), attribute, False, 'microk8s')
-        data2 = data_for_plot(open(data_path + "k3s-idle.json").read(), attribute, False, 'k3s')
+def benchmarking_plot(title , attribute, yLabel, boxplot=False):
     data = data_for_plot(open(data_path + "microk8s-application.json").read(), attribute, False, 'microk8s')
     data2 = data_for_plot(open(data_path + "k3s-application.json").read(), attribute, False, 'k3s')
     ax = None
@@ -62,7 +57,7 @@ def benchmarking_plot(idle: bool, title , attribute, yLabel, boxplot=False):
     ax.set(ylabel=yLabel, title=title)
     plt.show()
 
-def data_for_plot(json_data, attribute, calc, eco) -> object:
+def data_for_plot(json_data, attribute, calc, eco):
     parsed_json = (json.loads(json_data))
     values = []
     timestamps = []
@@ -88,13 +83,9 @@ if __name__ == '__main__':
     # mongo_db_ip = '34.84.99.17'
     get_data_from_mongodb('microk8s')
     # get_data_from_mongodb('k3s')
-    benchmarking_plot(False, 'CPU over time', 'CPU', 'CPU in Percentage')
-    benchmarking_plot(False, 'CPU over time', 'CPU', 'CPU in Percentage', boxplot=True)
-    benchmarking_plot(False, 'Memory usage over time', 'MEM_USED', 'Mem in MiB')
-    benchmarking_plot(False, 'File IO total read', 'FIO_TOTAL_READ', 'Reads in Percentage')
-    benchmarking_plot(False, 'File IO total write', 'FIO_TOTAL_WRITE', 'Writes in Percentage')
-    # benchmarking_plot(True, 'CPU over time', 'CPU', 'CPU in Percentage')
-    # benchmarking_plot(True, 'CPU over time', 'CPU', 'CPU in Percentage', boxplot=True)
-    # benchmarking_plot(True, 'Memory usage over time', 'MEM_USED', 'Mem in MiB')
-    # benchmarking_plot(True, 'File IO total read', 'FIO_TOTAL_READ', 'Reads in Percentage')
-    # benchmarking_plot(True, 'File IO total write', 'FIO_TOTAL_WRITE', 'Writes in Percentage')
+
+    benchmarking_plot('CPU over time', 'CPU', 'CPU in Percentage')
+    benchmarking_plot('CPU over time', 'CPU', 'CPU in Percentage', boxplot=True)
+    benchmarking_plot('Memory usage over time', 'MEM_USED', 'Mem in MiB')
+    benchmarking_plot('File IO total read', 'FIO_TOTAL_READ', 'Reads in Percentage')
+    benchmarking_plot('File IO total write', 'FIO_TOTAL_WRITE', 'Writes in Percentage')
