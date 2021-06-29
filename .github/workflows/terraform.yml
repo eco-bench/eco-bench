@@ -46,7 +46,9 @@ name: 'Install Edge Orchestrator'
 
 on:
   workflow_dispatch:
-    
+  push:
+    paths:
+      - '.github/workflows/terraform.yml'
 jobs:
   terraform:
     name: 'Terraform'
@@ -134,14 +136,13 @@ jobs:
       with:
         name: host_file
         
-    - name: check inventory file
-      working-directory: ./install-scripts/provisioning
-      run: ls -la      
-
+    - name: install ansible role
+      run: ansible-galaxy install undergreen.mongodb
+      
     - name: Run playbook
       uses: dawidd6/action-ansible-playbook@v2
       with:
-        playbook: deploy.yml
+        playbook: install_mongodb.yml
         directory: ./benchmarking/
         key: ${{secrets.PRIVATE_KEY}}
-        inventory:  ./install-scripts/provisioning/host.ini
+        inventory:  ./install-scripts/provisioning/inventory.ini
