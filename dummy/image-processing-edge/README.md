@@ -24,6 +24,6 @@ Produziert einen JSON-Array mit Objekten (Benchmark-Typen: 3,4 siehe Drive):
  ```JSON
   {"workerID":"Image-Edge",
   "timestamp":1625001357227329800,
-  "type":0,
+  "type":3,
   "timeDelta":449400}
  ```
