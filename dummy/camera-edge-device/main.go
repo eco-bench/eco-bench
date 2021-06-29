@@ -24,18 +24,33 @@ import (
 
 // TODO: Needs to go if in cluster
 var ImageEdgeEndpoint string = fmt.Sprintf("http://%s:%s/image", os.Getenv("IMAGE_EDGE_IP"), os.Getenv("IMAGE_EDGE_PORT"))
-
+var BenchMarkEndpoint string = fmt.Sprintf("http://%s:%s/%s", os.Getenv("benchmarkEndPointHost"), os.Getenv("benchmarkEndpointPort"),os.Getenv("benchmarkEndpointURL"))
 // update interval in milliseconds
 var interval string = os.Getenv("INTERVAL")
 
 var width string = os.Getenv("WIDTH")
 var height string = os.Getenv("HEIGHT")
-
+ 
+ 
 type Pick struct {
 	ready bool   `json:"ready"`
 	UUID  string `json:"uuid"`
 }
 
+ 
+
+
+type BenchmarkData struct {
+	WorkerID string `json:"workerID"`
+	Timestamp int64 `json:"timestamp"`
+	ActType int `json:"type"`
+	TimeDelta int64 `json:"timeDelta"`
+}
+
+// Zeit zwischenspeichern 
+var startTime = time.Now().UnixNano()
+var benchValues []BenchmarkData
+ 
 type Request struct {
 	Img  string `json:"img"`
 	UUID string `json:"uuid"`
@@ -78,13 +93,20 @@ func generateImage() string {
 
 	return encoded
 }
-
+ func setStartTime(newStartTime int64) {
+       startTime = newStartTime
+    }
+ 
 func sendImage() {
+ 
+	
 	intervalInt, _ := strconv.Atoi(interval)
 	ticker := time.NewTicker(time.Duration(intervalInt) * time.Millisecond)
 
 	for range ticker.C {
-
+         setStartTime(time.Now().UnixNano())
+        fmt.Printf("startTime: %d\n", startTime) 
+    
 		img := generateImage()
 
 		id, err := uuid.NewRandom()
@@ -104,14 +126,38 @@ func sendImage() {
 		}
 
 		log.Printf("send,camera,%s,%s", id.String(), strconv.FormatInt(time.Now().UnixNano(), 10))
-
-		req, err := http.NewRequest("POST", ImageEdgeEndpoint, bytes.NewReader(data))
+ 		
+ 		req, err := http.NewRequest("POST", ImageEdgeEndpoint, bytes.NewReader(data))
 
 		if err != nil {
 			log.Print(err)
 			return
 		}
+        
+		go func() {
+			_, err = (&http.Client{}).Do(req)
 
+			log.Println(req)
+			if err != nil {
+				log.Print(err)
+				return
+			}
+		}() 
+
+	}
+}
+
+func sendBenchData() {
+ 		data, err := json.Marshal(benchValues)
+  
+
+ 		req, err := http.NewRequest("POST", BenchMarkEndpoint, bytes.NewReader(data))
+ 		
+ 		if err != nil {
+			log.Print(err)
+			return
+		}
+        
 		go func() {
 			_, err = (&http.Client{}).Do(req)
 
@@ -121,8 +167,30 @@ func sendImage() {
 				return
 			}
 		}()
+		log.Print("Benchmark data sent to Benchmarking Endpoint.")
 
+}
+ 
+
+func addBenchValue(uuid string, tmpst int64, atype int, tmDelta int64 ){
+	
+	if len(benchValues)>100 {
+		sendBenchData()
+		benchValues = nil
 	}
+	benchVal := BenchmarkData{
+		WorkerID: uuid, 
+	    Timestamp: tmpst,  
+	    ActType: atype,   
+	    TimeDelta: tmDelta ,
+	}
+ 	benchValues = append(benchValues,benchVal)
+}
+
+//test
+func printSlice(s []BenchmarkData) {
+	fmt.Printf("len=%d cap=%d %v\n", len(s), cap(s), s)    
+ 
 }
 
 func pickerHandler(w http.ResponseWriter, r *http.Request) {
@@ -143,6 +211,11 @@ func pickerHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	log.Printf("recv,pick,%s,%t", timestamp, data.ready)
+	
+	//Ende des Vorgangs
+ 	var endTime = time.Now().UnixNano() 
+    var timeDelta = endTime - startTime;
+    addBenchValue("Picking-Robot",startTime,0,timeDelta) 
 }
 
 func main() {
