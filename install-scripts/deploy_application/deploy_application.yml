@@ -1,0 +1,9 @@
+# prerequisite
+- hosts: microk8s-master-0
+  tasks:
+    # Copy Files to Host
+    # Apply Files
+    # Wait till all applications are up and running
+    - name: Print Start Time
+      debug:
+        msg: "time: {{ time.stdout }}"
