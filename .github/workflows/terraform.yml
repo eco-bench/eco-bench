@@ -112,8 +112,8 @@ jobs:
 
     - uses: actions/upload-artifact@v2
       with:
-        name: host_file
-        path: ./install-scripts/provisioning/inventory.ini 
+        name: my-artifact
+        path: ./install-scripts/provisioning
     
     
   mongodb:
@@ -131,10 +131,13 @@ jobs:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v2
-    
-    - uses: actions/download-artifact@v2
+
+    - uses: actions/download-artifact@master
       with:
-        name: host_file
+        name: my-artifact
+        path: tmp
+
+    - run: cat tmp/inventory.ini
         
     - name: install ansible role
       run: ansible-galaxy install undergreen.mongodb
@@ -162,3 +165,20 @@ jobs:
         playbook: ./benchmarking/install_mongodb.yml
         key: ${{secrets.PRIVATE_KEY}}
         inventory:  ./install-scripts/provisioning/inventory.ini
+
+
+  mikrok8s:
+    name: 'mikrok8s'
+    needs: terraform
+    runs-on: ubuntu-latest
+    environment: production
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
