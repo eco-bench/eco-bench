@@ -5,7 +5,7 @@
   "edge_region": "europe-west1",
   "ssh_pub_key": "~/.ssh/id_rsa.pub",
   "keyfile_location": "./service-account.json",
-  "prefix": "ecob",
+  "prefix": "k3s",
   "ssh_whitelist": [
     "0.0.0.0/0"
   ],
@@ -16,7 +16,7 @@
     "0.0.0.0/0"
   ],
   "machines": {
-    "k3s-master-0": {
+    "master-0": {
       "node_type": "master",
       "size": "e2-small",
       "zone": "asia-northeast1-b",
@@ -26,7 +26,7 @@
         "size": 10
       }
     },
-    "k3s-worker-0": {
+    "worker-0": {
       "node_type": "worker",
       "size": "e2-small",
       "zone": "europe-west1-c",
@@ -36,7 +36,7 @@
         "size": 10
       }
     },
-    "k3s-worker-1": {
+    "worker-1": {
       "node_type": "worker",
       "size": "e2-small",
       "zone": "europe-west1-c",

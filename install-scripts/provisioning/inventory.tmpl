@@ -8,8 +8,8 @@ ${name} ansible-host=${ip}
 %{ endfor ~}
 
 [edge]
-%{ for ip in worker ~}
-${ip}
+%{ for name, ip in worker ~}
+${name} ansible-host=${ip}
 %{ endfor ~}
 
 [cloud:vars]
