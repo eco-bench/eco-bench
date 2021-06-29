@@ -141,7 +141,7 @@ jobs:
     - name: Run playbook
       uses: dawidd6/action-ansible-playbook@v2
       with:
-        playbook: deploy.yml
+        playbook: install_mongodb.yml
         directory: ./benchmarking/
         key: ${{secrets.PRIVATE_KEY}}
-        inventory:  ./install-scripts/provisioning/host.ini
+        inventory:  ./install-scripts/provisioning/inventory.ini
