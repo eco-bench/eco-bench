@@ -147,7 +147,7 @@ jobs:
     - run: export ANSIBLE_HOST_KEY_CHECKING=False
 
     - name: run ansible playbook
-      run: ansible-playbook ./benchmarking/install_mongodb.yml -i tmp/inventory.ini
+      run: ansible-playbook ./benchmarking/install_mongodb.yml -i tmp/inventory.ini --key-file "~/.ssh/id_rsa"
 
   mikrok8s:
     name: 'mikrok8s'
@@ -184,7 +184,7 @@ jobs:
 
     - name: run ansible playbook
       working-directory: install-scripts/microk8s/ansible
-      run: ansible-playbook cluster_install.yml -i inventory.ini
+      run: ansible-playbook cluster_install.yml -i inventory.ini --private-key ${{ secrets.PRIVATE_KEY }}
 
   deploy-applications:
     name: 'deploy-applications'
