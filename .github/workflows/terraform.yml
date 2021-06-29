@@ -141,13 +141,15 @@ jobs:
         mkdir ~/.ssh
         touch ~/.ssh/id_rsa
         echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa 
+        chmod 600 ~/.ssh/id_rsa
 
     - run: ansible-galaxy install undergreen.mongodb
 
     - run: export ANSIBLE_HOST_KEY_CHECKING=False
 
     - name: run ansible playbook
-      run: ansible-playbook ./benchmarking/install_mongodb.yml -i tmp/inventory.ini --private-key "${{ secrets.PRIVATE_KEY }}"
+      working-directory: ./benchmarking
+      run: ansible-playbook install_mongodb.yml -i ../tmp/inventory.ini
 
   mikrok8s:
     name: 'mikrok8s'
@@ -179,12 +181,13 @@ jobs:
         mkdir ~/.ssh
         touch ~/.ssh/id_rsa
         echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
 
     - run: export ANSIBLE_HOST_KEY_CHECKING=False
 
     - name: run ansible playbook
       working-directory: install-scripts/microk8s/ansible
-      run: ansible-playbook cluster_install.yml -i inventory.ini --private-key "${{ secrets.PRIVATE_KEY }}"
+      run: ansible-playbook cluster_install.yml -i inventory.ini
 
   deploy-applications:
     name: 'deploy-applications'
