@@ -103,9 +103,6 @@ jobs:
       working-directory: ./install-scripts/provisioning
       run: cat inventory.ini      
     
-    - name: Sleep
-      run: sleep 10
-    
 #    - name: Terraform Destroy
 #      working-directory: ./install-scripts/provisioning
 #      run: ./destroy.sh
@@ -142,8 +139,8 @@ jobs:
     - name: create file with ssh key
       run: |
         mkdir ~/.ssh
-        touch ~/.ssh/id_rsa.pub
-        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa.pub 
+        touch ~/.ssh/id_rsa
+        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa 
 
     - run: ansible-galaxy install undergreen.mongodb
 
@@ -178,8 +175,8 @@ jobs:
     - name: create file with ssh key
       run: |
         mkdir ~/.ssh
-        touch ~/.ssh/id_rsa.pub
-        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa.pub
+        touch ~/.ssh/id_rsa
+        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
 
     - name: run ansible playbook
       working-directory: install-scripts/microk8s/ansible
@@ -230,9 +227,11 @@ jobs:
 
     - run: ls tmp
 
-    - name: destroy cluster state
+    - name: terraform init
       working-directory: tmp
       run: terraform init
+
+    - run: ls tmp
     
     - name: destroy cluster state
       working-directory: tmp
