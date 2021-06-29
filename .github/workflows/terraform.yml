@@ -171,9 +171,9 @@ jobs:
         name: my-artifact
         path: tmp
 
-    - run: cat tmp/inventory.ini install-scripts/microk8s/ansible/
+    - run: cp tmp/inventory.ini install-scripts/microk8s/ansible/
 
-    - run: cp tmp/inventory.ini
+    - run: cat tmp/inventory.ini
 
     - name: create file with ssh key
       run: |
@@ -231,5 +231,6 @@ jobs:
     - run: ls tmp
 
     - name: destroy cluster state
-      run: bash tmp/destroy.sh
+      working-directory: tmp
+      run: bash destroy.sh
 
