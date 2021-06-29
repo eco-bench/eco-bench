@@ -134,10 +134,9 @@ jobs:
       with:
         name: host_file
         
-    - name: check inventory file
-      working-directory: ./install-scripts/provisioning
-      run: ls -la      
-
+    - name: install ansible role
+      run: ansible-galaxy install undergreen.mongodb
+      
     - name: Run playbook
       uses: dawidd6/action-ansible-playbook@v2
       with:
