@@ -4,12 +4,12 @@ ansible_user=deploy_git
 
 [cloud]
 %{ for name, ip in master ~}
-${name} ansible-host=${ip}
+${name} ansible_host=${ip}
 %{ endfor ~}
 
 [edge]
 %{ for name, ip in worker ~}
-${name} ansible-host=${ip}
+${name} ansible_host=${ip}
 %{ endfor ~}
 
 [cloud:vars]
