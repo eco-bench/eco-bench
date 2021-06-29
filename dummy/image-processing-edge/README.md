@@ -8,3 +8,22 @@ docker build -t image-processing-worker .
 ```bash
 docker run -it --rm -p 5051:5051 --env-file ./.env image-processing-worker
 ```
+
+<p><h3>Benchmark-Endpoint-Variablen</h3></p>
+<ul>
+  <li><b>benchmarkEndPointHost</b></li>
+  <li><b>benchmarkEndpointPort</b></li>
+  <li><b>benchmarkEndpointURL</b></li>
+</ul>
+<p>
+Produziert einen JSON-Array mit Objekten:
+  
+</p>
+ <br> 
+
+ ```JSON
+  {"workerID":"Picking-Robot",
+  "timestamp":1625001357227329800,
+  "type":0,
+  "timeDelta":449400}
+ ```
