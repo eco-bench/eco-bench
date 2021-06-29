@@ -1,4 +1,4 @@
-- hosts: mongodb
+- hosts: k3s-mongodb
   become: yes
   vars:
     mongodb_net_bindip: 0.0.0.0
