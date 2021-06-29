@@ -145,8 +145,6 @@ jobs:
 
     - run: ansible-galaxy install undergreen.mongodb
 
-    - run: export ANSIBLE_HOST_KEY_CHECKING=False
-
     - name: run ansible playbook
       working-directory: ./benchmarking
       run: ansible-playbook install_mongodb.yml -i ../tmp/inventory.ini
@@ -183,8 +181,6 @@ jobs:
         echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
 
-    - run: export ANSIBLE_HOST_KEY_CHECKING=False
-
     - name: run ansible playbook
       working-directory: install-scripts/microk8s/ansible
       run: ansible-playbook cluster_install.yml -i inventory.ini
@@ -206,12 +202,57 @@ jobs:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v2
+
+    - uses: actions/download-artifact@master
+      with:
+        name: my-artifact
+        path: tmp
+
+    - run: cp tmp/inventory.ini install-scripts/microk8s/ansible/
+
+    - run: cat tmp/inventory.ini
     
+    - name: create file with ssh key
+      run: |
+        mkdir ~/.ssh
+        touch ~/.ssh/id_rsa
+        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
+    - name: run ansible playbook
+      working-directory: install-scripts/microk8s/ansible
+      run: ansible-playbook apply_applications.yml -i inventory.ini
+
+  run-benchmark:
+    name: 'run-benchmark'
+    needs: 
+      - deploy-applications
+    runs-on: ubuntu-latest
+    environment: production
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - uses: actions/download-artifact@master
+      with:
+        name: my-artifact
+        path: tmp
+
+    - run: sleep 10
+  
+
   destroy:
     name: 'destroy'
     needs: 
       - terraform
-      - deploy-applications
+      - run-benchmark
     if: always()
     runs-on: ubuntu-latest
     environment: production
