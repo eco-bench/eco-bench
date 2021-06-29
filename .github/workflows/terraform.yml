@@ -138,17 +138,6 @@ jobs:
         path: tmp
 
     - run: cat tmp/inventory.ini
-        
-    - name: install ansible role
-      run: ansible-galaxy install undergreen.mongodb
-
-    - name: install ansible role
-      working-directory: ./install-scripts/provisioning
-      run: ls inventory.ini
-
-    - name: install ansible role
-      working-directory: ./install-scripts/provisioning
-      run: cat inventory.ini
       
     - name: create file with ssh key
       run: |
@@ -157,14 +146,7 @@ jobs:
         echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa.pub 
 
     - name: run ansible playbook
-      run: ansible-playbook ./benchmarking/install_mongodb.yml -i ./install-scripts/provisioning/inventory.ini
-
-    - name: Run playbook
-      uses: dawidd6/action-ansible-playbook@v2
-      with:
-        playbook: ./benchmarking/install_mongodb.yml
-        key: ${{secrets.PRIVATE_KEY}}
-        inventory:  ./install-scripts/provisioning/inventory.ini
+      run: ansible-playbook ./benchmarking/install_mongodb.yml -i tmp/inventory.ini
 
 
   mikrok8s:
@@ -182,3 +164,19 @@ jobs:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v2
+
+    - uses: actions/download-artifact@master
+      with:
+        name: my-artifact
+        path: tmp
+
+    - run: cat tmp/inventory.ini
+
+    - name: create file with ssh key
+      run: |
+        mkdir ~/.ssh
+        touch ~/.ssh/id_rsa.pub
+        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa.pub
+    
+    - name: run ansible playbook
+      run: ls
