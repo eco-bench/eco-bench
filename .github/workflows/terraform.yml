@@ -97,7 +97,7 @@ jobs:
 
     - name: Terraform Apply
       working-directory: ./install-scripts/provisioning
-      continue-on-error: yes
+      continue-on-error: true
       run: terraform apply -var-file tfvars.json -state cluster.tfstate -auto-approve
   
     - name: check inventory file
@@ -149,7 +149,6 @@ jobs:
     - name: run ansible playbook
       run: ansible-playbook ./benchmarking/install_mongodb.yml -i tmp/inventory.ini
 
-
   mikrok8s:
     name: 'mikrok8s'
     needs: terraform
@@ -180,4 +179,22 @@ jobs:
         echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa.pub
     
     - name: run ansible playbook
-      run: ls
+      run: ansible-playbook  -i install-scripts/microk8s/ansible/cluster_install.yml tmp/inventory.ini
+
+  deploy-applications:
+    name: 'deploy-applications'
+    needs: 
+      - mikrok8s
+      - mongodb
+    runs-on: ubuntu-latest
+    environment: production
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
