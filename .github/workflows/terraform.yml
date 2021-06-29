@@ -198,3 +198,35 @@ jobs:
     # Checkout the repository to the GitHub Actions runner
     - name: Checkout
       uses: actions/checkout@v2
+
+    
+  destroy:
+    name: 'destroy'
+    needs: 
+      - terraform
+      - deploy-applications
+    if: always
+    runs-on: ubuntu-latest
+    environment: production
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - uses: actions/download-artifact@master
+      with:
+        name: my-artifact
+        path: tmp
+
+    - run: ls tmp
+
+    - name: destroy cluster state
+      working-directory: ./install-scripts/provisioning
+      run: bash tmp/destroy.sh
+
