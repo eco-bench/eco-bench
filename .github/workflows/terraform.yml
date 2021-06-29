@@ -232,5 +232,9 @@ jobs:
 
     - name: destroy cluster state
       working-directory: tmp
-      run: bash destroy.sh
+      run: terraform init
+    
+    - name: destroy cluster state
+      working-directory: tmp
+      run: terraform destroy -var-file tfvars.json -state cluster.tfstate -auto-approve
 
