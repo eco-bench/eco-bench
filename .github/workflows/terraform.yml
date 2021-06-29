@@ -229,6 +229,13 @@ jobs:
         name: my-artifact
         path: tmp
 
+    # Move Public Key for current User
+    - name: Create Public Key
+      run: |
+        mkdir ~/.ssh
+        touch ~/.ssh/id_rsa.pub
+        echo '${{ secrets.PUBLIC_KEY }}' >> ~/.ssh/id_rsa.pub
+
     - run: ls -la  tmp
 
     - run: rm -rf tmp/.terraform
