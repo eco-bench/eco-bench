@@ -153,4 +153,4 @@ jobs:
         playbook: install_mongodb.yml
         directory: ./benchmarking/
         key: ${{secrets.PRIVATE_KEY}}
-        inventory:  ./install-scripts/provisioning/inventory.ini
+        inventory:  ../install-scripts/provisioning/inventory.ini
