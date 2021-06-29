@@ -138,6 +138,12 @@ jobs:
         
     - name: install ansible role
       run: ansible-galaxy install undergreen.mongodb
+
+    - name: install ansible role
+      working-directory: ./install-scripts/provisioning
+      run: | 
+        ls ./install-scripts/provisioning/inventory.ini
+        cat ./install-scripts/provisioning/inventory.ini
       
     - name: Run playbook
       uses: dawidd6/action-ansible-playbook@v2
