@@ -15,7 +15,7 @@ docker run -it --rm --env-file ./.env camera
   <li><b>benchmarkEndpointURL</b></li>
 </ul>
 <p>
-Produziert einen JSON-Array mit Objekten>
+Produziert einen JSON-Array mit Objekten:
   
 </p>
  <br> 
