@@ -86,6 +86,11 @@ def data_for_plot(json_data, attribute, calc, eco):
 
 
 if __name__ == '__main__':
+
+    # Debugging
+    print(os.environ['SSH_KEY'])
+    print(os.environ['MONGODB_IP'])
+
     user = os.environ['SERVER_USER']
     ssh_key_path = os.environ['SSH_KEY']
     mongo_db_ip =  os.environ['MONGODB_IP']
