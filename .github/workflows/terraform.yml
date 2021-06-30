@@ -104,51 +104,47 @@ jobs:
       working-directory: ./install-scripts/provisioning
       run: cat inventory.ini
 
-#    - name: Terraform Destroy
-#      working-directory: ./install-scripts/provisioning
-#      run: ./destroy.sh
-
     - uses: actions/upload-artifact@v2
       with:
         name: my-artifact
         path: ./install-scripts/provisioning
-
-
-  mongodb:
-    name: 'mongodb'
-    needs: terraform
-    runs-on: ubuntu-latest
-    environment: production
-
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-    defaults:
-      run:
-        shell: bash
-
-    steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v2
-
-    - uses: actions/download-artifact@master
-      with:
-        name: my-artifact
-        path: tmp
-
-    - run: cat tmp/inventory.ini
-
-    - name: create file with ssh key
-      run: |
-        mkdir ~/.ssh
-        touch ~/.ssh/id_rsa
-        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
-
-    - run: ansible-galaxy install undergreen.mongodb
-
-    - name: run ansible playbook
-      working-directory: ./benchmarking
-      run: ansible-playbook install_mongodb.yml -i ../tmp/inventory.ini
+#
+#
+#  mongodb:
+#    name: 'mongodb'
+#    needs: terraform
+#    runs-on: ubuntu-latest
+#    environment: production
+#
+#    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+#    defaults:
+#      run:
+#        shell: bash
+#
+#    steps:
+#    # Checkout the repository to the GitHub Actions runner
+#    - name: Checkout
+#      uses: actions/checkout@v2
+#
+#    - uses: actions/download-artifact@master
+#      with:
+#        name: my-artifact
+#        path: tmp
+#
+#    - run: cat tmp/inventory.ini
+#
+#    - name: create file with ssh key
+#      run: |
+#        mkdir ~/.ssh
+#        touch ~/.ssh/id_rsa
+#        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
+#        chmod 600 ~/.ssh/id_rsa
+#
+#    - run: ansible-galaxy install undergreen.mongodb
+#
+#    - name: run ansible playbook
+#      working-directory: ./benchmarking
+#      run: ansible-playbook install_mongodb.yml -i ../tmp/inventory.ini
 
 #  mikrok8s:
 #    name: 'mikrok8s'
@@ -264,8 +260,8 @@ jobs:
 
   evaluate:
     name: 'Evaluate and Plot'
-    needs:
-      - mongodb
+#    needs:
+#      - mongodb
     environment: production
     runs-on: ubuntu-latest
     defaults:
@@ -289,10 +285,11 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
+        working-directory: benchmark
         run: |
-          ls -la
           python -m pip install --upgrade pip setuptools wheel
-          pip install -r requirements.txt
+
+        #pip install -r requirements.txt
 
       - name: Execute Script
         run: |
