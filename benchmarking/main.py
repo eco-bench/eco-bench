@@ -17,7 +17,9 @@ ssh_key_path = ''
 mongo_db_ip = ''
 
 def get_data_from_mongodb(eco):
-    print(eco)
+    # Debugging
+    print('Using config: ' + user + mongo_db_ip + ssh_key_path)
+
     session = MongoSession(
         host=mongo_db_ip,
         user=user,
@@ -90,6 +92,7 @@ if __name__ == '__main__':
     # Debugging
     print(os.environ['SSH_KEY'])
     print(os.environ['MONGODB_IP'])
+    print(os.environ['SERVER_USER'])
 
     user = os.environ['SERVER_USER']
     ssh_key_path = os.environ['SSH_KEY']
