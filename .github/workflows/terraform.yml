@@ -276,8 +276,8 @@ jobs:
       - name: Create Public Key
         run: |
           mkdir ~/.ssh
-          touch ~/.ssh/id_rsa.pub
-          echo '${{ secrets.PUBLIC_KEY }}' >> ~/.ssh/id_rsa.pub
+          touch ~/.ssh/id_rsa
+          echo '${{ secrets.PRIVATE_KEY }}' > ~/.ssh/id_rsa
 
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout
@@ -302,7 +302,7 @@ jobs:
         run: echo "MONGODB_IP=$(grep -E 'mongodb' /tmp/inventory.ini |grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')" >> $GITHUB_ENV
 
       - name: Set SSH_KEY Env
-        run: echo "SSH_KEY=$(echo $HOME/.ssh/id_rsa.pub)" >> $GITHUB_ENV
+        run: echo "SSH_KEY=$(echo $HOME/.ssh/id_rsa)" >> $GITHUB_ENV
 
       - name: Execute Script
         working-directory: ./benchmarking
