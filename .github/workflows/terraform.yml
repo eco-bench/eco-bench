@@ -313,7 +313,7 @@ jobs:
     name: 'Destroy Environment (Terraform)'
     needs:
       - terraform
-      - run-benchmark
+      # - run-benchmark
     if: always()
     runs-on: ubuntu-latest
     environment: production
