@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 max_seconds=$1
-host_ip=10.128.0.2
+host_ip=$3
 database=metrics
 SECONDS=0
 
