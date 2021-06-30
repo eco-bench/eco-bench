@@ -56,6 +56,9 @@ def benchmarking_plot(title , attribute, yLabel, boxplot=False):
         ax.set(xlabel='Time in Seconds')
 
     ax.set(ylabel=yLabel, title=title)
+    # Save the file to the current dir
+    ax.savefig(attribute + '.png')
+
     plt.show()
 
 def data_for_plot(json_data, attribute, calc, eco):
