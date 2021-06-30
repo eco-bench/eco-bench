@@ -58,9 +58,9 @@ Es werden vier Sensor-Typen unterstützt: TEMPERATURE, HUMIDITY, SOILMOISTURE, P
  <li>timestamp - Startzeitpunkt</li>
  <li>timeDelta - Zeitdifferenz</li>
  <li>workerID - Id des Workers, der die Daten erzeugt hat</li>
- <li>3: Computation</li>
+ <li>type - Typ der Messung</li>
  </ul>
-   <h4>SensorTypen: </h4>
+   <h4>Typen der Messung: </h4>
   <ul>
  <li>0: Edge2Edge - Bewässerung</li>
  <li>1: Edge2Edge - Worker-Abfrage</li>
