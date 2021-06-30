@@ -7,6 +7,8 @@ import seaborn as sns
 from pymongo.collection import Collection
 from pymongo.database import Database
 from ssh_pymongo import MongoSession
+import os
+import pprint
 
 sns.set_style("whitegrid")
 
@@ -78,6 +80,9 @@ def data_for_plot(json_data, attribute, calc, eco):
 
 
 if __name__ == '__main__':
+    env_var = os.environ
+#     print(env_var['USER'])
+    user = env_var['USER']
     # user = 'miha'
     # ssh_key_path = '/Users/miha/Uni/eco-bench.ssh'
     # mongo_db_ip = '34.84.99.17'
