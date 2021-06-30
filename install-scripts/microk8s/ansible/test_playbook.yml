@@ -1,0 +1,7 @@
+- hosts: all
+  tasks:
+  - command: hostname
+    register: output
+  - debug: 
+      msg: "{{output.stdout_lines}}"
+  # write to buffer file

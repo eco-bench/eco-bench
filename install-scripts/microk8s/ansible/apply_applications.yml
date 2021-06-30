@@ -18,3 +18,10 @@
       retries: 6
       delay: 10
       ignore_errors: true
+    - name: get all pods
+      become: yes
+      shell: microk8s kubectl get pods -o wide
+      register: output
+    - name: Print output
+      debug:
+        msg: "pods: {{ output }}"
