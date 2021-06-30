@@ -26,6 +26,16 @@ spec:
       labels:
         app: sensor-ew1
     spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: node
+                operator: In
+                values:
+                - edge1
       containers:
         - name: sensor-ew1
           image: ecobench/sensor-edge
