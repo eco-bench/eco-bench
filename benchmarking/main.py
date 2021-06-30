@@ -8,7 +8,6 @@ from pymongo.collection import Collection
 from pymongo.database import Database
 from ssh_pymongo import MongoSession
 import os
-import pprint
 
 sns.set_style("whitegrid")
 
@@ -80,14 +79,10 @@ def data_for_plot(json_data, attribute, calc, eco):
 
 
 if __name__ == '__main__':
-    env_var = os.environ
-#     print(env_var['USER'])
-    user = env_var['USER']
-    # user = 'miha'
-    # ssh_key_path = '/Users/miha/Uni/eco-bench.ssh'
-    # mongo_db_ip = '34.84.99.17'
+    user = os.environ['SERVER_USER']
+    ssh_key_path = os.environ['SSH_KEY']
+    mongo_db_ip =  os.environ['MONGODB_IP']
     get_data_from_mongodb('microk8s')
-    # get_data_from_mongodb('k3s')
 
     benchmarking_plot('CPU over time', 'CPU', 'CPU in Percentage')
     benchmarking_plot('CPU over time', 'CPU', 'CPU in Percentage', boxplot=True)
