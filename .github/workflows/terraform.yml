@@ -261,7 +261,7 @@ jobs:
   evaluate:
     name: 'Evaluate and Plot'
     needs:
-      - terrform
+      - terraform
     environment: production
     runs-on: ubuntu-latest
     defaults:
