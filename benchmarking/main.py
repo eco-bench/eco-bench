@@ -57,7 +57,12 @@ def benchmarking_plot(title , attribute, yLabel, boxplot=False):
 
     ax.set(ylabel=yLabel, title=title)
     # Save the file to the current dir
-    ax.savefig(attribute + '.png')
+
+
+    dirname = 'results'
+    if not os.path.exists(dirname):
+        os.mkdir(dirName)
+    ax.savefig(dirname + '/' + attribute + '.png')
 
     plt.show()
 
