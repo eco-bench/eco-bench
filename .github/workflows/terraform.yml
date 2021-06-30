@@ -257,7 +257,7 @@ jobs:
         chmod 600 ~/.ssh/id_rsa
 
     - name: run ansible playbook
-      working-directory: /benchmarking
+      working-directory: benchmarking
       run: ansible-playbook script.yml -i inventory.ini
 
   destroy:
