@@ -52,17 +52,16 @@ def benchmarking_plot(title , attribute, yLabel, boxplot=False):
     else:
         ax = sns.lineplot(data=data, x='time', y='value', label="mircok8s")
         sns.lineplot(data=data2, x='time', y='value', label="k3s")
-        plt.legend()
         ax.set(xlabel='Time in Seconds')
 
     ax.set(ylabel=yLabel, title=title)
+
     # Save the file to the current dir
-
-
-    dirname = 'results'
-    if not os.path.exists(dirname):
-        os.mkdir(dirName)
-    ax.savefig(dirname + '/' + attribute + '.png')
+    dir_name = 'results'
+    if not os.path.exists(dir_name):
+        os.mkdir(dir_name)
+    fig = ax.get_figure()
+    fig.savefig(dir_name + '/' + attribute + '.png')
 
     plt.show()
 
