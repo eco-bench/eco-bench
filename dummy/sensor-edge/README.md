@@ -5,7 +5,7 @@ Die Namen der Sensoren, Typen der Sensoren und die Worker-ID werden automatisch 
 Es werden vier Sensor-Typen unterstützt: TEMPERATURE, HUMIDITY, SOILMOISTURE, PRECIPITATION.
  
 <h2> Konfiguration: </h2>
-<p>  Programmagumente können in der application.properties, manche über HTTP-Post oder als Java-Argumente übergeben werden. </p>
+<p>  Programmagumente können in der application.properties, als ENV-Variablen, über HTTP-Post oder als Java-Argumente übergeben werden. </p>
    
   <h3><b>Cloud-Argumente</b></h3>
   <p><b>targetNode.host</b> - Host des zugehörigen Cloud-Nodes</p>
