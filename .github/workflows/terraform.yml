@@ -146,122 +146,122 @@ jobs:
       working-directory: ./benchmarking
       run: ansible-playbook install_mongodb.yml -i ../tmp/inventory.ini
 
-#  mikrok8s:
-#    name: 'Install mikrok8s'
-#    needs: terraform
-#    runs-on: ubuntu-latest
-#    environment: production
-#
-#    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-#    defaults:
-#      run:
-#        shell: bash
-#
-#    steps:
-#    # Checkout the repository to the GitHub Actions runner
-#    - name: Checkout
-#      uses: actions/checkout@v2
-#
-#    - uses: actions/download-artifact@master
-#      with:
-#        name: my-artifact
-#        path: tmp
-#
-#    - run: cp tmp/inventory.ini install-scripts/microk8s/ansible/
-#
-#    - run: cat tmp/inventory.ini
-#
-#    - name: create file with ssh key
-#      run: |
-#        mkdir ~/.ssh
-#        touch ~/.ssh/id_rsa
-#        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
-#        chmod 600 ~/.ssh/id_rsa
-#
-#    - name: run ansible playbook
-#      working-directory: install-scripts/microk8s/ansible
-#      run: ansible-playbook cluster_install.yml -i inventory.ini
+  mikrok8s:
+    name: 'Install mikrok8s'
+    needs: terraform
+    runs-on: ubuntu-latest
+    environment: production
 
-#  deploy-applications:
-#    name: 'Deploy Applications'
-#    needs:
-#      - mikrok8s
-#      - mongodb
-#    runs-on: ubuntu-latest
-#    environment: production
-#
-#    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-#    defaults:
-#      run:
-#        shell: bash
-#
-#    steps:
-#    # Checkout the repository to the GitHub Actions runner
-#    - name: Checkout
-#      uses: actions/checkout@v2
-#
-#    - uses: actions/download-artifact@master
-#      with:
-#        name: my-artifact
-#        path: tmp
-#
-#    - run: cp tmp/inventory.ini install-scripts/microk8s/ansible/
-#
-#    - run: cat tmp/inventory.ini
-#
-#    - name: create file with ssh key
-#      run: |
-#        mkdir ~/.ssh
-#        touch ~/.ssh/id_rsa
-#        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
-#        chmod 600 ~/.ssh/id_rsa
-#
-#    - name: run ansible playbook
-#      working-directory: install-scripts/microk8s/ansible
-#      run: ansible-playbook apply_applications.yml -i inventory.ini
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
 
-#  run-benchmark:
-#    name: 'Benchmark'
-#    needs:
-#      - deploy-applications
-#    runs-on: ubuntu-latest
-#    environment: production
-#
-#    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-#    defaults:
-#      run:
-#        shell: bash
-#
-#    steps:
-#    # Checkout the repository to the GitHub Actions runner
-#    - name: Checkout
-#      uses: actions/checkout@v2
-#
-#    - uses: actions/download-artifact@master
-#      with:
-#        name: my-artifact
-#        path: tmp
-#
-#    - run: cp tmp/inventory.ini benchmarking/
-#
-#    - run: cat tmp/inventory.ini
-#
-#    - name: create file with ssh key
-#      run: |
-#        mkdir ~/.ssh
-#        touch ~/.ssh/id_rsa
-#        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
-#        chmod 600 ~/.ssh/id_rsa
-#
-#    - name: run ansible playbook
-#      working-directory: benchmarking
-#      run: ansible-playbook script.yml -i inventory.ini
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - uses: actions/download-artifact@master
+      with:
+        name: my-artifact
+        path: tmp
+
+    - run: cp tmp/inventory.ini install-scripts/microk8s/ansible/
+
+    - run: cat tmp/inventory.ini
+
+    - name: create file with ssh key
+      run: |
+        mkdir ~/.ssh
+        touch ~/.ssh/id_rsa
+        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
+    - name: run ansible playbook
+      working-directory: install-scripts/microk8s/ansible
+      run: ansible-playbook cluster_install.yml -i inventory.ini
+
+  deploy-applications:
+    name: 'Deploy Applications'
+    needs:
+      - mikrok8s
+      - mongodb
+    runs-on: ubuntu-latest
+    environment: production
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - uses: actions/download-artifact@master
+      with:
+        name: my-artifact
+        path: tmp
+
+    - run: cp tmp/inventory.ini install-scripts/microk8s/ansible/
+
+    - run: cat tmp/inventory.ini
+
+    - name: create file with ssh key
+      run: |
+        mkdir ~/.ssh
+        touch ~/.ssh/id_rsa
+        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
+    - name: run ansible playbook
+      working-directory: install-scripts/microk8s/ansible
+      run: ansible-playbook apply_applications.yml -i inventory.ini
+
+  run-benchmark:
+    name: 'Benchmark'
+    needs:
+      - deploy-applications
+    runs-on: ubuntu-latest
+    environment: production
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - uses: actions/download-artifact@master
+      with:
+        name: my-artifact
+        path: tmp
+
+    - run: cp tmp/inventory.ini benchmarking/
+
+    - run: cat tmp/inventory.ini
+
+    - name: create file with ssh key
+      run: |
+        mkdir ~/.ssh
+        touch ~/.ssh/id_rsa
+        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
+    - name: run ansible playbook
+      working-directory: benchmarking
+      run: ansible-playbook script.yml -i inventory.ini
 
 
   evaluate:
     name: 'Evaluate and Plot'
     needs:
-      - mongodb
+      - run-benchmark
     environment: production
     runs-on: ubuntu-latest
 
@@ -316,7 +316,6 @@ jobs:
         with:
           name: plots
           path: ./benchmarking/results
-
 
   destroy:
     name: 'Destroy Environment'
