@@ -244,9 +244,21 @@ jobs:
       with:
         name: my-artifact
         path: tmp
+   
+    - run: cp tmp/inventory.ini benchmarking/
 
-    - run: sleep 10
-  
+    - run: cat tmp/inventory.ini
+        
+    - name: create file with ssh key
+      run: |
+        mkdir ~/.ssh
+        touch ~/.ssh/id_rsa
+        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+
+    - name: run ansible playbook
+      working-directory: /benchmarking
+      run: ansible-playbook script.yml -i inventory.ini
 
   destroy:
     name: 'destroy'
