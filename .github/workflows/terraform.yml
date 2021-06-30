@@ -289,6 +289,9 @@ jobs:
 
       - run: cat | grep -E 'mongodb' /tmp/inventory.ini |grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
 
+      - name: Set env
+        run: echo "MONGODB_IP=$(grep -E 'mongodb' /tmp/inventory.ini |grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')" >> $GITHUB_ENV
+
       - name: Execute Script
         working-directory: ./benchmarking
         run: |
@@ -296,7 +299,6 @@ jobs:
         env:
           SERVER_USER: "ubuntu" # as defined during terraform provisioning
           SSH_KEY: ${{ secrets.PUBLIC_KEY }}
-          MONGODB_IP:  grep -E 'mongodb' /tmp/inventory.ini |grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}'
 
       - name: Archive Plots
         uses: actions/upload-artifact@v2
