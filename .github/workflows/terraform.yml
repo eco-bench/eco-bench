@@ -294,8 +294,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Set ENV Variables
-
       - name: Execute Script
         working-directory: benchmark
         run: python main.py
