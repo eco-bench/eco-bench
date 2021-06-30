@@ -264,8 +264,8 @@ jobs:
 
   evaluate:
     name: 'Evaluate and Plot'
-    # needs:
-     #  - run-benchmark
+    needs:
+      - mongodb
     environment: production
     runs-on: ubuntu-latest
     defaults:
@@ -313,7 +313,7 @@ jobs:
     name: 'Destroy Environment (Terraform)'
     needs:
       - terraform
-      # - run-benchmark
+      - evaluate
     if: always()
     runs-on: ubuntu-latest
     environment: production
