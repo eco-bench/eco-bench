@@ -284,6 +284,8 @@ jobs:
         with:
           python-version: '3.x'
 
+      - run: ls -la  .
+
       - name: Install dependencies
         working-directory: benchmark
         run: |
