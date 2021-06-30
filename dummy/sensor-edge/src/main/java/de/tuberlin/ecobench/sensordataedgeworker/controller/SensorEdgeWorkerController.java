@@ -41,7 +41,7 @@ public class SensorEdgeWorkerController {
 	 * @param sd Sensordata
 	 * @return
 	 */
-	@PostMapping(path = "sensorData", consumes = "application/json", produces = "applicatin/json")
+	@PostMapping(path = "sensorData", consumes = {"application/json","text/plain","*/*"}, produces = {"application/json","text/plain","*/*"} )
 	public ResponseEntity<SensorData> postSensorData(@RequestBody SensorData sd) {
 		System.out.println(sd.getMeasurement());
  		sensorService.processSensorData(sd);
@@ -76,7 +76,7 @@ public class SensorEdgeWorkerController {
 	 * @param props
 	 * @return
 	 */
-	@PostMapping(path = "config",produces="application/json", consumes = "application/json")
+	@PostMapping(path = "config", consumes = "application/json")
 	public ResponseEntity<SensorWorkerConfig> postAppProperties(@RequestBody SensorWorkerConfig config) { 
 	     SensorService.changeConfig(config);
  		return new ResponseEntity<>(HttpStatus.OK);
