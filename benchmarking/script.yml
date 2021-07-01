@@ -1,7 +1,7 @@
 - hosts: cloud[0]
   tasks:
   - debug: 
-      msg: "Mongo DB IP {{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
+      msg: "Mongo DB IP {{ hostvars[inventory_hostname].ansible_host }}"
 
 - hosts: all
   tasks:
@@ -48,7 +48,7 @@
     ignore_errors: True
     register: output_collector_script 
     shell: 
-      cmd: "bash collector.sh 30 k3s {{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
+      cmd: "bash collector.sh 30 k3s {{ hostvars[inventory_hostname].ansible_host }}"
       chdir: /etc/scripts
   - debug: 
       msg: "{{ output_collector_script }}" 
