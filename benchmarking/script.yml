@@ -1,30 +1,40 @@
+- hosts: cloud[0]
+  tasks:
+  - debug: 
+      msg: "Mongo DB IP {{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
+
 - hosts: all
-  become: true
   tasks:
   - name: install iotop
+    become: yes
     apt:
       name: iotop
       state: present
+      update_cache: yes
   - name: Install mongo client
+    become: yes
     shell: |
-      sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
+      apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
       echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.0.list
-      sudo apt-get update
-      sudo apt-get install -y mongodb-org-shell
+      apt-get update
+      apt-get install -y mongodb-org-shell
   - name: Create a directory if it does not exist
+    become: yes
     file:
       path: /etc/scripts
       state: directory
       mode: '0755'
   - name: copy files from localhost to remote 
+    become: yes
     copy:
       src: "{{ item }}"
       dest: /etc/scripts
       owner: root
       mode: 600
     loop:
-      - collector.sh
+      - collector.sh 
   - name: check whats in the directory
+    become: yes
     shell: ls /etc/scripts
     register: shell_output
   - name: print output
@@ -32,13 +42,17 @@
       msg: "This is a file {{ item }}"
     loop: "{{ shell_output.stdout_lines }}"
   - name: execute shell script
+    become: yes
     async: 60 # Maximum allowed time in Seconds
     poll: 5 # poll will check if the task is completed or not for every x secs
     ignore_errors: True
+    register: output_collector_script 
     shell: 
-      cmd: bash collector.sh 30 k3s
+      cmd: "bash collector.sh 30 k3s {{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
       chdir: /etc/scripts
-  - name: execute shell script
+  - debug: 
+      msg: "{{ output_collector_script }}" 
+  - become: yes
     register: cat_output
     ignore_errors: True
     shell: 
@@ -47,5 +61,4 @@
   - name: print out
     debug: 
       msg: "{{ cat_output.stdout_lines }}"
-# mongo -u testUser -p passw0rd 35.222.15.91/metrics
 
