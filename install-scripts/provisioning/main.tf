@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     google = {
-      source = "hashicorp/google"
+      source  = "hashicorp/google"
       version = "3.69.0"
     }
   }
@@ -9,7 +9,7 @@ terraform {
 
 provider "google" {
   credentials = file(var.keyfile_location)
-  region      = var.region
+  region      = var.default_region
   project     = var.gcp_project_id
 }
 
@@ -39,69 +39,48 @@ provider "google" {
 ##
 
 locals {
-  master_target_list = [
-  for name, machine in google_compute_instance.master :
-  "${machine.zone}/${machine.name}"
+  default_target_list = [
+    for name, machine in google_compute_instance.default :
+    "${machine.zone}/${machine.name}"
   ]
 
-  worker_target_list = [
-  for name, machine in google_compute_instance.worker :
-  "${machine.zone}/${machine.name}"
-  ]
-
-  master_disks = flatten([
-  for machine_name, machine in var.machines : [
-  for disk_name, disk in machine.additional_disks : {
-    "${machine_name}-${disk_name}" = {
-      "machine_name": machine_name,
-      "machine": machine,
-      "disk_size": disk.size,
-      "disk_name": disk_name
-    }
-  }
-  ]
-  if machine.node_type == "master"
-  ])
-
-  worker_disks = flatten([
-  for machine_name, machine in var.machines : [
-  for disk_name, disk in machine.additional_disks : {
-    "${machine_name}-${disk_name}" = {
-      "machine_name": machine_name,
-      "machine": machine,
-      "disk_size": disk.size,
-      "disk_name": disk_name
-    }
-  }
-  ]
-  if machine.node_type == "worker"
+  default_disks = flatten([
+    for machine_name, machine in var.machines : [
+      for disk_name, disk in machine.additional_disks : {
+        "${machine_name}-${disk_name}" = {
+          "machine_name" : machine_name,
+          "machine" : machine,
+          "disk_size" : disk.size,
+          "disk_name" : disk_name
+        }
+      }
+    ]
   ])
 }
 
 #################################################
 ##
-## Master
+## default
 ##
 
-resource "google_compute_address" "master" {
+resource "google_compute_address" "default" {
   for_each = {
-  for name, machine in var.machines :
-  name => machine
-  if machine.node_type == "master"
+    for name, machine in var.machines :
+    name => machine
   }
 
-  name         = "${var.prefix}-${each.key}-pip"
+  name         = "${each.key}-pip"
   address_type = "EXTERNAL"
-  region       = var.cloud_region
+  region       = each.value.region
 }
 
-resource "google_compute_disk" "master" {
+resource "google_compute_disk" "default" {
   for_each = {
-  for item in local.master_disks :
-  keys(item)[0] => values(item)[0]
+    for item in local.default_disks :
+    keys(item)[0] => values(item)[0]
   }
 
-  name = "${var.prefix}-${each.key}"
+  name = each.key
   type = "pd-ssd"
   zone = each.value.machine.zone
   size = each.value.disk_size
@@ -109,33 +88,32 @@ resource "google_compute_disk" "master" {
   physical_block_size_bytes = 4096
 }
 
-resource "google_compute_attached_disk" "master" {
+resource "google_compute_attached_disk" "default" {
   for_each = {
-  for item in local.master_disks :
-  keys(item)[0] => values(item)[0]
+    for item in local.default_disks :
+    keys(item)[0] => values(item)[0]
   }
 
-  disk     = google_compute_disk.master[each.key].id
-  instance = google_compute_instance.master[each.value.machine_name].id
+  disk     = google_compute_disk.default[each.key].id
+  instance = google_compute_instance.default[each.value.machine_name].id
 }
 
-resource "google_compute_instance" "master" {
+resource "google_compute_instance" "default" {
   for_each = {
-  for name, machine in var.machines :
-  name => machine
-  if machine.node_type == "master"
+    for name, machine in var.machines :
+    name => machine
   }
 
-  name         = "${var.prefix}-${each.key}"
+  name         = each.key
   machine_type = each.value.size
   zone         = each.value.zone
 
-  tags = ["master"]
+  tags = [each.value.node_type, each.value.type]
 
   boot_disk {
     initialize_params {
       image = each.value.boot_disk.image_name
-      size = each.value.boot_disk.size
+      size  = each.value.boot_disk.size
     }
   }
 
@@ -143,7 +121,7 @@ resource "google_compute_instance" "master" {
     subnetwork = var.network-name
 
     access_config {
-      nat_ip = google_compute_address.master[each.key].address
+      nat_ip = google_compute_address.default[each.key].address
     }
   }
 
@@ -152,8 +130,8 @@ resource "google_compute_instance" "master" {
   }
 
   service_account {
-    email  = var.master_sa_email
-    scopes = var.master_sa_scopes
+    email  = var.default_sa_email
+    scopes = var.default_sa_scopes
   }
 
   # Since we use google_compute_attached_disk we need to ignore this
@@ -161,97 +139,5 @@ resource "google_compute_instance" "master" {
     ignore_changes = ["attached_disk"]
   }
 }
-
-#################################################
-##
-## Worker
-##
-
-resource "google_compute_disk" "worker" {
-  for_each = {
-  for item in local.worker_disks :
-  keys(item)[0] => values(item)[0]
-  }
-
-  name = "${var.prefix}-${each.key}"
-  type = "pd-ssd"
-  zone = each.value.machine.zone
-  size = each.value.disk_size
-
-  physical_block_size_bytes = 4096
-}
-
-resource "google_compute_attached_disk" "worker" {
-  for_each = {
-  for item in local.worker_disks :
-  keys(item)[0] => values(item)[0]
-  }
-
-  disk     = google_compute_disk.worker[each.key].id
-  instance = google_compute_instance.worker[each.value.machine_name].id
-}
-
-resource "google_compute_address" "worker" {
-  for_each = {
-  for name, machine in var.machines :
-  name => machine
-  if machine.node_type == "worker"
-  }
-
-  name         = "${var.prefix}-${each.key}-pip"
-  address_type = "EXTERNAL"
-  region       = var.edge_region
-}
-
-resource "google_compute_instance" "worker" {
-  for_each = {
-  for name, machine in var.machines :
-  name => machine
-  if machine.node_type == "worker"
-  }
-
-  name         = "${var.prefix}-${each.key}"
-  machine_type = each.value.size
-  zone         = each.value.zone
-
-  tags = ["worker"]
-
-  boot_disk {
-    initialize_params {
-      image = each.value.boot_disk.image_name
-      size = each.value.boot_disk.size
-    }
-  }
-
-  network_interface {
-    subnetwork = var.network-name
-
-    access_config {
-      nat_ip = google_compute_address.worker[each.key].address
-    }
-  }
-
-  metadata = {
-    ssh-keys = "ubuntu:${trimspace(file(pathexpand(var.ssh_pub_key)))}"
-  }
-
-  service_account {
-    email  = var.worker_sa_email
-    scopes = var.worker_sa_scopes
-  }
-
-  # Since we use google_compute_attached_disk we need to ignore this
-  lifecycle {
-    ignore_changes = ["attached_disk"]
-  }
-}
-
-resource "google_compute_address" "worker_lb" {
-  name         = "${var.prefix}-worker-lb-address"
-  address_type = "EXTERNAL"
-  region       = var.edge_region
-}
-
-
 
 

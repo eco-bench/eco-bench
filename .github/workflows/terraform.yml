@@ -147,7 +147,7 @@ jobs:
       run: ansible-playbook install_mongodb.yml -i ../tmp/inventory.ini
 
   mikrok8s:
-    name: 'Install mikrok8s'
+    name: 'Install MicroK8s'
     needs: terraform
     runs-on: ubuntu-latest
     environment: production

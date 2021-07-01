@@ -13,6 +13,26 @@ ${name} ansible_host=${ip}
 ${name} ansible_host=${ip}
 %{ endfor ~}
 
+[microk8s]
+%{ for name, ip in microk8s_instances ~}
+${name} ansible_host=${ip}
+%{ endfor ~}
+
+[k3s]
+%{ for name, ip in k3s_instances ~}
+${name} ansible_host=${ip}
+%{ endfor ~}
+
+[openyurt]
+%{ for name, ip in openyurt_instances ~}
+${name} ansible_host=${ip}
+%{ endfor ~}
+
+[mongo]
+%{ for name, ip in mongo_instances ~}
+${name} ansible_host=${ip}
+%{ endfor ~}
+
 [cloud:vars]
 kubernetes_role=master
 

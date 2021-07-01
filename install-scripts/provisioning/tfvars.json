@@ -1,24 +1,54 @@
 {
   "gcp_project_id": "eco-bench",
-  "region": "europe-central2",
-  "cloud_region": "asia-northeast1",
-  "edge_region": "europe-west1",
+  "default_region": "europe-central2",
   "ssh_pub_key": "~/.ssh/id_rsa.pub",
   "keyfile_location": "./service-account.json",
   "prefix": "microk8s",
-  "ssh_whitelist": [
-    "0.0.0.0/0"
-  ],
-  "api_server_whitelist": [
-    "0.0.0.0/0"
-  ],
-  "nodeport_whitelist": [
-    "0.0.0.0/0"
-  ],
+  "ssh_whitelist": ["0.0.0.0/0"],
+  "api_server_whitelist": ["0.0.0.0/0"],
+  "nodeport_whitelist": ["0.0.0.0/0"],
   "machines": {
-    "master-0": {
+    "microk8s-master": {
       "node_type": "master",
+      "type": "microk8s",
       "size": "e2-small",
+      "zone": "asia-northeast1-b",
+      "region": "asia-northeast1",
+      "additional_disks": {},
+      "boot_disk": {
+        "image_name": "ubuntu-os-cloud/ubuntu-2004-focal-v20210429",
+        "size": 10
+      }
+    },
+    "microk8s-worker-0": {
+      "node_type": "worker",
+      "type": "microk8s",
+      "size": "e2-small",
+      "region": "europe-west1",
+      "zone": "europe-west1-b",
+      "additional_disks": {},
+      "boot_disk": {
+        "image_name": "ubuntu-os-cloud/ubuntu-2004-focal-v20210429",
+        "size": 10
+      }
+    },
+    "microk8s-worker-1": {
+      "node_type": "worker",
+      "type": "microk8s",
+      "size": "e2-small",
+      "region": "europe-west1",
+      "zone": "europe-west1-b",
+      "additional_disks": {},
+      "boot_disk": {
+        "image_name": "ubuntu-os-cloud/ubuntu-2004-focal-v20210429",
+        "size": 10
+      }
+    },
+    "k3s-master": {
+      "node_type": "master",
+      "type": "k3s",
+      "size": "e2-small",
+      "region": "asia-northeast1",
       "zone": "asia-northeast1-b",
       "additional_disks": {},
       "boot_disk": {
@@ -26,9 +56,47 @@
         "size": 10
       }
     },
-    "worker-0": {
+    "k3s-worker-0": {
       "node_type": "worker",
+      "type": "k3s",
       "size": "e2-small",
+      "region": "europe-west2",
+      "zone": "europe-west2-b",
+      "additional_disks": {},
+      "boot_disk": {
+        "image_name": "ubuntu-os-cloud/ubuntu-2004-focal-v20210429",
+        "size": 10
+      }
+    },
+    "k3s-worker-1": {
+      "node_type": "worker",
+      "type": "k3s",
+      "size": "e2-small",
+      "region": "europe-west2",
+      "zone": "europe-west2-b",
+      "additional_disks": {},
+      "boot_disk": {
+        "image_name": "ubuntu-os-cloud/ubuntu-2004-focal-v20210429",
+        "size": 10
+      }
+    },
+    "openyurt-master": {
+      "node_type": "master",
+      "type": "openyurt",
+      "size": "e2-small",
+      "region": "asia-northeast1",
+      "zone": "asia-northeast1-b",
+      "additional_disks": {},
+      "boot_disk": {
+        "image_name": "ubuntu-os-cloud/ubuntu-2004-focal-v20210429",
+        "size": 10
+      }
+    },
+    "openyurt-worker-0": {
+      "node_type": "worker",
+      "type": "openyurt",
+      "size": "e2-small",
+      "region": "europe-west1",
       "zone": "europe-west1-c",
       "additional_disks": {},
       "boot_disk": {
@@ -36,9 +104,11 @@
         "size": 10
       }
     },
-    "worker-1": {
+    "openyurt-worker-1": {
       "node_type": "worker",
+      "type": "openyurt",
       "size": "e2-small",
+      "region": "europe-west1",
       "zone": "europe-west1-c",
       "additional_disks": {},
       "boot_disk": {
@@ -48,7 +118,9 @@
     },
     "mongodb": {
       "node_type": "master",
+      "type": "mongodb",
       "size": "e2-small",
+      "region": "asia-northeast1",
       "zone": "asia-northeast1-a",
       "additional_disks": {},
       "boot_disk": {
