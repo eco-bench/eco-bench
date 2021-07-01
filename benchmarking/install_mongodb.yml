@@ -1,4 +1,4 @@
-- hosts: microk8s-mongodb
+- hosts: mongodb
   become: yes
   vars:
     mongodb_net_bindip: 0.0.0.0
