@@ -41,6 +41,10 @@ spec:
               value: "5052"
             - name: IMAGE_EDGE_PORT
               value: "5051"
+            - name: IMAGE_EDGE_DEVICE_IP
+              value: camera-edge-device
+            - name: IMAGE_EDGE_DEVICE_PORT
+              value: "5050"
             - name: IMAGE_ACCEPTANCE_RATE
               value: "0.5"
           image: registry.hub.docker.com/ecobench/image-processing-edge

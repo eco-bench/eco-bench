@@ -50,6 +50,8 @@ services:
     - IMAGE_EDGE_PORT=5051
     - MONGODB_IP=mongodb
     - MONGODB_PORT=27017
+    - EPOCHS=1
+    - RATE_IN_IMAGES=10
   image-processing-edge:
     image: ecobench/image-processing-edge:latest
     restart: unless-stopped
@@ -59,9 +61,19 @@ services:
     - IMAGE_EDGE_PORT=5051
     - IMAGE_CLOUD_IP=image-processing-cloud
     - IMAGE_CLOUD_PORT=5052
+    - IMAGE_EDGE_DEVICE_IP=camera-edge-device
+    - IMAGE_EDGE_DEVICE_PORT=5050
+    - IMAGE_ACCEPTANCE_RATE=0.5
   camera-edge-device:
     image: ecobench/camera-edge-device:latest
     restart: unless-stopped
+    ports:
+      - "5050:5050"
     environment:
     - IMAGE_EDGE_IP=image-processing-edge
     - IMAGE_EDGE_PORT=5051
+    - IMAGE_CLOUD_PORT=5052
+    - IMAGE_EDGE_DEVICE_PORT=5050
+    - INTERVAL=1000
+    - HEIGHT=100
+    - WIDTH=100
