@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.22.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: camera-edge-device
+  name: camera-edge-device
+spec:
+  ports:
+    - name: "5050"
+      port: 5050
+      targetPort: 5050
+  selector:
+    io.kompose.service: camera-edge-device
+status:
+  loadBalancer: {}
