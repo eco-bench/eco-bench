@@ -1,3 +1,8 @@
+- hosts: cloud[0]
+  tasks:
+  - debug: 
+      msg: "Mongo DB IP {{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
+
 - hosts: all
   become: true
   tasks:
@@ -23,7 +28,7 @@
       owner: root
       mode: 600
     loop:
-      - collector.sh
+      - collector.sh 
   - name: check whats in the directory
     shell: ls /etc/scripts
     register: shell_output
@@ -35,9 +40,12 @@
     async: 60 # Maximum allowed time in Seconds
     poll: 5 # poll will check if the task is completed or not for every x secs
     ignore_errors: True
+    register: output_collector_script 
     shell: 
-      cmd: bash collector.sh 30 k3s
+      cmd: "bash collector.sh 30 k3s {{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
       chdir: /etc/scripts
+  - debug: 
+      msg: "{{ output_collector_script }}" 
   - name: execute shell script
     register: cat_output
     ignore_errors: True
