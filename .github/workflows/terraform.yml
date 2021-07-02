@@ -181,9 +181,52 @@ jobs:
         working-directory: install-scripts/microk8s/ansible
         run: ansible-playbook cluster_install.yml -i inventory.ini
 
+  k3s:
+    name: "Install k3s"
+    needs: terraform
+    runs-on: ubuntu-latest
+    environment: production
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          repository: eco-bench/k3s-ansible
+          path: './k3s'
+
+      - run: ls ./k3s
+
+      - uses: actions/download-artifact@master
+        with:
+          name: my-artifact
+          path: tmp
+
+      - run: cp tmp/inventory.ini k3s/
+
+      - run: cat tmp/inventory.ini
+
+      - name: create file with ssh key
+        run: |
+          mkdir ~/.ssh
+          touch ~/.ssh/id_rsa
+          echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: run ansible playbook
+        working-directory: k3s
+        run: ansible-playbook site.yml -i inventory.ini
+
   deploy-applications:
     name: "Deploy Applications"
     needs:
+      - k3s
       - mikrok8s
       - mongodb
     runs-on: ubuntu-latest

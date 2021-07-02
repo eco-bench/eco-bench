@@ -40,6 +40,7 @@ spec:
             - name: WIDTH
               value: "100"
           image: ecobench/camera-edge-device:latest
+          imagePullPolicy: Always
           name: camera-edge-device
           ports:
             - containerPort: 5050

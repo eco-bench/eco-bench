@@ -50,6 +50,7 @@ spec:
             - name: RATE_IN_IMAGES
               value: "10"
           image: registry.hub.docker.com/ecobench/image-processing-cloud
+          imagePullPolicy: Always
           name: image-processing-cloud
           ports:
             - containerPort: 5052

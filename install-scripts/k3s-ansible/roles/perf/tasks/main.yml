@@ -1,0 +1,5 @@
+---
+- name: Test for perf
+  command: ls
+  changed_when: true
+

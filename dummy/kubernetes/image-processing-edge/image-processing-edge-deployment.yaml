@@ -48,6 +48,7 @@ spec:
             - name: IMAGE_ACCEPTANCE_RATE
               value: "0.5"
           image: registry.hub.docker.com/ecobench/image-processing-edge
+          imagePullPolicy: Always
           name: image-processing-edge
           ports:
             - containerPort: 5051
