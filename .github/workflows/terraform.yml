@@ -194,15 +194,21 @@ jobs:
 
     steps:
       # Checkout the repository to the GitHub Actions runner
+      - uses: actions/checkout@v2
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          name: eco-bench/k3s-ansible
+          repository: eco-bench/k3s-ansible
+          path: './k3s'
+
+      - run: ls ./k3s
 
       - uses: actions/download-artifact@master
         with:
           name: my-artifact
           path: tmp
+
+      - run: cp tmp/inventory.ini k3s/
 
       - run: cat tmp/inventory.ini
 
@@ -214,7 +220,8 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
 
       - name: run ansible playbook
-        run: ansible-playbook site.yml -i tmp/inventory.ini
+        working-directory: k3s
+        run: ansible-playbook site.yml -i inventory.ini
 
   deploy-applications:
     name: "Deploy Applications"
