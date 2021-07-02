@@ -42,17 +42,17 @@
 #       with:
 #         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-name: 'Install Edge Orchestrator'
+name: "Install Edge Orchestrator"
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - '.github/workflows/terraform.yml'
+      - ".github/workflows/terraform.yml"
 
 jobs:
   terraform:
-    name: 'Provision Environment'
+    name: "Provision Environment"
     runs-on: ubuntu-latest
     environment: production
 
@@ -62,56 +62,55 @@ jobs:
         shell: bash
 
     steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v2
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v1
+      # Install the latest version of Terraform CLI and configure the Terraform CLI configuration file with a Terraform Cloud user API token
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
 
-    # Copy Service Account Secret to provisioning Directory
-    - name: Create Service Account Json File
-      working-directory: ./install-scripts/provisioning
-      run: touch service-account.json
+      # Copy Service Account Secret to provisioning Directory
+      - name: Create Service Account Json File
+        working-directory: ./install-scripts/provisioning
+        run: touch service-account.json
 
-    # Copy Service Account Secret to provisioning Directory
-    - name: Copy Secret to Service Account Json File
-      working-directory: ./install-scripts/provisioning
-      run: echo '${{ secrets.GCE_SERVICE_ACCOUNT }}' >> service-account.json
+      # Copy Service Account Secret to provisioning Directory
+      - name: Copy Secret to Service Account Json File
+        working-directory: ./install-scripts/provisioning
+        run: echo '${{ secrets.GCE_SERVICE_ACCOUNT }}' >> service-account.json
 
-    - name: Format Terraform Files
-      working-directory: ./install-scripts/provisioning
-      run: terraform fmt
+      - name: Format Terraform Files
+        working-directory: ./install-scripts/provisioning
+        run: terraform fmt
 
-    # Move Public Key for current User
-    - name: Create Public Key
-      run: |
-        mkdir ~/.ssh
-        touch ~/.ssh/id_rsa.pub
-        echo '${{ secrets.PUBLIC_KEY }}' >> ~/.ssh/id_rsa.pub
+      # Move Public Key for current User
+      - name: Create Public Key
+        run: |
+          mkdir ~/.ssh
+          touch ~/.ssh/id_rsa.pub
+          echo '${{ secrets.PUBLIC_KEY }}' >> ~/.ssh/id_rsa.pub
 
-    # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
-    - name: Terraform Init
-      working-directory: ./install-scripts/provisioning
-      run: terraform init
+      # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
+      - name: Terraform Init
+        working-directory: ./install-scripts/provisioning
+        run: terraform init
 
-    - name: Terraform Apply
-      working-directory: ./install-scripts/provisioning
-      run: terraform apply -var-file tfvars.json -auto-approve
+      - name: Terraform Apply
+        working-directory: ./install-scripts/provisioning
+        run: terraform apply -var-file tfvars.json -auto-approve
 
-    - name: check inventory file
-      working-directory: ./install-scripts/provisioning
-      run: cat inventory.ini
+      - name: check inventory file
+        working-directory: ./install-scripts/provisioning
+        run: cat inventory.ini
 
-    - uses: actions/upload-artifact@v2
-      with:
-        name: my-artifact
-        path: ./install-scripts/provisioning
-
+      - uses: actions/upload-artifact@v2
+        with:
+          name: my-artifact
+          path: ./install-scripts/provisioning
 
   mongodb:
-    name: 'Install MongoDB'
+    name: "Install MongoDB"
     needs: terraform
     runs-on: ubuntu-latest
     environment: production
@@ -122,32 +121,32 @@ jobs:
         shell: bash
 
     steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v2
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - uses: actions/download-artifact@master
-      with:
-        name: my-artifact
-        path: tmp
+      - uses: actions/download-artifact@master
+        with:
+          name: my-artifact
+          path: tmp
 
-    - run: cat tmp/inventory.ini
+      - run: cat tmp/inventory.ini
 
-    - name: create file with ssh key
-      run: |
-        mkdir ~/.ssh
-        touch ~/.ssh/id_rsa
-        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
+      - name: create file with ssh key
+        run: |
+          mkdir ~/.ssh
+          touch ~/.ssh/id_rsa
+          echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
-    - run: ansible-galaxy install undergreen.mongodb
+      - run: ansible-galaxy install undergreen.mongodb
 
-    - name: run ansible playbook
-      working-directory: ./benchmarking
-      run: ansible-playbook install_mongodb.yml -i ../tmp/inventory.ini
+      - name: run ansible playbook
+        working-directory: ./benchmarking
+        run: ansible-playbook install_mongodb.yml -i ../tmp/inventory.ini
 
   mikrok8s:
-    name: 'Install MicroK8s'
+    name: "Install MicroK8s"
     needs: terraform
     runs-on: ubuntu-latest
     environment: production
@@ -158,33 +157,76 @@ jobs:
         shell: bash
 
     steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v2
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - uses: actions/download-artifact@master
-      with:
-        name: my-artifact
-        path: tmp
+      - uses: actions/download-artifact@master
+        with:
+          name: my-artifact
+          path: tmp
 
-    - run: cp tmp/inventory.ini install-scripts/microk8s/ansible/
+      - run: cp tmp/inventory.ini install-scripts/microk8s/ansible/
 
-    - run: cat tmp/inventory.ini
+      - run: cat tmp/inventory.ini
 
-    - name: create file with ssh key
-      run: |
-        mkdir ~/.ssh
-        touch ~/.ssh/id_rsa
-        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
+      - name: create file with ssh key
+        run: |
+          mkdir ~/.ssh
+          touch ~/.ssh/id_rsa
+          echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
-    - name: run ansible playbook
-      working-directory: install-scripts/microk8s/ansible
-      run: ansible-playbook cluster_install.yml -i inventory.ini
+      - name: run ansible playbook
+        working-directory: install-scripts/microk8s/ansible
+        run: ansible-playbook cluster_install.yml -i inventory.ini
+
+  k3s:
+    name: "Install k3s"
+    needs: terraform
+    runs-on: ubuntu-latest
+    environment: production
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+      - uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          repository: eco-bench/k3s-ansible
+          path: './k3s'
+
+      - run: ls ./k3s
+
+      - uses: actions/download-artifact@master
+        with:
+          name: my-artifact
+          path: tmp
+
+      - run: cp tmp/inventory.ini k3s/
+
+      - run: cat tmp/inventory.ini
+
+      - name: create file with ssh key
+        run: |
+          mkdir ~/.ssh
+          touch ~/.ssh/id_rsa
+          echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: run ansible playbook
+        working-directory: k3s
+        run: ansible-playbook site.yml -i inventory.ini
 
   deploy-applications:
-    name: 'Deploy Applications'
+    name: "Deploy Applications"
     needs:
+      - k3s
       - mikrok8s
       - mongodb
     runs-on: ubuntu-latest
@@ -196,32 +238,32 @@ jobs:
         shell: bash
 
     steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v2
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - uses: actions/download-artifact@master
-      with:
-        name: my-artifact
-        path: tmp
+      - uses: actions/download-artifact@master
+        with:
+          name: my-artifact
+          path: tmp
 
-    - run: cp tmp/inventory.ini install-scripts/microk8s/ansible/
+      - run: cp tmp/inventory.ini install-scripts/microk8s/ansible/
 
-    - run: cat tmp/inventory.ini
+      - run: cat tmp/inventory.ini
 
-    - name: create file with ssh key
-      run: |
-        mkdir ~/.ssh
-        touch ~/.ssh/id_rsa
-        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
+      - name: create file with ssh key
+        run: |
+          mkdir ~/.ssh
+          touch ~/.ssh/id_rsa
+          echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
-    - name: run ansible playbook
-      working-directory: install-scripts/microk8s/ansible
-      run: ansible-playbook apply_applications.yml -i inventory.ini
+      - name: run ansible playbook
+        working-directory: install-scripts/microk8s/ansible
+        run: ansible-playbook apply_applications.yml -i inventory.ini
 
   run-benchmark:
-    name: 'Benchmark'
+    name: "Benchmark"
     needs:
       - deploy-applications
     runs-on: ubuntu-latest
@@ -233,40 +275,38 @@ jobs:
         shell: bash
 
     steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v2
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - uses: actions/download-artifact@master
-      with:
-        name: my-artifact
-        path: tmp
+      - uses: actions/download-artifact@master
+        with:
+          name: my-artifact
+          path: tmp
 
-    - run: cp tmp/inventory.ini benchmarking/
+      - run: cp tmp/inventory.ini benchmarking/
 
-    - run: cat tmp/inventory.ini
+      - run: cat tmp/inventory.ini
 
-    - name: create file with ssh key
-      run: |
-        mkdir ~/.ssh
-        touch ~/.ssh/id_rsa
-        echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
-        chmod 600 ~/.ssh/id_rsa
+      - name: create file with ssh key
+        run: |
+          mkdir ~/.ssh
+          touch ~/.ssh/id_rsa
+          echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
 
-    - name: run ansible playbook
-      working-directory: benchmarking
-      run: ansible-playbook script.yml -i inventory.ini
-
+      - name: run ansible playbook
+        working-directory: benchmarking
+        run: ansible-playbook script.yml -i inventory.ini
 
   evaluate:
-    name: 'Evaluate and Plot'
+    name: "Evaluate and Plot"
     needs:
       - run-benchmark
     environment: production
     runs-on: ubuntu-latest
 
     steps:
-
       - uses: actions/download-artifact@master
         with:
           name: my-artifact
@@ -286,7 +326,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
+          python-version: "3.x"
 
       - name: Install dependencies
         working-directory: ./benchmarking
@@ -299,7 +339,7 @@ jobs:
           pwd
 
       - name: Set env
-        run: echo "MONGODB_IP=$(grep -E 'mongodb' /tmp/inventory.ini |grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')" >> $GITHUB_ENV
+        run: echo "MONGODB_IP=$(grep -E 'mongodb' /tmp/inventory.ini |head -1 |grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')" >> $GITHUB_ENV
 
       - name: Set SSH_KEY Env
         run: echo "SSH_KEY=$(echo $HOME/.ssh/id_rsa)" >> $GITHUB_ENV
@@ -318,7 +358,7 @@ jobs:
           path: ./benchmarking/results
 
   destroy:
-    name: 'Destroy Environment'
+    name: "Destroy Environment"
     needs:
       - terraform
       - evaluate
@@ -332,33 +372,32 @@ jobs:
         shell: bash
 
     steps:
-    # Checkout the repository to the GitHub Actions runner
-    - name: Checkout
-      uses: actions/checkout@v2
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - uses: actions/download-artifact@master
-      with:
-        name: my-artifact
-        path: tmp
+      - uses: actions/download-artifact@master
+        with:
+          name: my-artifact
+          path: tmp
 
-    # Move Public Key for current User
-    - name: Create Public Key
-      run: |
-        mkdir ~/.ssh
-        touch ~/.ssh/id_rsa.pub
-        echo '${{ secrets.PUBLIC_KEY }}' >> ~/.ssh/id_rsa.pub
+      # Move Public Key for current User
+      - name: Create Public Key
+        run: |
+          mkdir ~/.ssh
+          touch ~/.ssh/id_rsa.pub
+          echo '${{ secrets.PUBLIC_KEY }}' >> ~/.ssh/id_rsa.pub
 
-    - run: ls -la  tmp
+      - run: ls -la  tmp
 
-    - run: rm -rf tmp/.terraform
+      - run: rm -rf tmp/.terraform
 
-    - name: terraform init
-      working-directory: tmp
-      run: terraform init
+      - name: terraform init
+        working-directory: tmp
+        run: terraform init
 
-    - run: ls -la tmp
+      - run: ls -la tmp
 
-    - name: destroy cluster state
-      working-directory: tmp
-      run: terraform destroy -var-file tfvars.json -auto-approve
-
+      - name: destroy cluster state
+        working-directory: tmp
+        run: terraform destroy -var-file tfvars.json -auto-approve
