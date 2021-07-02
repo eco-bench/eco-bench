@@ -1,13 +1,14 @@
-from typing import TextIO
 import json
+import os
 from datetime import datetime
+from typing import TextIO
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 from pymongo.collection import Collection
 from pymongo.database import Database
 from ssh_pymongo import MongoSession
-import os
 
 sns.set_style("whitegrid")
 
@@ -97,7 +98,7 @@ if __name__ == '__main__':
     user = os.environ['SERVER_USER']
     ssh_key_path = os.environ['SSH_KEY']
     mongo_db_ip =  os.environ['MONGODB_IP']
-    get_data_from_mongodb('microk8s')
+    get_data_from_mongodb('k3s')
 
     benchmarking_plot('CPU over time', 'CPU', 'CPU in Percentage')
     benchmarking_plot('CPU over time', 'CPU', 'CPU in Percentage', boxplot=True)
