@@ -3,7 +3,6 @@
   "default_region": "europe-central2",
   "ssh_pub_key": "~/.ssh/id_rsa.pub",
   "keyfile_location": "./service-account.json",
-  "prefix": "microk8s",
   "ssh_whitelist": ["0.0.0.0/0"],
   "api_server_whitelist": ["0.0.0.0/0"],
   "nodeport_whitelist": ["0.0.0.0/0"],
