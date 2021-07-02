@@ -199,7 +199,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           repository: eco-bench/k3s-ansible
-          path: './k3s'
+          path: "./k3s"
 
       - run: ls ./k3s
 
@@ -226,7 +226,7 @@ jobs:
   deploy-applications:
     name: "Deploy Applications"
     needs:
-      - k3s
+      # - k3s
       - mikrok8s
       - mongodb
     runs-on: ubuntu-latest
@@ -357,47 +357,47 @@ jobs:
           name: plots
           path: ./benchmarking/results
 
-  destroy:
-    name: "Destroy Environment"
-    needs:
-      - terraform
-      - evaluate
-    if: always()
-    runs-on: ubuntu-latest
-    environment: production
+  # destroy:
+  #   name: "Destroy Environment"
+  #   needs:
+  #     - terraform
+  #     - evaluate
+  #   if: always()
+  #   runs-on: ubuntu-latest
+  #   environment: production
 
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-    defaults:
-      run:
-        shell: bash
+  #   # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+  #   defaults:
+  #     run:
+  #       shell: bash
 
-    steps:
-      # Checkout the repository to the GitHub Actions runner
-      - name: Checkout
-        uses: actions/checkout@v2
+  #   steps:
+  #     # Checkout the repository to the GitHub Actions runner
+  #     - name: Checkout
+  #       uses: actions/checkout@v2
 
-      - uses: actions/download-artifact@master
-        with:
-          name: my-artifact
-          path: tmp
+  #     - uses: actions/download-artifact@master
+  #       with:
+  #         name: my-artifact
+  #         path: tmp
 
-      # Move Public Key for current User
-      - name: Create Public Key
-        run: |
-          mkdir ~/.ssh
-          touch ~/.ssh/id_rsa.pub
-          echo '${{ secrets.PUBLIC_KEY }}' >> ~/.ssh/id_rsa.pub
+  #     # Move Public Key for current User
+  #     - name: Create Public Key
+  #       run: |
+  #         mkdir ~/.ssh
+  #         touch ~/.ssh/id_rsa.pub
+  #         echo '${{ secrets.PUBLIC_KEY }}' >> ~/.ssh/id_rsa.pub
 
-      - run: ls -la  tmp
+  #     - run: ls -la  tmp
 
-      - run: rm -rf tmp/.terraform
+  #     - run: rm -rf tmp/.terraform
 
-      - name: terraform init
-        working-directory: tmp
-        run: terraform init
+  #     - name: terraform init
+  #       working-directory: tmp
+  #       run: terraform init
 
-      - run: ls -la tmp
+  #     - run: ls -la tmp
 
-      - name: destroy cluster state
-        working-directory: tmp
-        run: terraform destroy -var-file tfvars.json -auto-approve
+  #     - name: destroy cluster state
+  #       working-directory: tmp
+  #       run: terraform destroy -var-file tfvars.json -auto-approve
