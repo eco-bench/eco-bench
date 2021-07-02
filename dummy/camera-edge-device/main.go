@@ -23,9 +23,7 @@ import (
 )
 
 // TODO: Needs to go if in cluster
-var ImageEdgeEndpoint string = fmt.Sprintf("http://%s/image", os.Getenv("IMAGE_EDGE_IP"))
-
-// var ImageEdgeEndpoint string = fmt.Sprintf("http://%s:%s/image", os.Getenv("IMAGE_EDGE_IP"), os.Getenv("IMAGE_EDGE_PORT"))
+var ImageEdgeEndpoint string = fmt.Sprintf("http://%s:%s/image", os.Getenv("IMAGE_EDGE_IP"), os.Getenv("IMAGE_EDGE_PORT"))
 
 // update interval in milliseconds
 var interval string = os.Getenv("INTERVAL")
