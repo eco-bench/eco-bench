@@ -36,3 +36,10 @@ spec:
             name: image-processing-edge
             port:
               number: 5051
+      - path: /pick
+        pathType: Prefix
+        backend:
+          service:
+            name: camera-edge-device
+            port:
+              number: 5050

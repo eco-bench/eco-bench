@@ -1,7 +1,9 @@
-- hosts: cloud[0]
+- hosts: mongodb
   tasks:
+  - shell: hostname
+    register: shell_output
   - debug: 
-      msg: "Mongo DB IP {{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
+      msg: "hostname: {{shell_output.stdout_lines}} ip: {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
 
 - hosts: all
   tasks:
@@ -48,7 +50,7 @@
     ignore_errors: True
     register: output_collector_script 
     shell: 
-      cmd: "bash collector.sh 30 k3s {{hostvars[inventory_hostname]['ansible_default_ipv4']['address']}}"
+      cmd: "bash collector.sh 30 k3s {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }}"
       chdir: /etc/scripts
   - debug: 
       msg: "{{ output_collector_script }}" 
