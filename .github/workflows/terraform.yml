@@ -207,6 +207,8 @@ jobs:
 
       - run: cp tmp/inventory.ini install-scripts/k3s-ansible/inventory/sample
 
+      - run: ls install-scripts/k3s-ansible/inventory/sample
+
       - name: create file with ssh key
         run: |
           mkdir ~/.ssh
@@ -214,8 +216,10 @@ jobs:
           echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
+      - run: ls install-scripts/k3s-ansible
+
       - name: run ansible playbook
-        working-directory: install-scripts/k3s-ansible/
+        working-directory: install-scripts/k3s-ansible
         run: ansible-playbook -i inventory/sample/inventory.ini site.yml
 
   deploy-applications:
