@@ -203,9 +203,9 @@ jobs:
 
       - run: ls
 
-      - run: cp tmp/inventory.ini install-scripts/k3s-ansible/inventory/sample/
-
       - run: cat tmp/inventory.ini
+
+      - run: cp tmp/inventory.ini install-scripts/k3s-ansible/inventory/sample
 
       - name: create file with ssh key
         run: |
