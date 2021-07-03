@@ -203,7 +203,7 @@ jobs:
 
       - run: ls
 
-      - run: cp tmp/inventory.ini install-scripts/k3s-ansible/
+      - run: cp tmp/inventory.ini install-scripts/k3s-ansible/inventory/sample/
 
       - run: cat tmp/inventory.ini
 
@@ -216,7 +216,7 @@ jobs:
 
       - name: run ansible playbook
         working-directory: install-scripts/k3s-ansible/
-        run: ansible-playbook -i inventory/sample/hosts.ini site.yml
+        run: ansible-playbook -i inventory/sample/inventory.ini site.yml
 
   deploy-applications:
     name: "Deploy Applications"
