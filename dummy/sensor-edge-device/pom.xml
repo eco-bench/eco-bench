@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>de.tuberlin.ecobench</groupId>
-	<artifactId>SensorEdgeDevice</artifactId>
+	<artifactId>sensor-edge-device</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>sneosr-edge-device</name>
+	<name>sensor-edge-device</name>
 	<description>Sensor Edge Device</description>
 	<properties>
 		<java.version>11</java.version>
