@@ -16,7 +16,11 @@ do
     pod_name=$(sudo kubectl get all |grep "$i" |awk '{print $1}')
     logs=$(sudo kubectl logs $pod_name)
     latency_logs=$(echo "$logs" | grep latency)
-    echo "$latency_logs"
+    
+    while IFS= read -r line; do
+        echo "$line" |awk '{print $4}' >> stats.json
+        # Komma fehlt noch
+    done <<< "$latency_logs"
 done
 
 echo "])" >> stats.json
