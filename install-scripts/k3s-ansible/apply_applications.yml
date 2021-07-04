@@ -1,5 +1,10 @@
 - hosts: cloud[0]:!microk8s:!openyurt:!mongo
   tasks:
+    - name: install git
+      apt:
+        name: git
+        state: present
+        update_cache: yes
     - name: Git checkout
       become: true
       ansible.builtin.git:
