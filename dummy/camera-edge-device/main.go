@@ -164,7 +164,12 @@ func logLatency(data *Pick) {
 				TimeDeltaType: 0,
 			}
 
-			log.Println(latencyData)
+			latencyJson, err := json.Marshal(latencyData)
+			if err != nil {
+				log.Println(err)
+			}
+
+			log.Printf("latency: %v", string(latencyJson))
 		}
 	}
 }
