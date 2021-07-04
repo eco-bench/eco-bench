@@ -1,4 +1,4 @@
-- hosts: cloud[0]
+- hosts: microk8s-master
   tasks:
     - name: Start Time
       command: date
@@ -7,7 +7,7 @@
       debug:
         msg: "time: {{ time.stdout }}"
         
-- hosts: cloud[0]
+- hosts: microk8s-master
   roles:
     - microk8s
   tasks:
@@ -32,7 +32,7 @@
       debug:
         msg: "time: {{ join_token_2 }}"
 
-- hosts: edge[0]
+- hosts: microk8s-worker-0
   roles:
     - microk8s
   vars: 
@@ -40,27 +40,27 @@
   tasks:
     - name: Print Join Command
       debug:
-        msg: "{{ hostvars[groups['cloud'][0]]['join_token_1'] }}"
+        msg: "{{ hostvars['microk8s-master']['join_token_1'] }}"
     - name: join cluster
       become: yes
-      command: "{{ hostvars[groups['cloud'][0]]['join_token_1'] }}"
+      command: "{{ hostvars['microk8s-master']['join_token_1'] }}"
       ignore_errors: yes
       delay: 300
 
-- hosts: edge[1]
+- hosts: microk8s-worker-1
   roles:
     - microk8s
   tasks:
     - name: Print Join Command
       debug:
-        msg: "{{ hostvars[groups['cloud'][0]]['join_token_2'] }}"
+        msg: "{{ hostvars['microk8s-master']['join_token_2'] }}"
     - name: join cluster
       become: yes
-      command: "{{ hostvars[groups['cloud'][0]]['join_token_2'] }}"
+      command: "{{ hostvars['microk8s-master']['join_token_2'] }}"
       ignore_errors: yes
       delay: 300
 
-- hosts: cloud[0]
+- hosts: microk8s-master
   tasks:
     - name: Check Cluster Status
       become: yes

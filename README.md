@@ -58,12 +58,12 @@ The project is designed to run the benchmarks through our pre-configured github 
 Define the following secrets in **Settings** > **Secrets** > **Repository secrets**:
 
 - `PRIVATE_KEY`
-- `PUBLIC_KEY`:
+- `PUBLIC_KEY`
 - `GCE_SERVICE_ACCOUNT`: The contents of your GCloud service account JSON file.
 
-Make sure the Service Account has sufficient access to your project. E.g. we have chosen the **Owner** role.
+:warning: Make sure the Service Account has sufficient access to your project. E.g. we have chosen the **Owner** role.
 
-For now you also have to change some Terraform variables inside the files therefore open the `install-scripts/provisioning/tfvars.json` and edit the following values:
+For now you also have to change some Terraform variables inside the files therefore open the **_install-scripts/provisioning/tfvars.json_** and edit the following values:
 
 - `gcp_project_id`: The id of your google cloud project
 

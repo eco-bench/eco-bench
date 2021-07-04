@@ -42,7 +42,7 @@
 #       with:
 #         cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-name: "Install Edge Orchestrator"
+name: "DEV Install Edge Orchestrator"
 
 on:
   workflow_dispatch:
@@ -392,48 +392,3 @@ jobs:
         with:
           name: plots
           path: ./benchmarking/results
-
-  destroy:
-    name: "Destroy Environment"
-    needs:
-      - terraform
-      - evaluate
-    if: always()
-    runs-on: ubuntu-latest
-    environment: production
-
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-    defaults:
-      run:
-        shell: bash
-
-    steps:
-      # Checkout the repository to the GitHub Actions runner
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - uses: actions/download-artifact@master
-        with:
-          name: my-artifact
-          path: tmp
-
-      # Move Public Key for current User
-      - name: Create Public Key
-        run: |
-          mkdir ~/.ssh
-          touch ~/.ssh/id_rsa.pub
-          echo '${{ secrets.PUBLIC_KEY }}' >> ~/.ssh/id_rsa.pub
-
-      - run: ls -la  tmp
-
-      - run: rm -rf tmp/.terraform
-
-      - name: terraform init
-        working-directory: tmp
-        run: terraform init
-
-      - run: ls -la tmp
-
-      - name: destroy cluster state
-        working-directory: tmp
-        run: terraform destroy -var-file tfvars.json -auto-approve
