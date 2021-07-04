@@ -16,7 +16,7 @@ import (
 
 var imageCloudSickEndpoint string = fmt.Sprintf("http://%s:%s/sick", os.Getenv("IMAGE_CLOUD_IP"), os.Getenv("IMAGE_CLOUD_PORT"))
 var imageCloudTrainEndpoint string = fmt.Sprintf("http://%s:%s/train", os.Getenv("IMAGE_CLOUD_IP"), os.Getenv("IMAGE_CLOUD_PORT"))
-var edgeDeviceRoboterEndpoint string = fmt.Sprintf("http://%s:%s/pick", os.Getenv("IMAGE_EDGE_DEVICE_IP"), os.Getenv("IMAGE_EDGE_DEVICE_PORT"))
+var edgeDeviceRoboterEndpoint string = fmt.Sprintf("http://%s:%s/picker", os.Getenv("IMAGE_EDGE_DEVICE_IP"), os.Getenv("IMAGE_EDGE_DEVICE_PORT"))
 
 var BenchMarkEndpoint string = fmt.Sprintf("http://%s:%s/%s", os.Getenv("benchmarkEndPointHost"), os.Getenv("benchmarkEndpointPort"), os.Getenv("benchmarkEndpointURL"))
 
