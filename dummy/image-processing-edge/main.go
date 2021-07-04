@@ -44,7 +44,7 @@ type Request struct {
 }
 
 type Pick struct {
-	ready bool   `json:"ready"`
+	ready bool   `json:ready"`
 	UUID  string `json:"uuid"`
 }
 
@@ -76,10 +76,11 @@ func sendRobotPick(uuid string, answer bool) {
 	})
 
 	if err != nil {
+		log.Println(err)
 		return
 	}
 
-	log.Printf("send,pick,%s,%s", uuid, timestamp)
+	log.Printf("send,pick,%s,%t,%s", uuid, answer, timestamp)
 
 	req, err := http.NewRequest("POST", edgeDeviceRoboterEndpoint, bytes.NewReader(data))
 
