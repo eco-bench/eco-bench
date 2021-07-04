@@ -8,6 +8,7 @@ Build a Kubernetes cluster using Ansible with k3s. The goal is easily install a 
 
 - [X] Debian
 - [X] Ubuntu
+- [X] CentOS
 
 on processor architecture:
 
@@ -21,33 +22,33 @@ Deployment environment must have Ansible 2.4.0+
 Master and nodes must have passwordless SSH access
 
 ## Usage
-Second, edit `inventory/k3s-cluster/hosts.ini` to match the system information gathered above. For example:
+
+First create a new directory based on the `sample` directory within the `inventory` directory:
 
 ```bash
-[all:vars]
-ansible_connection=ssh
-ansible_user=root
-ansible_ssh_private_key_file=~/.ssh/id_rsa
-
-[cloud]
-k3s-master ansible_host=135.181.192.36
-
-[edge]
-k3s-worker-0 ansible_host=95.217.214.198
-
-[k3s]
-k3s-master ansible_host=135.181.192.36
-k3s-worker-0 ansible_host=95.217.214.198
+cp -R inventory/sample inventory/my-cluster
 ```
 
-Edit the ansible_user in `inventory/k3s-cluster/group_vars/all.yml` and set it to your gcp name.
+Second, edit `inventory/my-cluster/hosts.ini` to match the system information gathered above. For example:
 
-Open port TCP:6443 in the gcp firewall rules.
+```bash
+[master]
+192.16.35.12
+
+[node]
+192.16.35.[10:11]
+
+[k3s_cluster:children]
+master
+node
+```
+
+If needed, you can also edit `inventory/my-cluster/group_vars/all.yml` to match your environment.
 
 Start provisioning of the cluster using the following command:
 
 ```bash
-sudo ansible-playbook site.yml -i inventory/k3s-cluster/hosts.ini --key-file ~/.ssh/google_compute_engine
+ansible-playbook site.yml -i inventory/my-cluster/hosts.ini
 ```
 
 ## Kubeconfig
@@ -56,10 +57,4 @@ To get access to your **Kubernetes** cluster just
 
 ```bash
 scp debian@master_ip:~/.kube/config ~/.kube/config
-```
-
-Unable to connect to the server error, use commands with this flag (not secure but works for testing):
-https://stackoverflow.com/questions/46360361/invalid-x509-certificate-for-kubernetes-master
-```bash
-kubectl --insecure-skip-tls-verify
 ```

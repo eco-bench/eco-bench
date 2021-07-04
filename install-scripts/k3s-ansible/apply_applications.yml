@@ -1,5 +1,11 @@
-- hosts: microk8s-master
+- hosts: cloud[0]:!microk8s:!openyurt:!mongo
   tasks:
+    - name: install git
+      become: true
+      apt:
+        name: git
+        state: present
+        update_cache: yes
     - name: Git checkout
       become: true
       ansible.builtin.git:
@@ -7,12 +13,12 @@
         dest: /etc/eco-bench
     - name: apply all pods
       become: yes
-      shell: microk8s kubectl apply -f . --recursive
+      shell: kubectl apply -f . --recursive
       args:
         chdir: /etc/eco-bench/dummy/kubernetes
     - name: Wait for default pods become ready
       become: yes
-      shell: "microk8s kubectl wait --namespace=default --for=condition=Ready pods --timeout=600s --all"
+      shell: "kubectl wait --namespace=default --for=condition=Ready pods --timeout=600s --all"
       register: control_plane_pods_ready
       until: control_plane_pods_ready.rc == 0
       retries: 6
@@ -20,7 +26,7 @@
       ignore_errors: true
     - name: get all pods
       become: yes
-      shell: microk8s kubectl get pods -o wide
+      shell: kubectl get pods -o wide
       register: output
     - name: Print output
       debug:

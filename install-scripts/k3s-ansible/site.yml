@@ -6,7 +6,7 @@
   roles:
     - role: prereq
     - role: download
-    - role: perf
+    - role: raspberrypi
 
 - hosts: k3s:!edge
   become: yes
