@@ -1,4 +1,4 @@
-- hosts: cloud[0]:!k3s:!openyurt:!mongo
+- hosts: microk8s-master
   tasks:
     - name: Git checkout
       become: true
