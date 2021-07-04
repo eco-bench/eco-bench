@@ -186,7 +186,7 @@ func pickerHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Not picking the plant.")
 	}
 
-	log.Printf("recv,pick,%s,%t", timestamp, data.Ready)
+	log.Printf("recv,pick,%s,%s,%t", data.UUID, timestamp, data.Ready)
 
 	logLatency(&data)
 }
