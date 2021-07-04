@@ -141,31 +141,8 @@ func processImage(d Request) {
 	addBenchValue("Image-Edge", startTime, 3, timeDelta)
 
 	if blacks/totalpixels > imageAcceptanceRateFloat {
-		// there is a disease, send instruction to prod_cntrl
+		// Plant can be picked
 		answer = true
-		fmt.Println("Can be picked")
-
-		// send data
-		data, err := json.Marshal(d)
-
-		if err != nil {
-			return
-		}
-
-		req, err := http.NewRequest("POST", imageCloudSickEndpoint, bytes.NewReader(data))
-
-		if err != nil {
-			return
-		}
-
-		log.Printf("send,%s,%s", d.UUID, strconv.FormatInt(time.Now().UnixNano(), 10))
-
-		_, err = (&http.Client{}).Do(req)
-
-		if err != nil {
-			log.Print(err)
-		}
-
 	}
 
 	go sendRobotPick(d.UUID, answer)
