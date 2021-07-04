@@ -146,7 +146,6 @@ func processImage(d Request) {
 	}
 
 	go sendRobotPick(d.UUID, answer)
-	answer = false
 }
 
 func sendCloud(d Request) {
