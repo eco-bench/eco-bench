@@ -130,9 +130,9 @@ func processImage(d Request) {
 
 	totalpixels := float64((img.Bounds().Max.X - img.Bounds().Min.X) * (img.Bounds().Max.Y - img.Bounds().Min.Y))
 
-	//log.Print(blacks)
-	//log.Print(totalpixels)
-	//log.Print(blacks / totalpixels)
+	log.Print(blacks)
+	log.Print(totalpixels)
+	log.Print(blacks / totalpixels)
 
 	imageAcceptanceRateFloat, _ := strconv.ParseFloat(imageAcceptanceRate, 32)
 	answer := false
