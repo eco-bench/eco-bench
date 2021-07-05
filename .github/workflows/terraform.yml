@@ -96,13 +96,12 @@ jobs:
         with:
           workflow: terraform.yml
           name: my-artifact
-          path: $HOME
+          path: .
 
       - name: Move
-        working-directory: ./install-scripts/provisioning
         run: |
-          test -f ~/terrafrom.tfstate && cp -f ~/terrafrom.tfstate ./
-          test -f ~/terraform.tfstate.backup && cp -f ~/terraform.tfstate.backup ./
+          test -f ./terrafrom.tfstate && cp -f ./terrafrom.tfstate ./install-scripts/provisioning/
+          test -f ./terraform.tfstate.backup && cp -f ./terraform.tfstate.backup ./install-scripts/provisioning/
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
         working-directory: ./install-scripts/provisioning
