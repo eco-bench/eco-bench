@@ -19,23 +19,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - uses: actions/download-artifact@master
-        with:
-          name: my-artifact
-          path: /tmp
-
       - name: Download cluster state artifact
         uses: dawidd6/action-download-artifact@v2
         with:
           workflow: terraform.yml
           name: my-artifact
-          path: .
+          path: /tmp
 
-      - name: Move
-        continue-on-error: true
-        run: |
-          cp -f ./terraform.tfstate /tmp/
-          cp -f ./terraform.tfstate.backup /tmp/
+      # - name: Move
+      #   continue-on-error: true
+      #   run: |
+      #     cp -f ./terraform.tfstate /tmp/
+      #     cp -f ./terraform.tfstate.backup /tmp/
 
       # Move Public Key for current User
       - name: Create Public Key
