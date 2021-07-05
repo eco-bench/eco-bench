@@ -19,11 +19,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - uses: actions/download-artifact@master
-        with:
-          name: my-artifact
-          path: tmp
-
       # Move Public Key for current User
       - name: Create Public Key
         run: |
@@ -31,14 +26,15 @@ jobs:
           touch ~/.ssh/id_rsa.pub
           echo '${{ secrets.PUBLIC_KEY }}' >> ~/.ssh/id_rsa.pub
 
-      - run: ls -la  tmp
-
-      - run: rm -rf tmp/.terraform
+      - name: Download cluster state artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: terraform.yml
+          name: my-artifact
+          path: .
 
       - name: terraform init
-        working-directory: tmp
         run: terraform init
 
       - name: destroy cluster state
-        working-directory: tmp
         run: terraform destroy -var-file tfvars.json -auto-approve
