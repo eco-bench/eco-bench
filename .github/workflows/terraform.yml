@@ -96,7 +96,11 @@ jobs:
         with:
           workflow: terraform.yml
           name: my-artifact
-          path: ./install-scripts/provisioning
+          path: .
+
+      - name: Move
+        run: |
+          if test -f "./terrafrom.tfstate"; then mv ./terrafrom.tfstate ./install-scripts/provisioning ; fi
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
