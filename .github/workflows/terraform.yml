@@ -96,7 +96,10 @@ jobs:
         with:
           workflow: terraform.yml
           name: my-artifact
-          path: .
+          path: ./
+
+      - run: |
+          if test -f ./terrafrom.tfstate; then echo "using existing state file" ; fi
 
       - name: Move
         run: |
