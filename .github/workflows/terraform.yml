@@ -99,12 +99,12 @@ jobs:
           path: ./
 
       - run: |
-          ps -ef | grep -f ./terrafrom.tfstate > /dev/null && echo "true"
+          test -f terrafrom.tfstate && echo "true"
 
       - name: Move
         run: |
-          ps -ef | grep -f terrafrom.tfstate > /dev/null && mv terrafrom.tfstate ./install-scripts/provisioning
-          ps -ef | grep -f terraform.tfstate.backup > /dev/null && mv terraform.tfstate.backup ./install-scripts/provisioning
+          test -f terrafrom.tfstate && mv terrafrom.tfstate ./install-scripts/provisioning/
+          test -f terraform.tfstate.backup && mv terraform.tfstate.backup ./install-scripts/provisioning/
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
