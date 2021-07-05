@@ -19,12 +19,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # Move Public Key for current User
-      - name: Create Public Key
-        run: |
-          mkdir ~/.ssh
-          touch ~/.ssh/id_rsa.pub
-          echo '${{ secrets.PUBLIC_KEY }}' >> ~/.ssh/id_rsa.pub
+      - uses: actions/download-artifact@master
+        with:
+          name: my-artifact
+          path: /tmp
 
       - name: Download cluster state artifact
         uses: dawidd6/action-download-artifact@v2
@@ -33,8 +31,25 @@ jobs:
           name: my-artifact
           path: .
 
+      - name: Move
+        continue-on-error: true
+        run: |
+          cp -f ./terraform.tfstate /tmp/
+          cp -f ./terraform.tfstate.backup /tmp/
+
+      # Move Public Key for current User
+      - name: Create Public Key
+        run: |
+          mkdir ~/.ssh
+          touch ~/.ssh/id_rsa.pub
+          echo '${{ secrets.PUBLIC_KEY }}' >> ~/.ssh/id_rsa.pub
+
+      - run: rm -rf /tmp/.terraform
+
       - name: terraform init
+        working-directory: /tmp
         run: terraform init
 
       - name: destroy cluster state
+        working-directory: /tmp
         run: terraform destroy -var-file tfvars.json -auto-approve
