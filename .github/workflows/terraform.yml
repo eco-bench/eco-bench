@@ -103,7 +103,7 @@ jobs:
       - name: Move
         continue-on-error: true
         run: |
-          cp -f ./terrafrom.tfstate ./install-scripts/provisioning/
+          cp -f ./terraform.tfstate ./install-scripts/provisioning/
           cp -f ./terraform.tfstate.backup ./install-scripts/provisioning/
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
