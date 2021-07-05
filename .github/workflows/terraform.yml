@@ -98,6 +98,8 @@ jobs:
           name: my-artifact
           path: .
 
+      - run: ls -la .
+
       - name: Move
         run: |
           test -f ./terrafrom.tfstate && cp -f ./terrafrom.tfstate ./install-scripts/provisioning/
