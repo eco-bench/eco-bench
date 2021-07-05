@@ -100,7 +100,11 @@ jobs:
 
       - name: Move
         run: |
-          if test -f "./terrafrom.tfstate"; then mv ./terrafrom.tfstate ./install-scripts/provisioning ; fi
+          if test -f ./terrafrom.tfstate; then mv terrafrom.tfstate ./install-scripts/provisioning ; fi
+          if test -f ./terraform.tfstate.backup; then mv terraform.tfstate.backup ./install-scripts/provisioning ; fi
+
+      - run: |
+          ls -la ./install-scripts/provisioning
 
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
