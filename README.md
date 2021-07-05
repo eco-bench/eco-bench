@@ -76,3 +76,11 @@ To run the action in your own repository:
 3. Hit "**Run workflow**" on top of the list of runs
 
 If you get an error regarding failed artifacts download, try to run the workflow again.
+
+### 4. Destroy the Environment
+
+The **Install Edge Orchestrator** workflow does not destroy the environment after a run to speed up the action on subsequent runs. If you need a clean environment use you have to destroy the previous environment with the **Destroy Environment** action. To run the action in your own repository:
+
+1. Go to the "**Actions**" tab
+2. Select the "**Destroy Environment**" workflow on the left
+3. Hit "**Run workflow**" on top of the list of runs

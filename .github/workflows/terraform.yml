@@ -91,6 +91,18 @@ jobs:
           touch ~/.ssh/id_rsa.pub
           echo '${{ secrets.PUBLIC_KEY }}' >> ~/.ssh/id_rsa.pub
 
+      - name: Download cluster state artifact
+        uses: dawidd6/action-download-artifact@v2
+        with:
+          workflow: terraform.yml
+          name: my-artifact
+          path: .
+
+      - name: Move
+        continue-on-error: true
+        run: |
+          cp -f ./terraform.tfstate ./install-scripts/provisioning/
+          cp -f ./terraform.tfstate.backup ./install-scripts/provisioning/
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
         working-directory: ./install-scripts/provisioning
@@ -130,8 +142,6 @@ jobs:
           name: my-artifact
           path: tmp
 
-      - run: cat tmp/inventory.ini
-
       - name: create file with ssh key
         run: |
           mkdir ~/.ssh
@@ -167,8 +177,6 @@ jobs:
           path: tmp
 
       - run: cp tmp/inventory.ini install-scripts/microk8s/ansible/
-
-      - run: cat tmp/inventory.ini
 
       - name: create file with ssh key
         run: |
@@ -392,48 +400,3 @@ jobs:
         with:
           name: plots
           path: ./benchmarking/results
-
-  destroy:
-    name: "Destroy Environment"
-    needs:
-      - terraform
-      - evaluate
-    if: always()
-    runs-on: ubuntu-latest
-    environment: production
-
-    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
-    defaults:
-      run:
-        shell: bash
-
-    steps:
-      # Checkout the repository to the GitHub Actions runner
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - uses: actions/download-artifact@master
-        with:
-          name: my-artifact
-          path: tmp
-
-      # Move Public Key for current User
-      - name: Create Public Key
-        run: |
-          mkdir ~/.ssh
-          touch ~/.ssh/id_rsa.pub
-          echo '${{ secrets.PUBLIC_KEY }}' >> ~/.ssh/id_rsa.pub
-
-      - run: ls -la  tmp
-
-      - run: rm -rf tmp/.terraform
-
-      - name: terraform init
-        working-directory: tmp
-        run: terraform init
-
-      - run: ls -la tmp
-
-      - name: destroy cluster state
-        working-directory: tmp
-        run: terraform destroy -var-file tfvars.json -auto-approve

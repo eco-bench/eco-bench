@@ -140,4 +140,13 @@ resource "google_compute_instance" "default" {
   }
 }
 
+resource "google_compute_firewall" "default" {
+  name    = "${var.network-name}-network-allow-6443"
+  network = var.network-name
+  allow {
+    protocol = "tcp"
+    ports    = ["6443"]
+  }
+}
+
 

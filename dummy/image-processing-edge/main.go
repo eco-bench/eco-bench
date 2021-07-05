@@ -16,22 +16,20 @@ import (
 
 var imageCloudSickEndpoint string = fmt.Sprintf("http://%s:%s/sick", os.Getenv("IMAGE_CLOUD_IP"), os.Getenv("IMAGE_CLOUD_PORT"))
 var imageCloudTrainEndpoint string = fmt.Sprintf("http://%s:%s/train", os.Getenv("IMAGE_CLOUD_IP"), os.Getenv("IMAGE_CLOUD_PORT"))
-var edgeDeviceRoboterEndpoint string = fmt.Sprintf("http://%s:%s/pick", os.Getenv("IMAGE_EDGE_DEVICE_IP"), os.Getenv("IMAGE_EDGE_DEVICE_PORT"))
+var edgeDeviceRoboterEndpoint string = fmt.Sprintf("http://%s:%s/picker", os.Getenv("IMAGE_EDGE_DEVICE_IP"), os.Getenv("IMAGE_EDGE_DEVICE_PORT"))
 
-
-var BenchMarkEndpoint string = fmt.Sprintf("http://%s:%s/%s", os.Getenv("benchmarkEndPointHost"), os.Getenv("benchmarkEndpointPort"),os.Getenv("benchmarkEndpointURL"))
+var BenchMarkEndpoint string = fmt.Sprintf("http://%s:%s/%s", os.Getenv("benchmarkEndPointHost"), os.Getenv("benchmarkEndpointPort"), os.Getenv("benchmarkEndpointURL"))
 
 type BenchmarkData struct {
-	WorkerID string `json:"workerID"`
-	Timestamp int64 `json:"timestamp"`
-	ActType int `json:"type"`
-	TimeDelta int64 `json:"timeDelta"`
+	WorkerID  string `json:"workerID"`
+	Timestamp int64  `json:"timestamp"`
+	ActType   int    `json:"type"`
+	TimeDelta int64  `json:"timeDelta"`
 }
 
-// Zeit zwischenspeichern 
+// Zeit zwischenspeichern
 var startTime = time.Now().UnixNano()
 var benchValues []BenchmarkData
- 
 
 var imageAcceptanceRate = os.Getenv("IMAGE_ACCEPTANCE_RATE")
 
@@ -46,7 +44,7 @@ type Request struct {
 }
 
 type Pick struct {
-	ready bool   `json:"ready"`
+	ready bool   `json:ready"`
 	UUID  string `json:"uuid"`
 }
 
@@ -78,14 +76,16 @@ func sendRobotPick(uuid string, answer bool) {
 	})
 
 	if err != nil {
+		log.Println(err)
 		return
 	}
 
-	log.Printf("send,pick,%s,%s", uuid, timestamp)
+	log.Printf("send,pick,%s,%t,%s", uuid, answer, timestamp)
 
 	req, err := http.NewRequest("POST", edgeDeviceRoboterEndpoint, bytes.NewReader(data))
 
 	if err != nil {
+		log.Println(err)
 		return
 	}
 
@@ -102,7 +102,7 @@ func sendRobotPick(uuid string, answer bool) {
 
 // source: https://github.com/OpenFogStack/smart-factory-fog-example
 func processImage(d Request) {
-    startTime = time.Now().UnixNano() 
+	startTime = time.Now().UnixNano()
 	decoded, err := base64.StdEncoding.DecodeString(d.Img)
 
 	if err != nil {
@@ -131,48 +131,22 @@ func processImage(d Request) {
 
 	totalpixels := float64((img.Bounds().Max.X - img.Bounds().Min.X) * (img.Bounds().Max.Y - img.Bounds().Min.Y))
 
-	//log.Print(blacks)
-	//log.Print(totalpixels)
-	//log.Print(blacks / totalpixels)
+	log.Print(blacks)
+	log.Print(totalpixels)
+	log.Print(blacks / totalpixels)
 
 	imageAcceptanceRateFloat, _ := strconv.ParseFloat(imageAcceptanceRate, 32)
 	answer := false
-	var endTime = time.Now().UnixNano() 
+	var endTime = time.Now().UnixNano()
 	var timeDelta = endTime - startTime
-    addBenchValue("Image-Edge", startTime, 3 ,timeDelta)
+	addBenchValue("Image-Edge", startTime, 3, timeDelta)
 
-
-    
 	if blacks/totalpixels > imageAcceptanceRateFloat {
-		// there is a disease, send instruction to prod_cntrl
+		// Plant can be picked
 		answer = true
-		fmt.Println("Can be picked")
-
-		// send data
-		data, err := json.Marshal(d)
-
-		if err != nil {
-			return
-		}
-
-		req, err := http.NewRequest("POST", imageCloudSickEndpoint, bytes.NewReader(data))
-
-		if err != nil {
-			return
-		}
-
-		log.Printf("send,%s,%s", d.UUID, strconv.FormatInt(time.Now().UnixNano(), 10))
-
-		_, err = (&http.Client{}).Do(req)
-
-		if err != nil {
-			log.Print(err)
-		}
-
 	}
-    
+
 	go sendRobotPick(d.UUID, answer)
-	answer = false
 }
 
 func sendCloud(d Request) {
@@ -257,60 +231,57 @@ func ModelHandler(w http.ResponseWriter, r *http.Request) {
 
 	go saveModel(data)
 	var timeDelta = time.Now().UnixNano() - startTime
-    addBenchValue("Image-Edge", startTime, 4 ,timeDelta)
+	addBenchValue("Image-Edge", startTime, 4, timeDelta)
 }
 
 func setStartTime(newStartTime int64) {
-       startTime = newStartTime
+	startTime = newStartTime
 }
 
 func sendBenchData() {
- 		data, err := json.Marshal(benchValues)
-  
+	data, err := json.Marshal(benchValues)
 
- 		req, err := http.NewRequest("POST", BenchMarkEndpoint, bytes.NewReader(data))
- 		
- 		if err != nil {
+	req, err := http.NewRequest("POST", BenchMarkEndpoint, bytes.NewReader(data))
+
+	if err != nil {
+		log.Print(err)
+		return
+	}
+
+	go func() {
+		_, err = (&http.Client{}).Do(req)
+
+		log.Println(req)
+		if err != nil {
 			log.Print(err)
 			return
 		}
-        
-		go func() {
-			_, err = (&http.Client{}).Do(req)
-
-			log.Println(req)
-			if err != nil {
-				log.Print(err)
-				return
-			}
-		}()
-		log.Print("Benchmark data sent to Benchmarking Endpoint.")
+	}()
+	log.Print("Benchmark data sent to Benchmarking Endpoint.")
 
 }
- 
 
-func addBenchValue(uuid string, tmpst int64, atype int, tmDelta int64 ){
-	
-	if len(benchValues)>100 {
+func addBenchValue(uuid string, tmpst int64, atype int, tmDelta int64) {
+
+	if len(benchValues) > 100 {
 		sendBenchData()
 		benchValues = nil
 	}
 	benchVal := BenchmarkData{
-		WorkerID: uuid, 
-	    Timestamp: tmpst,  
-	    ActType: atype,   
-	    TimeDelta: tmDelta ,
+		WorkerID:  uuid,
+		Timestamp: tmpst,
+		ActType:   atype,
+		TimeDelta: tmDelta,
 	}
- 	benchValues = append(benchValues,benchVal)
+	benchValues = append(benchValues, benchVal)
 }
 
 //test
 func printSlice(s []BenchmarkData) {
-	fmt.Printf("len=%d cap=%d %v\n", len(s), cap(s), s)    
- 
+	fmt.Printf("len=%d cap=%d %v\n", len(s), cap(s), s)
+
 }
 func main() {
-
 	http.HandleFunc("/image", ImageHandler)
 	http.HandleFunc("/model", ModelHandler)
 
