@@ -120,6 +120,8 @@ jobs:
         working-directory: ./install-scripts/provisioning
         run: cat inventory.ini
 
+      - run: cat ./install-scripts/provisioning/terraform.tfstate
+
       - uses: actions/upload-artifact@v2
         with:
           name: my-artifact
