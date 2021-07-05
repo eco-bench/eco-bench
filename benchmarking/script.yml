@@ -50,10 +50,12 @@
     ignore_errors: True
     register: output_collector_script 
     shell: 
-      cmd: "bash collector.sh 30 k3s {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }}"
+      cmd: "bash nohup collector.sh 1000 k3s {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }} &"
       chdir: /etc/scripts
-  - debug: 
-      msg: "{{ output_collector_script }}" 
+  - debug:  
+      msg: "{{ output_collector_script }}"
+  - debug:  
+      msg: "{{ output_collector_script.stdout_lines[1] }}"
   - become: yes
     register: cat_output
     ignore_errors: True
@@ -64,3 +66,37 @@
     debug: 
       msg: "{{ cat_output.stdout_lines }}"
 
+- hosts: k3s-master
+  tasks:
+  - name: scale application
+    become: yes
+    shell: kubectl scale --replicas=10 deployment/sensor-device-deployment deployment/camera-edge-device
+  - name: Wait for default pods become ready
+    become: yes
+    shell: "kubectl wait --namespace=default --for=condition=Ready pods --timeout=100s --all"
+    register: control_plane_pods_ready
+    until: control_plane_pods_ready.rc == 0
+    retries: 6
+    delay: 20
+    ignore_errors: true
+  - name: scale application
+    become: yes
+    shell: kubectl scale --replicas=20 deployment/sensor-device-deployment deployment/camera-edge-device
+  - name: Wait for default pods become ready
+    become: yes
+    shell: "kubectl wait --namespace=default --for=condition=Ready pods --timeout=100s --all"
+    register: control_plane_pods_ready
+    until: control_plane_pods_ready.rc == 0
+    retries: 6
+    delay: 20
+    ignore_errors: true
+  - name: scale application
+    become: yes
+    shell: kubectl scale --replicas=1 deployment/sensor-device-deployment deployment/camera-edge-device
+
+
+- hosts: all
+  tasks:
+  - name: kill bench
+    become: yes
+    shell: 
