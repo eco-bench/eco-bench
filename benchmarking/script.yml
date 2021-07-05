@@ -50,7 +50,7 @@
     ignore_errors: True
     register: output_collector_script 
     shell: 
-      cmd: "bash nohup collector.sh 1000 k3s {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }} &"
+      cmd: "s collector.sh 1000 k3s {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }} &"
       chdir: /etc/scripts
   - debug:  
       msg: "{{ output_collector_script }}"
