@@ -64,7 +64,7 @@ def benchmarking_plot(title , attribute, yLabel, boxplot=False):
     if not os.path.exists(dir_name):
         os.mkdir(dir_name)
     fig = ax.get_figure()
-    fig.savefig(dir_name + '/' + attribute + '.png')
+    # fig.savefig(dir_name + '/' + attribute + '.png')
 
     # plt.show()
 
