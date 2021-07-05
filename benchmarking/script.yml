@@ -99,4 +99,4 @@
   tasks:
   - name: kill bench
     become: yes
-    shell: 
+    shell: "kill {{ output_collector_script.stdout_lines[1] }}"
