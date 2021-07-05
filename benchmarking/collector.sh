@@ -9,7 +9,16 @@ SECONDS=0
 eco_name=$2
 echo "db.$eco_name.insertMany([" >> stats.json
 
-while [ $SECONDS -le $max_seconds ]; do
+clean_up() {
+  # Send data to db when the process is killed
+  mongo $host_ip/$database < stats.json
+  exit
+}
+
+# Handle kill signals
+trap clean_up SIGHUP SIGINT SIGTERM
+
+while [ true ]; do
     timestamp=$(printf '%s' "$(date)");
     hostname=$(echo $(hostname));
     cpu_usage=$(top -b -d1 -n1 |grep -i "Cpu(s)" |awk '{print $2}')
@@ -30,7 +39,5 @@ while [ $SECONDS -le $max_seconds ]; do
     sleep 2;
 done;
 echo "])" >> stats.json
-
-mongo $host_ip/$database < stats.json
 
 exit 0
