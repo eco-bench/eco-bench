@@ -98,8 +98,6 @@ jobs:
           name: my-artifact
           path: .
 
-      - run: ls -la .
-
       - name: Move
         continue-on-error: true
         run: |
@@ -110,8 +108,6 @@ jobs:
         working-directory: ./install-scripts/provisioning
         run: terraform init
 
-      - run: cat ./install-scripts/provisioning/terraform.tfstate
-
       - name: Terraform Apply
         working-directory: ./install-scripts/provisioning
         run: terraform apply -var-file tfvars.json -auto-approve
@@ -119,8 +115,6 @@ jobs:
       - name: check inventory file
         working-directory: ./install-scripts/provisioning
         run: cat inventory.ini
-
-      - run: cat ./install-scripts/provisioning/terraform.tfstate
 
       - uses: actions/upload-artifact@v2
         with:
@@ -147,8 +141,6 @@ jobs:
         with:
           name: my-artifact
           path: tmp
-
-      - run: cat tmp/inventory.ini
 
       - name: create file with ssh key
         run: |
@@ -185,8 +177,6 @@ jobs:
           path: tmp
 
       - run: cp tmp/inventory.ini install-scripts/microk8s/ansible/
-
-      - run: cat tmp/inventory.ini
 
       - name: create file with ssh key
         run: |
