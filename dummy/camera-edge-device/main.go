@@ -39,11 +39,10 @@ type Pick struct {
 }
 
 type LatencyData struct {
-	WorkerID      string `json:"workerID"`
-	Timestamp     int64  `json:"timestamp"`
-	ActType       int    `json:"type"`
-	TimeDelta     int64  `json:"timeDelta"`
-	TimeDeltaType int    `json:"timeDeltaType"`
+	WorkerID  string `json:"workerID"`
+	Timestamp int64  `json:"timestamp"`
+	ActType   int    `json:"type"`
+	TimeDelta int64  `json:"timeDelta"`
 }
 
 type RequestAwait struct {
@@ -157,11 +156,10 @@ func logLatency(data *Pick) {
 			}
 
 			latencyData := LatencyData{
-				WorkerID:      hostname,
-				Timestamp:     request.Time,
-				ActType:       0,
-				TimeDelta:     timeDelta,
-				TimeDeltaType: 0,
+				WorkerID:  hostname,
+				Timestamp: request.Time,
+				ActType:   0,
+				TimeDelta: timeDelta,
 			}
 
 			latencyJson, err := json.Marshal(latencyData)
