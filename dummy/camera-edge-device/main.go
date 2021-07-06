@@ -149,14 +149,8 @@ func logLatency(data *Pick) {
 			var endTime = time.Now().UnixNano()
 			var timeDelta = endTime - request.Time
 
-			hostname, err := os.Hostname()
-			if err != nil {
-				log.Println(err)
-				hostname = ""
-			}
-
 			latencyData := LatencyData{
-				WorkerID:  hostname,
+				WorkerID:  "camera",
 				Timestamp: request.Time,
 				ActType:   0,
 				TimeDelta: timeDelta,
