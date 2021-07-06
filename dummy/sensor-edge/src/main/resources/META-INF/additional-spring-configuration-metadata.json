@@ -69,9 +69,10 @@
     "type": "java.lang.String",
     "description": "A description for 'logStorageLimit'"
   },
-    {
+  {
     "name": "intervall",
     "type": "java.lang.String",
     "description": "A description for 'intervall'"
   }
+ 
 ]}
