@@ -44,7 +44,7 @@ type Request struct {
 }
 
 type Pick struct {
-	ready bool   `json:ready"`
+	Ready bool   `json:"ready"`
 	UUID  string `json:"uuid"`
 }
 
@@ -71,7 +71,7 @@ func sendRobotPick(uuid string, answer bool) {
 	timestamp := strconv.FormatInt(time.Now().UnixNano(), 10)
 
 	data, err := json.Marshal(Pick{
-		ready: answer,
+		Ready: answer,
 		UUID:  uuid,
 	})
 
@@ -144,12 +144,13 @@ func processImage(d Request) {
 	if blacks/totalpixels > imageAcceptanceRateFloat {
 		// Plant can be picked
 		answer = true
+		go sendCloud(d, imageCloudSickEndpoint)
 	}
 
 	go sendRobotPick(d.UUID, answer)
 }
 
-func sendCloud(d Request) {
+func sendCloud(d Request, endPoint string) {
 	data, err := json.Marshal(d)
 
 	if err != nil {
@@ -185,7 +186,7 @@ func ImageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("recv,image,%s,%s", data.UUID, timestamp)
 
 	go processImage(data)
-	go sendCloud(data)
+	go sendCloud(data, imageCloudTrainEndpoint)
 }
 
 func saveModel(model Model) {
