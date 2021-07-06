@@ -1,10 +1,5 @@
 {"properties": [
   {
-    "name": "DEVICE_TYPE",
-    "type": "java.lang.String",
-    "description": "A description for 'DEVICE_TYPE'"
-  },
-  {
     "name": "WORKER_PORT",
     "type": "java.lang.String",
     "description": "A description for 'WORKER_PORT'"
