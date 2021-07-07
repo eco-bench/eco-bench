@@ -54,8 +54,8 @@
       chdir: /etc/scripts
   - debug:  
       msg: "{{ output_collector_script }}"
-  - debug:  
-      msg: "{{ output_collector_script.stdout_lines[1] }}"
+  # - debug:  
+  #     msg: "{{ output_collector_script.stdout_lines[1] }}"
   - become: yes
     register: cat_output
     ignore_errors: True
@@ -95,8 +95,8 @@
     shell: kubectl scale --replicas=1 deployment/sensor-device-deployment deployment/camera-edge-device
 
 
-- hosts: all
-  tasks:
-  - name: kill bench
-    become: yes
-    shell: "kill {{ output_collector_script.stdout_lines[1] }}"
+# - hosts: all
+#   tasks:
+#   - name: kill bench
+#     become: yes
+#     shell: "kill {{ output_collector_script.stdout_lines[1] }}"
