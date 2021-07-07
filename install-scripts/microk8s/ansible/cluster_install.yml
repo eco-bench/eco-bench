@@ -62,6 +62,27 @@
 
 - hosts: microk8s-master
   tasks:
+    - name: Install kubectl
+      become: yes
+      shell: snap install kubectl --classic
+    - name: Create a new directory /root/.kube
+      become: yes
+      file:
+        path: /root/.kube
+        state: directory
+    - name: Copy admin.conf to root home directory
+      become: yes
+      shell: microk8s config > ~/.kube/config
+    - name: Check Cluster Status
+      become: yes
+      command: "kubectl get nodes"
+      register: cluster_status
+    - name: print output
+      debug:
+        msg: "{{ cluster_status.stdout_lines }}"
+
+- hosts: microk8s-master
+  tasks:
     - name: Check Cluster Status
       become: yes
       command: microk8s kubectl get nodes
