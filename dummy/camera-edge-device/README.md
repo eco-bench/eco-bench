@@ -13,6 +13,5 @@ docker run -it --rm --env-file ./.env camera-edge-device
   {"workerID":"Picking-Robot",
   "timestamp":1625001357227329800,
   "type":0,
-  "timeDelta":449400,
-  "timeDeltaType":0}
+  "timeDelta":449400}
  ```

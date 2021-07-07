@@ -34,7 +34,7 @@ public class SensorWorkerConfig {
 	private static String benchmarkEndPointHost;
 	private static String benchmarkEndpointPort;
 	private static String benchmarkEndpointURL;
-	
+	private static String benchmarkLogsPath;
  
 	/**
 	 * Prüft ob Benchmarking-Endpoint angegeben ist, um Fehlermeldungen zu vermeiden
@@ -50,6 +50,24 @@ public class SensorWorkerConfig {
 		return false;
 	}
  
+	
+	
+	
+	@Value("${benchmarkLogsPath}")
+	public String getBenchmarkLogsPath() {
+		return benchmarkLogsPath;
+	}
+
+
+	@Value("${benchmarkLogsPath}")
+	public void setBenchmarkLogsPath(String benchmarkLogsPath) {
+		logger.info("benchmarkLogsPath adjusted to " + benchmarkLogsPath); 
+		SensorWorkerConfig.benchmarkLogsPath = benchmarkLogsPath;
+	}
+
+
+
+
 
 	@Value("${logStorageLimit}")
 	public void setlogStorageLimit(int logStorageLimit) {

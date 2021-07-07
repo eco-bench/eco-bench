@@ -5,7 +5,7 @@
   - debug: 
       msg: "hostname: {{shell_output.stdout_lines}} ip: {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
 
-- hosts: all
+- hosts: all:!mongo:!openyurt
   tasks:
   - name: install iotop
     become: yes
@@ -50,12 +50,12 @@
     ignore_errors: True
     register: output_collector_script 
     shell: 
-      cmd: "bash nohup collector.sh 1000 k3s {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }} &"
+      cmd: "bash collector.sh 1000 {{ eco_name }} {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }} &"
       chdir: /etc/scripts
   - debug:  
       msg: "{{ output_collector_script }}"
-  - debug:  
-      msg: "{{ output_collector_script.stdout_lines[1] }}"
+  # - debug:  
+  #     msg: "{{ output_collector_script.stdout_lines[1] }}"
   - become: yes
     register: cat_output
     ignore_errors: True
@@ -95,8 +95,8 @@
     shell: kubectl scale --replicas=1 deployment/sensor-device-deployment deployment/camera-edge-device
 
 
-- hosts: all
-  tasks:
-  - name: kill bench
-    become: yes
-    shell: 
+# - hosts: all
+#   tasks:
+#   - name: kill bench
+#     become: yes
+#     shell: "kill {{ output_collector_script.stdout_lines[1] }}"

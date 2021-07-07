@@ -5,7 +5,8 @@ host_ip=$3
 database=metrics
 SECONDS=0
 
-"" > stats.json
+rm stats.json
+touch stats.json
 eco_name=$2
 echo "db.$eco_name.insertMany([" >> stats.json
 

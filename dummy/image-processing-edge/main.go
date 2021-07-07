@@ -18,20 +18,14 @@ var imageCloudSickEndpoint string = fmt.Sprintf("http://%s:%s/sick", os.Getenv("
 var imageCloudTrainEndpoint string = fmt.Sprintf("http://%s:%s/train", os.Getenv("IMAGE_CLOUD_IP"), os.Getenv("IMAGE_CLOUD_PORT"))
 var edgeDeviceRoboterEndpoint string = fmt.Sprintf("http://%s:%s/picker", os.Getenv("IMAGE_EDGE_DEVICE_IP"), os.Getenv("IMAGE_EDGE_DEVICE_PORT"))
 
-var BenchMarkEndpoint string = fmt.Sprintf("http://%s:%s/%s", os.Getenv("benchmarkEndPointHost"), os.Getenv("benchmarkEndpointPort"), os.Getenv("benchmarkEndpointURL"))
+var imageAcceptanceRate = os.Getenv("IMAGE_ACCEPTANCE_RATE")
 
-type BenchmarkData struct {
+type LatencyData struct {
 	WorkerID  string `json:"workerID"`
 	Timestamp int64  `json:"timestamp"`
 	ActType   int    `json:"type"`
 	TimeDelta int64  `json:"timeDelta"`
 }
-
-// Zeit zwischenspeichern
-var startTime = time.Now().UnixNano()
-var benchValues []BenchmarkData
-
-var imageAcceptanceRate = os.Getenv("IMAGE_ACCEPTANCE_RATE")
 
 type Model struct {
 	Hweights []byte `json:hweights`
@@ -44,12 +38,11 @@ type Request struct {
 }
 
 type Pick struct {
-	ready bool   `json:ready"`
+	Ready bool   `json:"ready"`
 	UUID  string `json:"uuid"`
 }
 
 func isBlack(p color.RGBA) bool {
-
 	if p.R != 0x0 {
 		return false
 	}
@@ -64,14 +57,13 @@ func isBlack(p color.RGBA) bool {
 	}
 
 	return true
-
 }
 
 func sendRobotPick(uuid string, answer bool) {
 	timestamp := strconv.FormatInt(time.Now().UnixNano(), 10)
 
 	data, err := json.Marshal(Pick{
-		ready: answer,
+		Ready: answer,
 		UUID:  uuid,
 	})
 
@@ -102,7 +94,7 @@ func sendRobotPick(uuid string, answer bool) {
 
 // source: https://github.com/OpenFogStack/smart-factory-fog-example
 func processImage(d Request) {
-	startTime = time.Now().UnixNano()
+	startTime := time.Now().UnixNano()
 	decoded, err := base64.StdEncoding.DecodeString(d.Img)
 
 	if err != nil {
@@ -137,19 +129,19 @@ func processImage(d Request) {
 
 	imageAcceptanceRateFloat, _ := strconv.ParseFloat(imageAcceptanceRate, 32)
 	answer := false
-	var endTime = time.Now().UnixNano()
-	var timeDelta = endTime - startTime
-	addBenchValue("Image-Edge", startTime, 3, timeDelta)
+
+	logLatency(startTime, 3)
 
 	if blacks/totalpixels > imageAcceptanceRateFloat {
 		// Plant can be picked
 		answer = true
+		go sendCloud(d, imageCloudSickEndpoint)
 	}
 
 	go sendRobotPick(d.UUID, answer)
 }
 
-func sendCloud(d Request) {
+func sendCloud(d Request, endPoint string) {
 	data, err := json.Marshal(d)
 
 	if err != nil {
@@ -185,7 +177,7 @@ func ImageHandler(w http.ResponseWriter, r *http.Request) {
 	log.Printf("recv,image,%s,%s", data.UUID, timestamp)
 
 	go processImage(data)
-	go sendCloud(data)
+	go sendCloud(data, imageCloudTrainEndpoint)
 }
 
 func saveModel(model Model) {
@@ -215,7 +207,7 @@ func saveModel(model Model) {
 }
 
 func ModelHandler(w http.ResponseWriter, r *http.Request) {
-	setStartTime(time.Now().UnixNano())
+	startTime := time.Now().UnixNano()
 	timestamp := strconv.FormatInt(time.Now().UnixNano(), 10)
 
 	var data Model
@@ -230,57 +222,28 @@ func ModelHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("GETTING MODEL")
 
 	go saveModel(data)
-	var timeDelta = time.Now().UnixNano() - startTime
-	addBenchValue("Image-Edge", startTime, 4, timeDelta)
+	logLatency(startTime, 4)
 }
 
-func setStartTime(newStartTime int64) {
-	startTime = newStartTime
-}
+func logLatency(startTime int64, actType int) {
+	var endTime = time.Now().UnixNano()
+	var timeDelta = endTime - startTime
 
-func sendBenchData() {
-	data, err := json.Marshal(benchValues)
+	latencyData := LatencyData{
+		WorkerID:  "Image-Edge",
+		Timestamp: startTime,
+		ActType:   actType,
+		TimeDelta: timeDelta,
+	}
 
-	req, err := http.NewRequest("POST", BenchMarkEndpoint, bytes.NewReader(data))
-
+	latencyJson, err := json.Marshal(latencyData)
 	if err != nil {
-		log.Print(err)
-		return
+		log.Println(err)
 	}
 
-	go func() {
-		_, err = (&http.Client{}).Do(req)
-
-		log.Println(req)
-		if err != nil {
-			log.Print(err)
-			return
-		}
-	}()
-	log.Print("Benchmark data sent to Benchmarking Endpoint.")
-
+	log.Printf("latency: %v", string(latencyJson))
 }
 
-func addBenchValue(uuid string, tmpst int64, atype int, tmDelta int64) {
-
-	if len(benchValues) > 100 {
-		sendBenchData()
-		benchValues = nil
-	}
-	benchVal := BenchmarkData{
-		WorkerID:  uuid,
-		Timestamp: tmpst,
-		ActType:   atype,
-		TimeDelta: tmDelta,
-	}
-	benchValues = append(benchValues, benchVal)
-}
-
-//test
-func printSlice(s []BenchmarkData) {
-	fmt.Printf("len=%d cap=%d %v\n", len(s), cap(s), s)
-
-}
 func main() {
 	http.HandleFunc("/image", ImageHandler)
 	http.HandleFunc("/model", ModelHandler)
