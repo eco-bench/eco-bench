@@ -93,10 +93,13 @@
   - name: scale application
     become: yes
     shell: kubectl scale --replicas=1 deployment/sensor-device-deployment deployment/camera-edge-device
-
-
-# - hosts: all
-#   tasks:
-#   - name: kill bench
-#     become: yes
-#     shell: "kill {{ output_collector_script.stdout_lines[1] }}"
+  - name: kill bench
+    become: yes
+    shell: "kill $(ps aux | grep 'collector' |  awk '{print $2}')"
+    ignore_errors: true
+    delay: 20
+    register: shell_output
+  - name: print out
+    debug: 
+      msg: "{{ shell_output.stdout_lines }}"
+  
