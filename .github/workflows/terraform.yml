@@ -93,6 +93,7 @@ jobs:
 
       - name: Download cluster state artifact
         uses: dawidd6/action-download-artifact@v2
+        continue-on-error: true
         with:
           workflow: terraform.yml
           name: my-artifact
