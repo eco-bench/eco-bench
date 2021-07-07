@@ -5,7 +5,7 @@
   - debug: 
       msg: "hostname: {{shell_output.stdout_lines}} ip: {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
 
-- hosts: all
+- hosts: all:!mongo:!openyurt
   tasks:
   - name: install iotop
     become: yes
@@ -50,7 +50,7 @@
     ignore_errors: True
     register: output_collector_script 
     shell: 
-      cmd: "collector.sh 1000 k3s {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }} &"
+      cmd: "bash collector.sh 1000 {{ eco_name }} {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }} &"
       chdir: /etc/scripts
   - debug:  
       msg: "{{ output_collector_script }}"
