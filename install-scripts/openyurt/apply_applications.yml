@@ -1,0 +1,33 @@
+- hosts: openyurt-master
+  tasks:
+    - name: install git
+      become: true
+      apt:
+        name: git
+        state: present
+        update_cache: yes
+    - name: Git checkout
+      become: true
+      ansible.builtin.git:
+        repo: 'https://github.com/eco-bench/eco-bench.git'
+        dest: /etc/eco-bench
+    - name: apply all pods
+      become: yes
+      shell: kubectl apply -f . --recursive
+      args:
+        chdir: /etc/eco-bench/dummy/kubernetes
+    - name: Wait for default pods become ready
+      become: yes
+      shell: "kubectl wait --namespace=default --for=condition=Ready pods --timeout=600s --all"
+      register: control_plane_pods_ready
+      until: control_plane_pods_ready.rc == 0
+      retries: 6
+      delay: 10
+      ignore_errors: true
+    - name: get all pods
+      become: yes
+      shell: kubectl get pods -o wide
+      register: output
+    - name: Print output
+      debug:
+        msg: "pods: {{ output }}"
