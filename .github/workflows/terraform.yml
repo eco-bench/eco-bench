@@ -186,6 +186,8 @@ jobs:
           echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
+      - run: ansible-galaxy install geerlingguy.docker
+
       - name: run ansible playbook
         working-directory: install-scripts/openyurt
         run: ansible-playbook cluster_install.yml -i inventory.ini
