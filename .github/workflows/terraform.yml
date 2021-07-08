@@ -156,6 +156,40 @@ jobs:
         working-directory: ./benchmarking
         run: ansible-playbook install_mongodb.yml -i ../tmp/inventory.ini
 
+  openyurt:
+    name: "Install Openyurt"
+    needs: terraform
+    runs-on: ubuntu-latest
+    environment: production
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@master
+        with:
+          name: my-artifact
+          path: tmp
+
+      - run: cp tmp/inventory.ini install-scripts/openyurt
+
+      - name: create file with ssh key
+        run: |
+          mkdir ~/.ssh
+          touch ~/.ssh/id_rsa
+          echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: run ansible playbook
+        working-directory: install-scripts/openyurt
+        run: ansible-playbook cluster_install.yml -i inventory.ini
+
   mikrok8s:
     name: "Install MicroK8s"
     needs: terraform
@@ -230,6 +264,43 @@ jobs:
       - name: run ansible playbook
         working-directory: install-scripts/k3s-ansible
         run: ansible-playbook -i inventory/sample/inventory.ini site.yml
+
+  deploy-applications-openyurt:
+    name: "Deploy Applications openyurt"
+    needs:
+      - openyurt
+    runs-on: ubuntu-latest
+    environment: production
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@master
+        with:
+          name: my-artifact
+          path: tmp
+
+      - run: cp tmp/inventory.ini install-scripts/openyurt/
+
+      - run: cat install-scripts/openyurt//inventory.ini
+
+      - name: create file with ssh key
+        run: |
+          mkdir ~/.ssh
+          touch ~/.ssh/id_rsa
+          echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: run ansible playbook
+        working-directory: install-scripts/openyurt/
+        run: ansible-playbook apply_applications.yml -i inventory.ini
 
   deploy-applications-k3s:
     name: "Deploy Applications k3s"
@@ -308,6 +379,7 @@ jobs:
   run-benchmark:
     name: "Benchmark"
     needs:
+      - deploy-applications-openyurt
       - deploy-applications-k3s
       - deploy-applications-microk8s
       - mongodb
