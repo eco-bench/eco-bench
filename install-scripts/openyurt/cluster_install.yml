@@ -28,6 +28,7 @@
         msg: "Docker Version: {{ dockerVersion.stdout }}"
     - name: Check Kubernetes Version
       command: kubectl version --short
+      become: no
       register: kubernetesVersion
     - name: Print Version
       debug:

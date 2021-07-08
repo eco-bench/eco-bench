@@ -37,10 +37,12 @@
 
 # yurtctl reset?
 - name: revert openyurt cluster in case there was one
+  become: no
   shell: /etc/openyurt/_output/bin/yurtctl revert
   ignore_errors: true
 
 - name: convert to openyurt cluster
+  become: no 
   shell: /etc/openyurt/_output/bin/yurtctl convert --cloud-nodes {{ansible_hostname}} --provider kubeadm --deploy-yurttunnel
   register: convert_openyurt_cluster
 
@@ -51,6 +53,7 @@
 # Wait for certain pods to come up again, yurthub and so on
 
 - name: run yurtctl cluster-info
+  become: no
   shell: /etc/openyurt/_output/bin/yurtctl cluster-info
   register: yurtctl_cluster_info
 

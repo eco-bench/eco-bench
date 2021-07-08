@@ -48,4 +48,5 @@
     mode: 0755
     remote_src: true
 - name: remove Taint from Master Node
+  become: no
   shell: "kubectl taint nodes {{ inventory_hostname }} node-role.kubernetes.io/master:NoSchedule-"
