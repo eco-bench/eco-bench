@@ -1,5 +1,11 @@
-- hosts: cloud[0]:!microk8s:!openyurt:!mongo
+- hosts: k3s-master
   tasks:
+    - name: label Nodes for scheduling
+      become: yes
+      shell: |
+        kubectl label nodes k3s-master node=cloud
+        kubectl label nodes k3s-worker-0 node=edge1
+        kubectl label nodes k3s-worker-1 node=edge2
     - name: install git
       become: true
       apt:

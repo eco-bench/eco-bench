@@ -1,5 +1,11 @@
 - hosts: microk8s-master
   tasks:
+    - name: label Nodes for scheduling
+      become: yes
+      shell: |
+        kubectl label nodes microk8s-master node=cloud
+        kubectl label nodes microk8s-worker-0 node=edge1
+        kubectl label nodes microk8s-worker-1 node=edge2
     - name: Git checkout
       become: true
       ansible.builtin.git:

@@ -1,5 +1,11 @@
 - hosts: openyurt-master
   tasks:
+    - name: label Nodes for scheduling
+      become: yes
+      shell: |
+        kubectl label nodes openyurt-master node=cloud
+        kubectl label nodes openyurt-worker-0 node=edge1
+        kubectl label nodes openyurt-worker-1 node=edge2
     - name: install git
       become: true
       apt:
