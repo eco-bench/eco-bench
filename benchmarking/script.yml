@@ -5,7 +5,7 @@
   - debug: 
       msg: "hostname: {{shell_output.stdout_lines}} ip: {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
 
-- hosts: all:!mongo:!openyurt
+- hosts: all:!mongo
   tasks:
   - name: install iotop
     become: yes
@@ -68,28 +68,28 @@
 
 - hosts: k3s-master, microk8s-master
   tasks:
-  - name: scale application
+  - name: scale applications to 10 Replicas
     become: yes
     shell: kubectl scale --replicas=10 deployment/sensor-device-deployment deployment/camera-edge-device
   - name: Wait for default pods become ready
     become: yes
-    shell: "kubectl wait --namespace=default --for=condition=Ready pods --timeout=100s --all"
+    shell: "kubectl wait --namespace=default --for=condition=Ready pods --timeout=20s --all"
     register: control_plane_pods_ready
     until: control_plane_pods_ready.rc == 0
     retries: 6
     delay: 20
     ignore_errors: true
-  - name: scale application
-    become: yes
-    shell: kubectl scale --replicas=20 deployment/sensor-device-deployment deployment/camera-edge-device
-  - name: Wait for default pods become ready
-    become: yes
-    shell: "kubectl wait --namespace=default --for=condition=Ready pods --timeout=100s --all"
-    register: control_plane_pods_ready
-    until: control_plane_pods_ready.rc == 0
-    retries: 6
-    delay: 20
-    ignore_errors: true
+  # - name: scale application to 20 Replicas
+  #   become: yes
+  #   shell: kubectl scale --replicas=20 deployment/sensor-device-deployment deployment/camera-edge-device
+  # - name: Wait for default pods become ready
+  #   become: yes
+  #   shell: "kubectl wait --namespace=default --for=condition=Ready pods --timeout=20s --all"
+  #   register: control_plane_pods_ready
+  #   until: control_plane_pods_ready.rc == 0
+  #   retries: 6
+  #   delay: 20
+  #   ignore_errors: true
   - name: scale application
     become: yes
     shell: kubectl scale --replicas=1 deployment/sensor-device-deployment deployment/camera-edge-device
