@@ -1,6 +1,5 @@
 kubernetes_version: 1.16.15-00
 pod_network_cidr: "192.168.0.0/16"
 token: b0f7b8.8d1767876297d69c
-master_ip: 65.21.190.155
-master_hostname: master
+master_ip: "{{ hostvars[groups['openyurt'][0]]['ansible_host'] | default(groups['openyurt'][0]) }}"
 kubeadmin_config: /etc/kubernetes/admin.conf

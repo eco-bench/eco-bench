@@ -1,15 +1,20 @@
-- hosts: master01
+- hosts: openyurt:!edge
   become: yes
   tasks:
-    - name: Check Docker Version
+    - name: Check Time
       command: date
       register: time
     - name: Print Version
       debug:
         msg: "date: {{ time.stdout }}"
-    
 
-- hosts: master01
+# - hosts: openyurt:!edge
+#   become: yes
+#   tasks:
+#     - name: install docker
+#       shell: curl https://releases.rancher.com/install-docker/18.09.sh | sh
+
+- hosts: openyurt:!edge
   become: yes
   roles:
     - geerlingguy.docker
@@ -28,7 +33,7 @@
       debug:
         msg: "Kubernetes Version: {{ kubernetesVersion.stdout }}"
 
-- hosts: worker
+- hosts: openyurt:!cloud
   become: yes
   roles:
     - geerlingguy.docker
@@ -41,17 +46,17 @@
       debug:
         msg: "Docker Version: {{ dockerVersion.stdout }}"
 
-- hosts: master01
+- hosts: openyurt:!edge
   become: yes
   roles:
     - cni
 
-- hosts: master01
+- hosts: openyurt:!edge
   become: yes
   roles:
     - openyurt
 
-- hosts: master01
+- hosts: openyurt:!edge
   become: yes
   tasks:
     - name: Check Docker Version
