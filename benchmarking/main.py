@@ -13,14 +13,8 @@ from ssh_pymongo import MongoSession
 sns.set_style("whitegrid")
 
 data_path = "./data/"
-user = ''
-ssh_key_path = ''
-mongo_db_ip = ''
 
-def get_data_from_mongodb(eco):
-    # Debugging
-    print('Using config: ' + user + mongo_db_ip + ssh_key_path)
-
+def get_data_from_mongodb(eco, user, ssh_key_path, mongo_db_ip):
     session = MongoSession(
         host=mongo_db_ip,
         user=user,
@@ -43,32 +37,46 @@ def get_data_from_mongodb(eco):
         file.write(']')
     session.stop()
 
+def fixValues(timestamps, values, eco):
+    times = [x for x in range(30)]
+    for i, time in enumerate(timestamps):
+        if time != times[i]:
+            timestamps.insert(i, times[i])
+            values.insert(i, None)
+            eco.append(eco[0])
+    return timestamps, values, eco
+
 def benchmarking_plot(title , attribute, yLabel, boxplot=False):
-    data = data_for_plot(open(data_path + "microk8s-application.json").read(), attribute, False, 'microk8s')
-    data2 = data_for_plot(open(data_path + "k3s-application.json").read(), attribute, False, 'k3s')
+    timestamps1, values1, eco1 = data_for_plot(open(data_path + "microk8s-idle.json").read(), attribute, False, 'microk8s') # When MEM_USED put on True
+    timestamps2, values2, eco2 = data_for_plot(open(data_path + "k3s-idle.json").read(), attribute, False, 'k3s')
+
+    timestamps1, values1, eco1 = fixValues(timestamps1, values1, eco1)
+    timestamps2, values2, eco2 = fixValues(timestamps2, values2, eco2)
+    
+    data1 = pd.DataFrame({'microk8s': values1, 'time': timestamps1})
+    data2 = pd.DataFrame({'k3s': values2, 'time': timestamps2})
+    data3 = data1.merge(data2, how='left', on='time')
+    data3 = data3.drop(['time'], axis=1)
+
     ax = None
 
     if boxplot:
-        data3 = pd.concat([data, data2])
-        ax = sns.boxplot(x="eco", y="value", data=data3)
+        ax = sns.boxplot(data=data3)
         ax.set(xlabel='Eco')
     else:
-        ax = sns.lineplot(data=data, x='time', y='value', label="mircok8s")
-        sns.lineplot(data=data2, x='time', y='value', label="k3s")
+        data3 = data3.interpolate('linear')
+        ax = sns.lineplot(data=data3)
         ax.set(xlabel='Time in Seconds')
 
     ax.set(ylabel=yLabel, title=title)
 
-    # Save the file to the current dir
     dir_name = 'results'
     if not os.path.exists(dir_name):
         os.mkdir(dir_name)
+
     fig = ax.get_figure()
-    # fig.savefig(dir_name + '/' + attribute + '.png')
-
-    # plt.show()
-
-    plt.savefig(dir_name + '/' + attribute + '.png')
+    fig.savefig(dir_name + '/' + attribute + '.png')
+    plt.clf()
 
 def data_for_plot(json_data, attribute, calc, eco):
     parsed_json = (json.loads(json_data))
@@ -87,23 +95,19 @@ def data_for_plot(json_data, attribute, calc, eco):
 
         values.append(att)
 
-    return pd.DataFrame({'time': timestamps, 'value': values, 'eco': [eco] * len(values)})
-
+    return (timestamps, values, [eco] * len(values))
 
 if __name__ == '__main__':
-
-    # Debugging
-    print(os.environ['SSH_KEY'])
-    print(os.environ['MONGODB_IP'])
-    print(os.environ['SERVER_USER'])
-
-    user = os.environ['SERVER_USER']
-    ssh_key_path = os.environ['SSH_KEY']
-    mongo_db_ip =  os.environ['MONGODB_IP']
-    get_data_from_mongodb('k3s')
+    # user = os.environ['SERVER_USER']
+    # ssh_key_path = os.environ['SSH_KEY']
+    # mongo_db_ip =  os.environ['MONGODB_IP']
+    # get_data_from_mongodb('k3s', user, ssh_key_path, mongo_db_ip)
 
     benchmarking_plot('CPU over time', 'CPU', 'CPU in Percentage')
-    benchmarking_plot('CPU over time', 'CPU', 'CPU in Percentage', boxplot=True)
     benchmarking_plot('Memory usage over time', 'MEM_USED', 'Mem in MiB')
     benchmarking_plot('File IO total read', 'FIO_TOTAL_READ', 'Reads in Percentage')
     benchmarking_plot('File IO total write', 'FIO_TOTAL_WRITE', 'Writes in Percentage')
+    # benchmarking_plot('CPU over time', 'CPU', 'CPU in Percentage', boxplot=True)
+    # benchmarking_plot('Memory usage over time', 'MEM_USED', 'Mem in MiB', boxplot=True)
+    # benchmarking_plot('File IO total read', 'FIO_TOTAL_READ', 'Reads in Percentage', boxplot=True)
+    # benchmarking_plot('File IO total write', 'FIO_TOTAL_WRITE', 'Writes in Percentage', boxplot=True)
