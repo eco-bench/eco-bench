@@ -103,16 +103,16 @@ def data_for_plot(json_data, attribute, calc, eco):
     return (timestamps, values, [eco] * len(values))
 
 if __name__ == '__main__':
-    user = os.environ['SERVER_USER']
-    ssh_key_path = os.environ['SSH_KEY']
-    mongo_db_ip =  os.environ['MONGODB_IP']
-    get_data_from_mongodb('k3s', user, ssh_key_path, mongo_db_ip)
+    # user = os.environ['SERVER_USER']
+    # ssh_key_path = os.environ['SSH_KEY']
+    # mongo_db_ip =  os.environ['MONGODB_IP']
+    # get_data_from_mongodb('k3s', user, ssh_key_path, mongo_db_ip)
 
-    benchmarking_plot('CPU over time', 'CPU', 'CPU in Percentage')
-    benchmarking_plot('Memory usage over time', 'MEM_USED', 'Mem in MiB')
-    benchmarking_plot('File IO total read', 'FIO_TOTAL_READ', 'Reads in Percentage')
-    benchmarking_plot('File IO total write', 'FIO_TOTAL_WRITE', 'Writes in Percentage')
-    # benchmarking_plot('CPU over time', 'CPU', 'CPU in Percentage', boxplot=True)
-    # benchmarking_plot('Memory usage over time', 'MEM_USED', 'Mem in MiB', boxplot=True)
-    # benchmarking_plot('File IO total read', 'FIO_TOTAL_READ', 'Reads in Percentage', boxplot=True)
-    # benchmarking_plot('File IO total write', 'FIO_TOTAL_WRITE', 'Writes in Percentage', boxplot=True)
+    benchmarking_plot('CPU over time', "application", 'CPU', 'CPU in Percentage')
+    benchmarking_plot('Memory usage over time', "application", 'MEM_USED', 'Mem in MiB')
+    benchmarking_plot('File IO total read', "application", 'FIO_TOTAL_READ', 'Reads in Percentage')
+    benchmarking_plot('File IO total write', "application", 'FIO_TOTAL_WRITE', 'Writes in Percentage')
+    benchmarking_plot('CPU over time', "application", 'CPU', 'CPU in Percentage', boxplot=True)
+    benchmarking_plot('Memory usage over time', "application", 'MEM_USED', 'Mem in MiB', boxplot=True)
+    benchmarking_plot('File IO total read', "application", 'FIO_TOTAL_READ', 'Reads in Percentage', boxplot=True)
+    benchmarking_plot('File IO total write', "application", 'FIO_TOTAL_WRITE', 'Writes in Percentage', boxplot=True)
