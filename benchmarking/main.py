@@ -46,26 +46,30 @@ def fixValues(timestamps, values, eco):
             eco.append(eco[0])
     return timestamps, values, eco
 
-def benchmarking_plot(title , attribute, yLabel, boxplot=False):
-    timestamps1, values1, eco1 = data_for_plot(open(data_path + "microk8s-idle.json").read(), attribute, False, 'microk8s') # When MEM_USED put on True
-    timestamps2, values2, eco2 = data_for_plot(open(data_path + "k3s-idle.json").read(), attribute, False, 'k3s')
+def benchmarking_plot(title, state, attribute, yLabel, boxplot=False):
+    timestamps1, values1, eco1 = data_for_plot(open(data_path + "microk8s-" + state + ".json").read(), attribute, False, 'microk8s') # When MEM_USED put on True
+    timestamps2, values2, eco2 = data_for_plot(open(data_path + "k3s-" + state + ".json").read(), attribute, False, 'k3s')
+    timestamps2, values2, eco2 = data_for_plot(open(data_path + "openyurt-" + state + ".json").read(), attribute, False, 'openyurt')
 
     timestamps1, values1, eco1 = fixValues(timestamps1, values1, eco1)
     timestamps2, values2, eco2 = fixValues(timestamps2, values2, eco2)
     
     data1 = pd.DataFrame({'microk8s': values1, 'time': timestamps1})
     data2 = pd.DataFrame({'k3s': values2, 'time': timestamps2})
-    data3 = data1.merge(data2, how='left', on='time')
-    data3 = data3.drop(['time'], axis=1)
+    data3 = pd.DataFrame({'openyurt': values2, 'time': timestamps2})
+
+    data4 = data1.merge(data2, how='left', on='time')
+    data4 = data4.merge(data3, how='left', on='time')
+    data4 = data4.drop(['time'], axis=1)
 
     ax = None
 
     if boxplot:
-        ax = sns.boxplot(data=data3)
+        ax = sns.boxplot(data=data4)
         ax.set(xlabel='Eco')
     else:
-        data3 = data3.interpolate('linear')
-        ax = sns.lineplot(data=data3)
+        data4 = data4.interpolate('linear')
+        ax = sns.lineplot(data=data4)
         ax.set(xlabel='Time in Seconds')
 
     ax.set(ylabel=yLabel, title=title)
@@ -75,7 +79,8 @@ def benchmarking_plot(title , attribute, yLabel, boxplot=False):
         os.mkdir(dir_name)
 
     fig = ax.get_figure()
-    fig.savefig(dir_name + '/' + attribute + '.png')
+    plot_type = "boxplot" if boxplot else "lineplot"
+    fig.savefig(dir_name + '/' + attribute + "-" + state + "-" + plot_type + '.png')
     plt.clf()
 
 def data_for_plot(json_data, attribute, calc, eco):
@@ -98,10 +103,10 @@ def data_for_plot(json_data, attribute, calc, eco):
     return (timestamps, values, [eco] * len(values))
 
 if __name__ == '__main__':
-    # user = os.environ['SERVER_USER']
-    # ssh_key_path = os.environ['SSH_KEY']
-    # mongo_db_ip =  os.environ['MONGODB_IP']
-    # get_data_from_mongodb('k3s', user, ssh_key_path, mongo_db_ip)
+    user = os.environ['SERVER_USER']
+    ssh_key_path = os.environ['SSH_KEY']
+    mongo_db_ip =  os.environ['MONGODB_IP']
+    get_data_from_mongodb('k3s', user, ssh_key_path, mongo_db_ip)
 
     benchmarking_plot('CPU over time', 'CPU', 'CPU in Percentage')
     benchmarking_plot('Memory usage over time', 'MEM_USED', 'Mem in MiB')
