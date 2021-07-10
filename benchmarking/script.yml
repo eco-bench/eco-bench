@@ -105,7 +105,7 @@
     shell: kubectl scale --replicas=1 deployment/sensor-device-deployment deployment/camera-edge-device
   - name: kill bench
     become: yes
-    shell: "kill $(ps aux | grep 'collector.sh' |  awk '{print $2}')"
+    shell: "kill $(ps aux | grep 'collector.sh' |  awk '{print $2}' | head -n 1)"
     ignore_errors: true
     delay: 20
     register: shell_output
