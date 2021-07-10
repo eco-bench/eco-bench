@@ -5,13 +5,15 @@ host_ip=$3
 database=metrics
 SECONDS=0
 
-rm stats.json
-touch stats.json
+echo "" > stats.json
 eco_name=$2
 echo "db.$eco_name.insertMany([" >> stats.json
 
 clean_up() {
   # Send data to db when the process is killed
+  echo "In clean up Part"
+  echo "Sending Data to MongoDB"
+  echo "was in clean_up() method" >> stats.json
   mongo $host_ip/$database < stats.json
   exit
 }

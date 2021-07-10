@@ -1,13 +1,18 @@
 - hosts: mongodb
   tasks:
-  - shell: hostname
+  - name: Register hostname
+    shell: hostname
     register: shell_output
-  - debug: 
-      msg: "hostname: {{shell_output.stdout_lines}} ip: {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+  - name: Output ip
+    debug: 
+      msg: "hostname: {{ shell_output.stdout_lines }} ip: {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
 
-- hosts: all:!mongo
+- hosts: all
   tasks:
-  - name: install iotop
+  - name: print out shell command
+    debug: 
+      msg: bash -c "exec -a EinTestName /etc/scripts/collector.sh 1 {{ eco_name }} {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }} &"
+  - name: Install iotop
     become: yes
     apt:
       name: iotop
@@ -20,13 +25,13 @@
       echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.0.list
       apt-get update
       apt-get install -y mongodb-org-shell
-  - name: Create a directory if it does not exist
+  - name: Create directory /etc/scripts if it does not exist
     become: yes
     file:
       path: /etc/scripts
       state: directory
       mode: '0755'
-  - name: copy files from localhost to remote 
+  - name: Copy collector.sh script from localhost to remote 
     become: yes
     copy:
       src: "{{ item }}"
@@ -35,42 +40,47 @@
       mode: 600
     loop:
       - collector.sh 
-  - name: check whats in the directory
-    become: yes
-    shell: ls /etc/scripts
-    register: shell_output
-  - name: print output
+  # - name: Check what is in /etc/scripts
+  #   become: yes
+  #   shell: ls /etc/scripts
+  #   register: shell_output
+  # - name: print output
+  #   debug: 
+  #     msg: "This is a file {{ item }}"
+  #   loop: "{{ shell_output.stdout_lines }}"
+  - name: print out shell command
     debug: 
-      msg: "This is a file {{ item }}"
-    loop: "{{ shell_output.stdout_lines }}"
-  - name: execute shell script
+  # bash -c \"exec -a EinTestName /etc/scripts/collector.sh 1 {{ eco_name }} {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }} &\"    
+      msg: "/etc/scripts/collector.sh 1 {{ eco_name }} {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }} &"
+  - name: Execute collector.sh script
     become: yes
     async: 60 # Maximum allowed time in Seconds
     poll: 5 # poll will check if the task is completed or not for every x secs
     ignore_errors: True
     register: output_collector_script 
+    # TODO Remove Max Time Parameter from collector.sh
     shell: 
-      cmd: "bash collector.sh 1000 {{ eco_name }} {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }} &"
+      cmd: "bash -c \"exec -a EinTestName /etc/scripts/collector.sh 1 {{ eco_name }} {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }} &\""
       chdir: /etc/scripts
-  - debug:  
-      msg: "{{ output_collector_script }}"
   # - debug:  
-  #     msg: "{{ output_collector_script.stdout_lines[1] }}"
-  - become: yes
-    register: cat_output
-    ignore_errors: True
-    shell: 
-      cmd: cat stats.json
-      chdir: /etc/scripts
-  - name: print out
-    debug: 
-      msg: "{{ cat_output.stdout_lines }}"
+  #     msg: "{{ output_collector_script }}"
+  # # - debug:  
+  # #     msg: "{{ output_collector_script.stdout_lines[1] }}"
+  # - become: yes
+  #   register: cat_output
+  #   ignore_errors: True
+  #   shell: 
+  #     cmd: cat stats.json
+  #     chdir: /etc/scripts
+  # - name: print out
+  #   debug: 
+  #     msg: "{{ cat_output.stdout_lines }}"
 
-- hosts: k3s-master, microk8s-master
+- hosts: k3s-master, microk8s-master, openyurt-master
   tasks:
-  - name: scale applications to 10 Replicas
+  - name: scale applications to 5 Replicas
     become: yes
-    shell: kubectl scale --replicas=10 deployment/sensor-device-deployment deployment/camera-edge-device
+    shell: kubectl scale --replicas=5 deployment/sensor-device-deployment deployment/camera-edge-device
   - name: Wait for default pods become ready
     become: yes
     shell: "kubectl wait --namespace=default --for=condition=Ready pods --timeout=20s --all"
@@ -95,11 +105,10 @@
     shell: kubectl scale --replicas=1 deployment/sensor-device-deployment deployment/camera-edge-device
   - name: kill bench
     become: yes
-    shell: "kill $(ps aux | grep 'collector' |  awk '{print $2}')"
+    shell: "kill $(ps aux | grep 'collector.sh' |  awk '{print $2}')"
     ignore_errors: true
     delay: 20
     register: shell_output
   - name: print out
     debug: 
       msg: "{{ shell_output.stdout_lines }}"
-  
