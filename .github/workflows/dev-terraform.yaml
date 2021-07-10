@@ -46,9 +46,9 @@ name: "DEV Install Edge Orchestrator"
 
 on:
   workflow_dispatch:
-  # push:
-  #   paths:
-  #     - ".github/workflows/terraform.yml"
+  push:
+    paths:
+      - ".github/workflows/terraform.yml"
 
 jobs:
   terraform:
@@ -90,7 +90,19 @@ jobs:
           mkdir ~/.ssh
           touch ~/.ssh/id_rsa.pub
           echo '${{ secrets.PUBLIC_KEY }}' >> ~/.ssh/id_rsa.pub
+      - name: Download cluster state artifact
+        uses: dawidd6/action-download-artifact@v2
+        continue-on-error: true
+        with:
+          workflow: terraform.yml
+          name: my-artifact
+          path: .
 
+      - name: Move
+        continue-on-error: true
+        run: |
+          cp -f ./terraform.tfstate ./install-scripts/provisioning/
+          cp -f ./terraform.tfstate.backup ./install-scripts/provisioning/
       # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
       - name: Terraform Init
         working-directory: ./install-scripts/provisioning
@@ -130,15 +142,12 @@ jobs:
           name: my-artifact
           path: tmp
 
-      - run: cat tmp/inventory.ini
-
       - name: create file with ssh key
         run: |
           mkdir ~/.ssh
           touch ~/.ssh/id_rsa
           echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-
       - run: ansible-galaxy install undergreen.mongodb
 
       - name: run ansible playbook
@@ -168,15 +177,12 @@ jobs:
 
       - run: cp tmp/inventory.ini install-scripts/microk8s/ansible/
 
-      - run: cat tmp/inventory.ini
-
       - name: create file with ssh key
         run: |
           mkdir ~/.ssh
           touch ~/.ssh/id_rsa
           echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-
       - name: run ansible playbook
         working-directory: install-scripts/microk8s/ansible
         run: ansible-playbook cluster_install.yml -i inventory.ini
@@ -215,12 +221,47 @@ jobs:
           touch ~/.ssh/id_rsa
           echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-
       - run: ls install-scripts/k3s-ansible
 
       - name: run ansible playbook
         working-directory: install-scripts/k3s-ansible
         run: ansible-playbook -i inventory/sample/inventory.ini site.yml
+
+  deploy-applications-openyurt:
+    name: "Deploy Applications openyurt"
+    needs:
+      - openyurt
+    runs-on: ubuntu-latest
+    environment: production
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # Checkout the repository to the GitHub Actions runner
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@master
+        with:
+          name: my-artifact
+          path: tmp
+
+      - run: cp tmp/inventory.ini install-scripts/openyurt/
+
+      - run: cat install-scripts/openyurt//inventory.ini
+
+      - name: create file with ssh key
+        run: |
+          mkdir ~/.ssh
+          touch ~/.ssh/id_rsa
+          echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+      - name: run ansible playbook
+        working-directory: install-scripts/openyurt/
+        run: ansible-playbook apply_applications.yml -i inventory.ini
 
   deploy-applications-k3s:
     name: "Deploy Applications k3s"
@@ -254,7 +295,6 @@ jobs:
           touch ~/.ssh/id_rsa
           echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-
       - name: run ansible playbook
         working-directory: install-scripts/k3s-ansible/
         run: ansible-playbook apply_applications.yml -i inventory.ini
@@ -291,7 +331,6 @@ jobs:
           touch ~/.ssh/id_rsa
           echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-
       - name: run ansible playbook
         working-directory: install-scripts/microk8s/ansible
         run: ansible-playbook apply_applications.yml -i inventory.ini
@@ -299,6 +338,7 @@ jobs:
   run-benchmark:
     name: "Benchmark"
     needs:
+      - deploy-applications-openyurt
       - deploy-applications-k3s
       - deploy-applications-microk8s
       - mongodb
@@ -330,7 +370,6 @@ jobs:
           touch ~/.ssh/id_rsa
           echo '${{ secrets.PRIVATE_KEY }}' >> ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-
       - name: run ansible playbook
         working-directory: benchmarking
         run: ansible-playbook script.yml -i inventory.ini
@@ -354,7 +393,6 @@ jobs:
           mkdir ~/.ssh
           touch ~/.ssh/id_rsa
           echo '${{ secrets.PRIVATE_KEY }}' > ~/.ssh/id_rsa
-
       # Checkout the repository to the GitHub Actions runner
       - name: Checkout
         uses: actions/checkout@v2
@@ -369,11 +407,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip setuptools wheel
           pip install -r requirements.txt
-
       - run: |
           cd ~/.ssh
           pwd
-
       - name: Set env
         run: echo "MONGODB_IP=$(grep -E 'mongodb' /tmp/inventory.ini |head -1 |grep -Eo '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}')" >> $GITHUB_ENV
 
