@@ -7,7 +7,7 @@
     debug: 
       msg: "hostname: {{ shell_output.stdout_lines }} ip: {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
 
-- hosts: all
+- hosts: all:!mongodb
   tasks:
   - name: print out shell command
     debug: 
@@ -76,7 +76,7 @@
   #   debug: 
   #     msg: "{{ cat_output.stdout_lines }}"
 
-- hosts: k3s-master, microk8s-master, openyurt-master
+- hosts: k3s-master, microk8s-master #, openyurt-master
   tasks:
   - name: scale applications to 5 Replicas
     become: yes
