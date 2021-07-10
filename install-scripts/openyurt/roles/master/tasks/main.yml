@@ -24,6 +24,7 @@
   ignore_errors: true
 # Does not Reset IP Table Rules
 - name: Reset Kubernetes component
+  become: true
   shell: "kubeadm reset --force"
   register: reset_cluster
 - name: print out message

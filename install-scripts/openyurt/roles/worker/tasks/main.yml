@@ -19,7 +19,11 @@
     update_cache: yes
 - name: Reset Kubernetes component
   shell: "kubeadm reset --force"
+  become: true
   register: reset_cluster
+- name: print out message
+  debug:
+    msg: "{{ reset_cluster }}"
 - name: Join to Kubernetes cluster
   when: reset_cluster is succeeded
   shell: |
