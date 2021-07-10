@@ -7,15 +7,17 @@ SECONDS=0
 
 echo "" > stats.json
 eco_name=$2
-echo "db.$eco_name.insertMany([" >> stats.json
+echo "db.$eco_name.insertMany([" >> /etc/scripts/stats.json
 
 clean_up() {
   # Send data to db when the process is killed
-  echo "])" >> stats.json
-  echo "In clean up Part"
-  echo "Sending Data to MongoDB"
-  head stats.json
-  mongo $host_ip/$database < stats.json
+  echo "])" >> /etc/scripts/stats.json
+  # echo "In clean up Part"
+  # echo "Sending Data to MongoDB"
+  # touch /etc/scripts/test
+  # echo "in clean_up()" >> /etc/scripts/test
+  # head stats.json
+  # mongo $host_ip/$database < /etc/scripts/stats.json
   exit
 }
 
@@ -39,7 +41,7 @@ while [ true ]; do
     io_current_write=$(echo $io_all |grep -e Current | awk '{print $10}')
 
     # memory_percentage=$(100 * ($memory_used / $memory_total));
-    echo "{ 'HOST': '$hostname', 'timestamp': '$timestamp', 'CPU': '$cpu_usage', 'MEM_TOTAL': '$memory_total', 'MEM_FREE': '$memory_free', 'MEM_USED': '$memory_used', 'FIO_TOTAL_READ': '$io_total_read', 'FIO_TOTAL_WRITE': '$io_total_write', 'FIO_CURRENT_READ': '$io_current_read', 'FIO_CURRENT_WRITE': '$io_current_write'}," >> stats.json;
+    echo "{ 'HOST': '$hostname', 'timestamp': '$timestamp', 'CPU': '$cpu_usage', 'MEM_TOTAL': '$memory_total', 'MEM_FREE': '$memory_free', 'MEM_USED': '$memory_used', 'FIO_TOTAL_READ': '$io_total_read', 'FIO_TOTAL_WRITE': '$io_total_write', 'FIO_CURRENT_READ': '$io_current_read', 'FIO_CURRENT_WRITE': '$io_current_write'}," >> /etc/scripts/stats.json;
     sleep 2;
 done;
 

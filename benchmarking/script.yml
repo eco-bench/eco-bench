@@ -8,16 +8,15 @@
       msg: "hostname: {{ shell_output.stdout_lines }} ip: {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
 
 - hosts: all:!mongodb
+  vars: 
+    process: collector.sh
   tasks:
-  - name: print out shell command
-    debug: 
-      msg: bash -c "exec -a EinTestName /etc/scripts/collector.sh 1 {{ eco_name }} {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }} &"
   - name: Install iotop
     become: yes
     apt:
       name: iotop
       state: present
-      update_cache: yes
+      update_cache: no
   - name: Install mongo client
     become: yes
     shell: |
@@ -39,19 +38,26 @@
       owner: root
       mode: 600
     loop:
-      - collector.sh 
-  # - name: Check what is in /etc/scripts
-  #   become: yes
-  #   shell: ls /etc/scripts
-  #   register: shell_output
-  # - name: print output
-  #   debug: 
-  #     msg: "This is a file {{ item }}"
-  #   loop: "{{ shell_output.stdout_lines }}"
-  - name: print out shell command
-    debug: 
-  # bash -c \"exec -a EinTestName /etc/scripts/collector.sh 1 {{ eco_name }} {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }} &\"    
-      msg: "/etc/scripts/collector.sh 1 {{ eco_name }} {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }} &"
+      - collector.sh
+  - name: Get running processes
+    shell: "ps -ef | grep -v grep | grep -w {{ process }} | awk '{print $2}'"
+    register: running_processes
+  - name: Kill running processes
+    become: yes
+    shell: "kill {{ item }}"
+    ignore_errors: True
+    with_items: "{{ running_processes.stdout_lines }}"
+  - become: yes
+    wait_for:
+      path: "/proc/{{ item }}/status"
+      state: absent
+    with_items: "{{ running_processes.stdout_lines }}"
+    ignore_errors: yes
+    register: killed_processes
+  - name: Force kill stuck processes
+    become: yes
+    shell: "kill -9 {{ item }}"
+    with_items: "{{ killed_processes.results | select('failed') | map(attribute='item') | list }}"
   - name: Execute collector.sh script
     become: yes
     async: 60 # Maximum allowed time in Seconds
@@ -60,23 +66,12 @@
     register: output_collector_script 
     # TODO Remove Max Time Parameter from collector.sh
     shell: 
-      cmd: "bash -c \"exec -a EinTestName /etc/scripts/collector.sh 1 {{ eco_name }} {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }} &\""
+      cmd: "/etc/scripts/collector.sh 1 {{ eco_name }} {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }} &"
       chdir: /etc/scripts
-  # - debug:  
-  #     msg: "{{ output_collector_script }}"
-  # # - debug:  
-  # #     msg: "{{ output_collector_script.stdout_lines[1] }}"
-  # - become: yes
-  #   register: cat_output
-  #   ignore_errors: True
-  #   shell: 
-  #     cmd: cat stats.json
-  #     chdir: /etc/scripts
-  # - name: print out
-  #   debug: 
-  #     msg: "{{ cat_output.stdout_lines }}"
 
 - hosts: k3s-master, microk8s-master #, openyurt-master
+  vars: 
+    process: collector.sh
   tasks:
   - name: scale applications to 5 Replicas
     become: yes
@@ -103,12 +98,32 @@
   - name: scale application
     become: yes
     shell: kubectl scale --replicas=1 deployment/sensor-device-deployment deployment/camera-edge-device
-  - name: kill bench
+
+- hosts: all:!mongodb
+  vars: 
+    process: collector.sh
+  tasks:
+  - name: Get running processes
+    shell: "ps -ef | grep -v grep | grep -w {{ process }} | awk '{print $2}'"
+    register: running_processes
+  - name: Kill running processes
+    ignore_errors: True
     become: yes
-    shell: "kill $(ps aux | grep 'collector.sh' |  awk '{print $2}' | head -n 1)"
-    ignore_errors: true
-    delay: 20
-    register: shell_output
-  - name: print out
-    debug: 
-      msg: "{{ shell_output.stdout_lines }}"
+    shell: "kill {{ item }}"
+    with_items: "{{ running_processes.stdout_lines }}"
+  - become: yes
+    wait_for:
+      path: "/proc/{{ item }}/status"
+      state: absent
+    with_items: "{{ running_processes.stdout_lines }}"
+    ignore_errors: yes
+    register: killed_processes
+  - name: Force kill stuck processes
+    become: yes
+    shell: "kill -9 {{ item }}"
+    with_items: "{{ killed_processes.results | select('failed') | map(attribute='item') | list }}"
+  - name: Write stats json to mongodb
+    register: mongdb_output
+    shell: "mongo {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }}/metrics < /etc/scripts/stats.json"
+  - debug:
+      msg: "{{ mongdb_output }}"
