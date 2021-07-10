@@ -75,6 +75,7 @@
   tasks:
   - name: scale applications to 5 Replicas
     become: yes
+    ignore_errors: true
     shell: kubectl scale --replicas=5 deployment/sensor-device-deployment deployment/camera-edge-device
   - name: Wait for default pods become ready
     become: yes
