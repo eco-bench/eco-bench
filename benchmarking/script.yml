@@ -100,6 +100,49 @@
     become: yes
     shell: kubectl scale --replicas=1 deployment/sensor-device-deployment deployment/camera-edge-device
 
+- name: Increase Send Requests
+  hosts: k3s-master, microk8s-master #, openyurt-master
+  tasks:
+  - name: Changes Variables in Kubernetes Manifest
+    vars: 
+      counter: 10
+    template:   
+        src: "kubernetes/{{item}}.j2"    # Iterates over 2 templates   
+        dest: "/etc/{{item}}"
+        owner: "{{ ansible_user }}"   
+        group: "{{ ansible_user }}"   
+        mode:  0644 ## OR  mode: u=rw, g=w,o=r        
+    become: true     
+    loop: # Tell the template module to find each of these templates and process                                              
+      - sensor-device-depl.yml
+  - name: Apply new Kubernetes Manifest
+    become: yes
+    ignore_errors: true
+    shell: kubectl delete -f /etc/{{ item }} && kubectl apply -f /etc/{{ item }}
+    loop:                                              
+      - sensor-device-depl.yml
+  - name: sleep for x seconds
+    shell: sleep 100
+  - name: Changes Variables in Kubernetes Manifest
+    vars: 
+      counter: 100
+    template:   
+        src: "kubernetes/{{item}}.j2"    # Iterates over 2 templates   
+        dest: "/etc/{{item}}"
+        owner: "{{ ansible_user }}"   
+        group: "{{ ansible_user }}"   
+        mode:  0644 ## OR  mode: u=rw, g=w,o=r        
+    become: true     
+    loop: # Tell the template module to find each of these templates and process                                              
+      - sensor-device-depl.yml 
+  - name: Apply new Kubernetes Manifest
+    become: yes
+    ignore_errors: true
+    shell: kubectl delete -f /etc/{{ item }} && kubectl apply -f /etc/{{ item }}
+    loop:                                              
+      - sensor-device-depl.yml
+
+
 - hosts: all:!mongodb
   vars: 
     process: collector.sh
