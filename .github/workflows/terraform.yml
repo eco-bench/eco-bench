@@ -224,7 +224,7 @@ jobs:
 
       - name: run ansible playbook
         working-directory: install-scripts/microk8s/ansible
-        run: ansible-playbook cluster_install.yml -i inventory.ini
+        run: if ! ansible microk8s-master --become -m command  -a "kubectl get nodes" -i host.ini; then ansible-playbook cluster_install.yml -i inventory.ini; fi
 
   k3s:
     name: "Install k3s"
@@ -265,7 +265,7 @@ jobs:
 
       - name: run ansible playbook
         working-directory: install-scripts/k3s-ansible
-        run: ansible-playbook -i inventory/sample/inventory.ini site.yml
+        run: if ! ansible k3s-master --become -m command  -a "kubectl get nodes" -i host.ini; then ansible-playbook cluster_install.yml -i inventory.ini; fi
 
   deploy-applications-openyurt:
     name: "Deploy Applications openyurt"
