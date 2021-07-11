@@ -37,3 +37,13 @@
     - name: Print output
       debug:
         msg: "pods: {{ output }}"
+    - name: Create directory /root/.kube if it does not exist
+      become: yes
+      file:
+        path: /root/.kube
+        state: directory
+        mode: '0755'
+    - name: copy kubectl file to root directory
+      become: true
+      ignore_errors: true
+      shell: cp /home/ubuntu/.kube/config /root/.kube

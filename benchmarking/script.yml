@@ -69,7 +69,7 @@
       cmd: "/etc/scripts/collector.sh 1 {{ eco_name }} {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }} &"
       chdir: /etc/scripts
 
-- hosts: k3s-master, microk8s-master #, openyurt-master
+- hosts: k3s-master, microk8s-master, openyurt-master
   vars: 
     process: collector.sh
   tasks:
@@ -101,7 +101,7 @@
     shell: kubectl scale --replicas=1 deployment/sensor-device-deployment deployment/camera-edge-device
 
 - name: Increase Send Requests
-  hosts: k3s-master, microk8s-master #, openyurt-master
+  hosts: k3s-master, microk8s-master, openyurt-master
   tasks:
   - name: Changes Variables in Kubernetes Manifest
     vars: 
