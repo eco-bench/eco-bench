@@ -46,9 +46,6 @@ name: "Install Edge Orchestrator"
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - ".github/workflows/terraform.yml"
 
 jobs:
   terraform:
