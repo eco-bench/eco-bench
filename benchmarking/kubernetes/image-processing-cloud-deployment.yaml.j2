@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.22.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: image-processing-cloud
+  name: image-processing-cloud
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: image-processing-cloud
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.22.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: image-processing-cloud
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: node
+                operator: In
+                values:
+                - cloud1
+      containers:
+        - env:
+            - name: IMAGE_CLOUD_PORT
+              value: "5052"
+            - name: IMAGE_EDGE_IP
+              value: image-processing-edge
+            - name: IMAGE_EDGE_PORT
+              value: "5051"
+            - name: MONGODB_IP
+              value: mongodb
+            - name: MONGODB_PORT
+              value: "27017"
+            - name: EPOCHS
+              value: "{{ IMAGE_PROCESSING_CLOUD_EPOCHS }}" 
+            - name: RATE_IN_IMAGES
+              value: "{{ IMAGE_PROCESSING_CLOUD_RATE_IN_IMAGES }}"
+          image: registry.hub.docker.com/ecobench/image-processing-cloud
+          imagePullPolicy: Always
+          name: image-processing-cloud
+          ports:
+            - containerPort: 5052
+          resources: {}
+      imagePullSecrets:
+        - name: github-regsecr
+      restartPolicy: Always
+status: {}

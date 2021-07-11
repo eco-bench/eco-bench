@@ -105,7 +105,13 @@
   tasks:
   - name: Changes Variables in Kubernetes Manifest
     vars: 
-      counter: 10
+      CAMERA_EDGE_DEVICE_HEIGHT: 100
+      CAMERA_EDGE_DEVICE_INTERVAL: 1000
+      CAMERA_EDGE_DEVICE_WIDTH: 100
+      IMAGE_PROCESSING_CLOUD_EPOCHS: 1
+      IMAGE_PROCESSING_CLOUD_RATE_IN_IMAGES: 10
+      IMAGE_PROCESSING_EDGE_ACCEPTANCE_RATE: 0.5
+      SENSOR_DEVICE_PING_INTERVAL: 100
     template:   
         src: "kubernetes/{{item}}.j2"    # Iterates over 2 templates   
         dest: "/etc/{{item}}"
@@ -114,18 +120,32 @@
         mode:  0644 ## OR  mode: u=rw, g=w,o=r        
     become: true     
     loop: # Tell the template module to find each of these templates and process                                              
+      - camera-edge-device-deployment.yaml
+      - image-processing-cloud-deployment.yaml
+      - image-processing-edge-deployment.yaml
       - sensor-device-depl.yml
+
   - name: Apply new Kubernetes Manifest
     become: yes
     ignore_errors: true
     shell: kubectl delete -f /etc/{{ item }} && kubectl apply -f /etc/{{ item }}
     loop:                                              
+      - camera-edge-device-deployment.yaml
+      - image-processing-cloud-deployment.yaml
+      - image-processing-edge-deployment.yaml
       - sensor-device-depl.yml
+
   - name: sleep for x seconds
     shell: sleep 100
   - name: Changes Variables in Kubernetes Manifest
     vars: 
-      counter: 100
+      CAMERA_EDGE_DEVICE_HEIGHT: 100
+      CAMERA_EDGE_DEVICE_INTERVAL: 1000
+      CAMERA_EDGE_DEVICE_WIDTH: 100
+      IMAGE_PROCESSING_CLOUD_EPOCHS: 1
+      IMAGE_PROCESSING_CLOUD_RATE_IN_IMAGES: 10
+      IMAGE_PROCESSING_EDGE_ACCEPTANCE_RATE: 0.5
+      SENSOR_DEVICE_PING_INTERVAL: 100
     template:   
         src: "kubernetes/{{item}}.j2"    # Iterates over 2 templates   
         dest: "/etc/{{item}}"
@@ -134,14 +154,20 @@
         mode:  0644 ## OR  mode: u=rw, g=w,o=r        
     become: true     
     loop: # Tell the template module to find each of these templates and process                                              
-      - sensor-device-depl.yml 
+      - camera-edge-device-deployment.yaml
+      - image-processing-cloud-deployment.yaml
+      - image-processing-edge-deployment.yaml
+      - sensor-device-depl.yml
+
   - name: Apply new Kubernetes Manifest
     become: yes
     ignore_errors: true
     shell: kubectl delete -f /etc/{{ item }} && kubectl apply -f /etc/{{ item }}
     loop:                                              
+      - camera-edge-device-deployment.yaml
+      - image-processing-cloud-deployment.yaml
+      - image-processing-edge-deployment.yaml
       - sensor-device-depl.yml
-
 
 - hosts: all:!mongodb
   vars: 

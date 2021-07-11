@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.22.0 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: camera-edge-device
+  name: camera-edge-device
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: camera-edge-device
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.22.0 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.service: camera-edge-device
+    spec:
+      containers:
+        - env:
+            - name: HEIGHT
+              value: "{{ CAMERA_EDGE_DEVICE_HEIGHT }}"
+            - name: IMAGE_CLOUD_PORT
+              value: "5052"
+            - name: IMAGE_EDGE_DEVICE_PORT
+              value: "5050"
+            - name: IMAGE_EDGE_IP
+              value: image-processing-edge
+            - name: IMAGE_EDGE_PORT
+              value: "5051"
+            - name: INTERVAL
+              value: "{{ CAMERA_EDGE_DEVICE_INTERVAL }}"
+            - name: WIDTH
+              value: "{{ CAMERA_EDGE_DEVICE_WIDTH }}"
+          image: ecobench/camera-edge-device:latest
+          imagePullPolicy: Always
+          name: camera-edge-device
+          ports:
+            - containerPort: 5050
+          resources: {}
+      restartPolicy: Always
+status: {}
