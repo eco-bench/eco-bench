@@ -190,7 +190,7 @@ jobs:
 
       - name: run ansible playbook
         working-directory: install-scripts/openyurt
-        run: ansible-playbook cluster_install.yml -i inventory.ini
+        run: if ! ansible openyurt-master -m command  -a "kubectl get nodes" -i host.ini; then ansible-playbook cluster_install.yml -i inventory.ini; fi
 
   mikrok8s:
     name: "Install MicroK8s"
