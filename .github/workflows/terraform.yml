@@ -264,7 +264,7 @@ jobs:
       - run: ls install-scripts/k3s-ansible
 
       - name: run ansible playbook
-        working-directory: install-scripts/k3s-ansible
+        working-directory: install-scripts/k3s-ansible/sample
         run: if ! ansible k3s-master --become -m command  -a "kubectl get nodes" -i inventory.ini; then ansible-playbook cluster_install.yml -i inventory.ini; fi
 
   deploy-applications-openyurt:
