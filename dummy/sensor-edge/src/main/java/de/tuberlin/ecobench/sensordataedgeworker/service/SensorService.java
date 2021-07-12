@@ -493,7 +493,7 @@ public class SensorService {
 		SensorService.benchDataList.add(bd);
 	//	storeBenchmarkDataToFile(bd);
 		String benchData = new Gson().toJson(bd);
-        System.out.println("latency: "+benchData.trim());
+        System.out.println("a a latency: " + benchData.trim());
 	}
 	
 	/**
