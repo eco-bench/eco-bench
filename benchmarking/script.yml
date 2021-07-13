@@ -41,6 +41,7 @@
       mode: 600
     loop:
       - collector.sh
+      - latency.sh
   # - name: Get running processes
   #   shell: "ps -ef | grep -v grep | grep -w {{ process }} | awk '{print $2}'"
   #   register: running_processes
@@ -61,58 +62,35 @@
   #   shell: "kill -9 {{ item }}"
   #   with_items: "{{ killed_processes.results | select('failed') | map(attribute='item') | list }}"
 
-- hosts: all:!mongodb
-  gather_facts: no
-  vars: 
-    process: collector.sh
-    collector_time_interval: 60
-  tasks:
-  - name: Execute collector.sh script
-    become: yes
-    async: 60 # Maximum allowed time in Seconds
-    poll: 5 # poll will check if the task is completed or not for every x secs
-    ignore_errors: True
-    register: output_collector_script 
-    # TODO Remove Max Time Parameter from collector.sh
-    shell: 
-      cmd: "/etc/scripts/collector.sh {{ collector_time_interval }} {{ eco_name }} 10.146.15.208 &"
-      chdir: /etc/scripts
-
-- hosts: k3s-master, microk8s-master, openyurt-master
-  gather_facts: no
-  vars: 
-    process: collector.sh
-  tasks:
-  - name: scale applications to 5 Replicas
-    become: yes
-    ignore_errors: true
-    shell: kubectl scale --replicas=5 deployment/sensor-device-deployment deployment/camera-edge-device
-  - name: Wait for default pods become ready
-    become: yes
-    shell: "kubectl wait --namespace=default --for=condition=Ready pods --timeout=20s --all"
-    register: control_plane_pods_ready
-    until: control_plane_pods_ready.rc == 0
-    retries: 6
-    delay: 20
-    ignore_errors: true
-  
-- hosts: k3s-master, microk8s-master, openyurt-master
-  name: scale down
-  vars: 
-    process: collector.sh
-  tasks:
-  - name: scale applications down to 1 Replicas
-    become: yes
-    ignore_errors: true
-    shell: kubectl scale --replicas=1 deployment/sensor-device-deployment deployment/camera-edge-device
-  - name: Wait for default pods become ready
-    become: yes
-    shell: "kubectl wait --namespace=default --for=condition=Ready pods --timeout=20s --all"
-    register: control_plane_pods_ready
-    until: control_plane_pods_ready.rc == 0
-    retries: 6
-    delay: 20
-    ignore_errors: true
+# - hosts: k3s-master, microk8s-master, openyurt-master
+#   gather_facts: no
+#   vars: 
+#     process: collector.sh
+#   tasks:
+#   - name: scale applications to 5 Replicas
+#     become: yes
+#     ignore_errors: true
+#     shell: kubectl scale --replicas=5 deployment/sensor-device-deployment deployment/camera-edge-device
+#   - name: Wait for default pods become ready
+#     become: yes
+#     shell: "kubectl wait --namespace=default --for=condition=Ready pods --timeout=20s --all"
+#     register: control_plane_pods_ready
+#     until: control_plane_pods_ready.rc == 0
+#     retries: 6
+#     delay: 20
+#     ignore_errors: true
+#   - name: scale applications down to 1 Replicas
+#     become: yes
+#     ignore_errors: true
+#     shell: kubectl scale --replicas=1 deployment/sensor-device-deployment deployment/camera-edge-device
+#   - name: Wait for default pods become ready
+#     become: yes
+#     shell: "kubectl wait --namespace=default --for=condition=Ready pods --timeout=20s --all"
+#     register: control_plane_pods_ready
+#     until: control_plane_pods_ready.rc == 0
+#     retries: 6
+#     delay: 20
+#     ignore_errors: true
 
   # - name: scale application to 20 Replicas
   #   become: yes
@@ -135,7 +113,7 @@
 #   - name: Changes Variables in Kubernetes Manifest
 #     vars: 
 #       CAMERA_EDGE_DEVICE_HEIGHT: 10000
-#       CAMERA_EDGE_DEVICE_INTERVAL: 100
+#       CAMERA_EDGE_DEVICE_INTERVAL: 1000
 #       CAMERA_EDGE_DEVICE_WIDTH: 10000
 #       IMAGE_PROCESSING_CLOUD_EPOCHS: 1
 #       IMAGE_PROCESSING_CLOUD_RATE_IN_IMAGES: 10
@@ -164,6 +142,39 @@
 #       #- image-processing-edge-deployment.yaml
 #       - sensor-device-depl.yml
 
+- hosts: all:!mongodb
+  gather_facts: no
+  vars: 
+    process: collector.sh
+    collector_time_interval: 60
+  tasks:
+  - name: Execute collector.sh script
+    become: yes
+    async: 60 # Maximum allowed time in Seconds
+    poll: 5 # poll will check if the task is completed or not for every x secs
+    ignore_errors: True
+    register: output_collector_script 
+    # TODO Remove Max Time Parameter from collector.sh
+    shell: 
+      cmd: "/etc/scripts/collector.sh {{ collector_time_interval }} {{ eco_name }} 10.146.15.216 &"
+      chdir: /etc/scripts
+  - name: sleep
+    shell: "sleep {{  collector_time_interval }}"
+    
+- hosts: k3s-master, microk8s-master, openyurt-master
+  name: Run Latency Script
+  gather_facts: no
+  tasks:
+  - name: Execute latency.sh script
+    become: yes
+    async: 60 # Maximum allowed time in Seconds
+    poll: 5 # poll will check if the task is completed or not for every x secs
+    ignore_errors: True
+    register: output_latency
+    # TODO Remove Max Time Parameter from collector.sh
+    shell: 
+      cmd: "/etc/scripts/latency.sh  {{ hostvars['mongodb']['ansible_default_ipv4']['address'] }}  {{ eco_name }}"
+      chdir: /etc/scripts
 
 # - name: Decrease Send Requests
 #   hosts: k3s-master, microk8s-master, openyurt-master
