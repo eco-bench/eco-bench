@@ -376,7 +376,7 @@ public class SensorService {
 							"}").asJson();
 			long endTime = System.nanoTime();
 			long timeDelta = endTime - startTime;
-			addBenchmarkData(startTime, timeDelta, 1);
+			addBenchmarkData(startTime, timeDelta, 0);
 		} catch (UnirestException e) {
  	        logger.error("Keine Bewässerungsanlage spezifiziert.");
 		}
