@@ -14,7 +14,6 @@ from ssh_pymongo import MongoSession
 sns.set_style("whitegrid")
 
 data_path = "./data/"
-seconds = 30
 
 def get_data_from_mongodb(collection, state, db):
     mycol: Collection = db[collection]
@@ -31,24 +30,10 @@ def get_data_from_mongodb(collection, state, db):
                 file.write(',')
         file.write(']')
 
-def fixValues(timestamps, values, eco):
-    times = [x for x in range(seconds)]
-    for i, time in enumerate(timestamps):
-        if time != times[i]:
-            timestamps.insert(i, times[i])
-            values.insert(i, None)
-            eco.append(eco[0])
-    return timestamps, values, eco
-
 def benchmarking_plot(title, state, attribute, yLabel, boxplot=False):
     timestamps1, values1, eco1 = data_for_plot(open(data_path + "microk8s-" + state + ".json").read(), attribute, False, 'microk8s') # When MEM_USED put on True
-    timestamps1, values1, eco1 = fixValues(timestamps1, values1, eco1)
-
     timestamps2, values2, eco2 = data_for_plot(open(data_path + "k3s-" + state + ".json").read(), attribute, False, 'k3s')
-    timestamps2, values2, eco2 = fixValues(timestamps2, values2, eco2)
-
     timestamps3, values3, eco3 = data_for_plot(open(data_path + "openyurt-" + state + ".json").read(), attribute, False, 'openyurt')
-    timestamps3, values3, eco3 = fixValues(timestamps3, values3, eco3)
 
     data1 = pd.DataFrame({'microk8s': values1, 'time': timestamps1})
     data2 = pd.DataFrame({'k3s': values2, 'time': timestamps2})
@@ -104,13 +89,10 @@ def data_for_plot(json_data, attribute, calc, eco):
             
 
 if __name__ == '__main__':
-    seconds = sys.argv[1]
-    
     collections = ["k3s", "microk8s", "openyurt", "k3s-latency", "microk8s-latency", "openyurt-latency"]
     states = ["application", "idle"]
     
     data = data_for_latency_plot(open(data_path + "microk8s-latency-" + states[0] + ".json").read(), "0")
-    print(data)
     user = os.environ['SERVER_USER']
     ssh_key_path = os.environ['SSH_KEY']
     mongo_db_ip =  os.environ['MONGODB_IP']
