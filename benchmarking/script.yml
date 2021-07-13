@@ -158,17 +158,26 @@
     shell: 
       cmd: "/etc/scripts/collector.sh {{ collector_time_interval }} {{ eco_name }} 10.146.15.216 &"
       chdir: /etc/scripts
-  - name: sleep
-    shell: "sleep {{  collector_time_interval }}"
-    
+
+- hosts: mongodb
+  tasks:
+  - name: Register hostname 2
+    shell: hostname
+    register: shell_output
+  - name: Output ip
+    debug: 
+      msg: "hostname: {{ shell_output.stdout_lines }} ip: {{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+
+
+
 - hosts: k3s-master, microk8s-master, openyurt-master
   name: Run Latency Script
   gather_facts: no
   tasks:
   - name: Execute latency.sh script
     become: yes
-    async: 60 # Maximum allowed time in Seconds
-    poll: 5 # poll will check if the task is completed or not for every x secs
+    # async: 60 # Maximum allowed time in Seconds
+    # oll: 5 # poll will check if the task is completed or not for every x secs
     ignore_errors: True
     register: output_latency
     # TODO Remove Max Time Parameter from collector.sh

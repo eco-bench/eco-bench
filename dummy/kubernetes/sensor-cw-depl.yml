@@ -35,7 +35,7 @@ spec:
               - key: node
                 operator: In
                 values:
-                - cloud1
+                - cloud
       containers:
         - name: sensor-cw
           image: ecobench/sensor-cloud:latest

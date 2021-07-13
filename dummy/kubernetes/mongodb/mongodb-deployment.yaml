@@ -32,7 +32,7 @@ spec:
               - key: node
                 operator: In
                 values:
-                - cloud1
+                - cloud
       containers:
         - image: mongo
           name: mongodb
