@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
-max_seconds=$1
-host_ip=$3
+host_ip=$1
+eco_name=$2
 database=metrics
 log_location=/var/log/pods
 
-"" > stats.json
-echo "db.$eco_name-latency.insertMany([" >> stats.json
+echo "" > stats.json
+echo "db.${eco_name}latency.insertMany([" >> stats.json
 
 files=("pod/camera-edge-device" "pod/image-processing-edge" "pod/image-processing-cloud" "pod/sensor-device-deployment" "pod/sensor-ew2-deployment" "pod/sensor-cw-deployment" "pod/sensor-ew1-deployment")
 # files=grep -rlw "system" /var/log/pods
@@ -16,10 +16,10 @@ do
     pod_name=$(sudo kubectl get all |grep "$i" |awk '{print $1}')
     logs=$(sudo kubectl logs $pod_name)
     latency_logs=$(echo "$logs" | grep latency)
-    
+
     while IFS= read -r line; do
-        echo "$line" |awk '{print $4}' >> stats.json
-        # Komma fehlt noch
+        json_line=$(echo "$line" |awk '{print $4}')
+        [[ -z "${json_line// }" ]] || echo "$json_line," >> stats.json
     done <<< "$latency_logs"
 done
 
