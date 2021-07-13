@@ -41,7 +41,7 @@ public class SensorService {
 	
     SensorData sd = new SensorData();
 	String jsonSensorData = new Gson().toJson(sd);
-        log.info("WORKER URL: "+"http://"+WORKER_IP+":"+WORKER_PORT+"/"+WORKER_ENDPOINT")
+        log.info("WORKER URL: "+"http://"+WORKER_IP+":"+WORKER_PORT+"/"+WORKER_ENDPOINT");
  	try {
  		HttpResponse<JsonNode> jsonResponse = Unirest.post("http://"+WORKER_IP+":"+WORKER_PORT+"/"+WORKER_ENDPOINT)
 				.header("accept", "application/json").header("content-type", "application/json")
