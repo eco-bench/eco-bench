@@ -28,6 +28,13 @@ var db *mongo.Database
 
 var imageEdgeTrainEndpoint string = fmt.Sprintf("http://%s:%s/model", os.Getenv("IMAGE_EDGE_IP"), os.Getenv("IMAGE_EDGE_PORT"))
 
+type LatencyData struct {
+	WorkerID  string `json:"workerID"`
+	Timestamp int64  `json:"timestamp"`
+	ActType   int    `json:"type"`
+	TimeDelta int64  `json:"timeDelta"`
+}
+
 type Request struct {
 	Img  string `json:"img"`
 	UUID string `json:"uuid"`
@@ -87,7 +94,7 @@ func trainData(d Request) {
 		net := CreateNetwork(784, 200, 10, 0.1)
 
 		rand.Seed(time.Now().UTC().UnixNano())
-		t1 := time.Now()
+		startTime := time.Now().UnixNano()
 
 		for epochs := 0; epochs < maxEpochsInt; epochs++ { // epochs < 5
 			testFile, _ := os.Open("mnist_train.csv")
@@ -115,8 +122,8 @@ func trainData(d Request) {
 			}
 			testFile.Close()
 		}
-		elapsed := time.Since(t1)
-		log.Printf("\nTime taken to train: %s\n", elapsed)
+		// TODO: what is 0?
+		logLatency("Training", startTime, 0)
 
 		trainingStatus = false
 		go sendModel(&net)
@@ -168,6 +175,25 @@ func TrainHandler(w http.ResponseWriter, r *http.Request) {
 
 	go savePlant(data, "all")
 	go trainData(data)
+}
+
+func logLatency(name string, startTime int64, actType int) {
+	var endTime = time.Now().UnixNano()
+	var timeDelta = endTime - startTime
+
+	latencyData := LatencyData{
+		WorkerID:  name,
+		Timestamp: startTime,
+		ActType:   actType,
+		TimeDelta: timeDelta,
+	}
+
+	latencyJson, err := json.Marshal(latencyData)
+	if err != nil {
+		log.Println(err)
+	}
+
+	log.Printf("latency: %v", string(latencyJson))
 }
 
 func main() {
