@@ -87,14 +87,13 @@ func sendRobotPick(uuid string, answer bool) {
 		log.Println(req)
 		if err != nil {
 			log.Print(err)
-
 		}
 	}()
 }
 
 // source: https://github.com/OpenFogStack/smart-factory-fog-example
 func processImage(d Request) {
-	startTime := time.Now().UnixNano()
+	// startTime := time.Now().UnixNano()
 	decoded, err := base64.StdEncoding.DecodeString(d.Img)
 
 	if err != nil {
@@ -130,7 +129,7 @@ func processImage(d Request) {
 	imageAcceptanceRateFloat, _ := strconv.ParseFloat(imageAcceptanceRate, 32)
 	answer := false
 
-	logLatency(startTime, 3)
+	// logLatency(startTime, 3)
 
 	if blacks/totalpixels > imageAcceptanceRateFloat {
 		// Plant can be picked
@@ -142,6 +141,7 @@ func processImage(d Request) {
 }
 
 func sendCloud(d Request, endPoint string) {
+	startTime := time.Now().UnixNano()
 	data, err := json.Marshal(d)
 
 	if err != nil {
@@ -161,6 +161,8 @@ func sendCloud(d Request, endPoint string) {
 	if err != nil {
 		log.Print(err)
 	}
+
+	logLatency(startTime, 2)
 }
 
 func ImageHandler(w http.ResponseWriter, r *http.Request) {
@@ -207,7 +209,7 @@ func saveModel(model Model) {
 }
 
 func ModelHandler(w http.ResponseWriter, r *http.Request) {
-	startTime := time.Now().UnixNano()
+	// startTime := time.Now().UnixNano()
 	timestamp := strconv.FormatInt(time.Now().UnixNano(), 10)
 
 	var data Model
@@ -222,7 +224,7 @@ func ModelHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("GETTING MODEL")
 
 	go saveModel(data)
-	logLatency(startTime, 4)
+	// logLatency(startTime, 4)
 }
 
 func logLatency(startTime int64, actType int) {
